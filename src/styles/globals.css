@@ -1,21 +1,130 @@
+/* 
+  12/31 2024 회고
+  올해 마지막 작성하는 CSS
+  Tailwind 관련 문법 
+  익숙치 않아 보면서 하고 있고 일부 기존 CSS속성에서 
+  tailwind.config에서 커스터마이징을 해야하는 속성이 있지만, 
+  숙달되기 전까지 기존 CSS문법은 유지하기
+  반복 숙달 후 커스터마이징 하기
+  https://tailwindcss.com/docs/installation 
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+
+body{
+  @apply text-lg;
+  /* font-size: 1.25em; */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.layout {
+  /* padding: 52px 0 0 0; */
+  /* padding-top: 52px; */
+  @apply pt-[52px];
+}
+
+.navbar {
+  /* display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  height: 52px;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  background: #fff; */
+  @apply flex justify-between items-center fixed w-full h-[52px] top-0 shadow-sm bg-white;
+}
+
+.navbar__logo{
+  /* font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ff6677;
+  padding: 0 10px;
+  transition: .3s; */
+  @apply text-blue-400 text-xl font-semibold cursor-pointer px-[18px] py-0;
+}
+
+.navbar__logo:hover {
+  @apply opacity-60;
+}
+
+.navbar__list {
+  /* display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 18px; */
+  @apply flex gap-3 px-[18px] py-0 items-center;
+}
+
+.navbar__list--item {
+  /* cursor: pointer;
+  transition: .3s; */
+  @apply delay-100 cursor-pointer;
+}
+
+.navbar__list--item:hover {
+  /* color: #999; */
+  @apply text-gray-600;
+}
+
+.navbar__button {
+  /* display: none;
+  cursor: pointer; */
+  @apply cursor-pointer hidden;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .navbar__list {
+    @apply hidden;
+    /* display: none; */
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  .navbar--mobile {
+    /* position: fixed;
+    top: 52px;
+    width: 100%;
+    background-color: #f1ecde;
+    height: 100vh; */
+    @apply fixed top-[52px] w-full bg-yellow-100 h-full
+  }
+
+  .navbar__button {
+    /* display: block;
+    padding: 0 18px; */
+    @apply block py-0 px-[18px];
+  }
+  .navbar__button svg{
+    @apply text-3xl;
+  }
+  .navbar__button svg path {
+    /* font-size: 1.5em; */
+    @apply text-4xl;
+  }
+
+  .navbar__list--item--mobile {
+    /* cursor: pointer;
+    border-bottom: 1px solid gray;
+    transition: .3s;
+    padding: 10px; */
+    @apply cursor-pointer border-b border-gray-600 delay-75 py-[10px] px-[10px];
+  }
+  
+  .navbar__list--item--mobile:hover {
+    /* color: #999; */
+    @apply text-gray-400;
+  }
+
+  .navbar__list--mobile {
+    /* display: flex;
+    flex-direction: column; */
+    @apply flex flex-col 
+    /* gap: 16px; */
+
+  }
+
 }
