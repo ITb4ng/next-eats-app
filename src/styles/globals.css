@@ -126,5 +126,7 @@ body{
     /* gap: 16px; */
 
   }
-
+}
+.infowindow {
+  @apply bg-blue-900 text-white block text-sm h-6 rounded-sm px-2 leading-6;
 }
