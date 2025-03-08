@@ -90,7 +90,7 @@ body{
     width: 100%;
     background-color: #f1ecde;
     height: 100vh; */
-    @apply fixed top-[52px] w-full bg-yellow-100 h-full
+    @apply fixed top-[52px] w-full bg-yellow-100 h-screen text-white;
   }
 
   .navbar__button {

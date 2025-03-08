@@ -6,10 +6,11 @@ import {
   AiOutlineCheck, 
   AiOutlinePhone, } from "react-icons/ai";
 import { HiOutlineMapPin } from "react-icons/hi2";
+import { StoreType } from "@/interface";
 
 
 interface StoreBoxProps{
-    store: any;
+    store: StoreType | null;
     setStore: Dispatch<SetStateAction<any>>;
 }
 
@@ -23,8 +24,8 @@ export default function StoreBox({ store, setStore} : StoreBoxProps) {
                   <div className="flex gap-4 items-center">
                     <Image 
                       src={
-                        store?.bizcnd_code_nm 
-                        ? `/images/markers/${store?.bizcnd_code_nm}.png` // 이미지 경로
+                        store?.category 
+                        ? `/images/markers/${store?.category}.png` // 이미지 경로
                         : "/images/markers/default.png"
                       }
                       width={40}
@@ -32,8 +33,8 @@ export default function StoreBox({ store, setStore} : StoreBoxProps) {
                       alt="아이콘 이미지"
                       />
                       <div>
-                        <div className="font-bold">{store?.upso_nm}</div>
-                        <div className="font-sm">{store?.cob_code_nm}</div>
+                        <div className="font-bold">{store?.name}</div>
+                        <div className="font-sm">{store?.storeType}</div>
                       </div>
                   </div>
                   <button type="button" className="text-lg" 
@@ -46,19 +47,19 @@ export default function StoreBox({ store, setStore} : StoreBoxProps) {
                 </div>
                 <div className="mt-4 flex gap-2 items-center">
                   <AiOutlinePhone />
-                    {store?.tel_no}
+                    {store?.phone}
                 </div>
                 <div className="mt-4 flex gap-2 items-center">
                   <AiOutlineInfoCircle />
-                    {store?.crtfc_gbn_nm}
+                    {store?.foodCertifyName}
                 </div>
                 <div className="mt-4 flex gap-2 items-center">
                   <HiOutlineMapPin />
-                    {store?.rdn_code_nm}
+                    {store?.address}
                 </div>
                 <div className="mt-4 flex gap-2 items-center">
                   <AiOutlineCheck />
-                    {store?.bizcnd_code_nm}
+                    {store?.category}
                 </div>
               </div>
               <button type="button" onClick={() => window.alert("To be continue")} className="w-full bg-blue-700 hover:bg-blue-500 focus:bg-blue-500 py-3 text-white font-medium rounded-b-lg">

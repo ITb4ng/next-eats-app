@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String?   @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Store {
+  id              Int      @id @default(autoincrement())
+  phone           String?  //tel_no
+  address         String?  // rdn_code_nm
+  lat             String?  //y_dnts
+  lng             String?  //x_cnts
+  name            String?  //upso_nm
+  category        String?  //bizcnd_code_nm
+  storeType       String?  //cob_code_nm
+  foodCertifyName String? //crtfc_gbn_nm
+}
+
+model Account {
+  userId                    Int
+  type                      String
+  provider                  String
+  providerAccountId         String
+  refresh_token             String?
+  refresh_token_expires_in  Int?
+  expires_at                Int?
+  access_token              String?
+  token_type                String?
+  scope                     String?
+  id_token                  String?
+  session_state             String?
+ 
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  @@id([identifier, token])
+}

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import Script from "next/script";
 
 //import * as stores from '@/data/store_data.json'; 서울 공공 데이터 
-//import * as stores from '@/data/store_data_upso.json'; 춘천 공공 데이xj
+//import * as stores from '@/data/store_data_upso.json'; 춘천 공공 데이터
 
 declare global {
     interface Window {
@@ -17,9 +17,11 @@ interface MapProps {
 // const DEFAULT_LNG = 127.72065;
 
 
-const DEFAULT_LAT = 37.64308901450529; 
-const DEFAULT_LNG = 127.3281682502683;
+// const DEFAULT_LAT = 37.64308901450529; 
+// const DEFAULT_LNG = 127.3281682502683;
 
+const DEFAULT_LAT = 37.8399687573904; 
+const DEFAULT_LNG = 127.71326352559;
 
 
 export default function Map({setMap}: MapProps) {
@@ -51,7 +53,7 @@ export default function Map({setMap}: MapProps) {
             
             const resultDiv = document.getElementById('clickLatlng'); 
             // resultDiv.innerHTML = message;
-            console.log(message);
+            // console.log(message);
            });
         });
       };
@@ -63,7 +65,7 @@ export default function Map({setMap}: MapProps) {
         src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_CLIENT}&autoload=false`}
         onReady={loadkakaomap}
         />
-        <div id="map" className="w-full h-screen relative"></div>
+        <div id="map" className="w-full h-screen"></div>
         </>
     );  
 }
