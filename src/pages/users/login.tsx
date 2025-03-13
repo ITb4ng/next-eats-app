@@ -12,8 +12,6 @@ export default function LoginPage () {
   const {status , data: session} = useSession();
   const router = useRouter();
 
-  console.log(session);
-
   useEffect(() => {
     if (status === 'authenticated') {
       router.replace("/");
@@ -24,8 +22,8 @@ export default function LoginPage () {
     return (
         <div className="flex flex-col justify-center px-6 lg:px-8 h-[60vh]">
             <div className="mx-auto w-full max-w-sm">
-                <div className="text-blue-700 text-center text-2xl font-semibold italic">
-                    Next-App
+                <div className="text-blue-700 text-center text-2xl font-black">
+                    우아한맛집들
                 </div>
                 <div className="text-center mt-6 text-2xl font-bold text-gray-700">
                     SNS 계정으로 로그인

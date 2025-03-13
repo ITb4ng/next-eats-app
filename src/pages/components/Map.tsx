@@ -11,6 +11,9 @@ declare global {
 }
 interface MapProps {
   setMap: Dispatch<SetStateAction<any>>;
+  lat?  : string | null;
+  lng?  : string | null;
+  zoom? : number;
 }
 
 // 춘천 const DEFAULT_LAT = 37.8689472;
@@ -20,18 +23,22 @@ interface MapProps {
 // const DEFAULT_LAT = 37.64308901450529; 
 // const DEFAULT_LNG = 127.3281682502683;
 
-const DEFAULT_LAT = 37.8399687573904; 
-const DEFAULT_LNG = 127.71326352559;
+const DEFAULT_LAT = 37.7777; 
+const DEFAULT_LNG = 127.23456;
 
+const DEFAULT_ZOOM_LEVEL = 10;
 
-export default function Map({setMap}: MapProps) {
+export default function Map({setMap, lat, lng, zoom}: MapProps) {
     const loadkakaomap = () => {
-        //Kakao map laod
+        //Kakao map load
         window.kakao.maps.load(function() {
           const mapContainer = document.getElementById("map");
           const mapOption = {
-            center: new window.kakao.maps.LatLng(DEFAULT_LAT, DEFAULT_LNG),
-            level: 9,
+            center: new window.kakao.maps.LatLng(
+              lat ?? DEFAULT_LAT, 
+              lng ?? DEFAULT_LNG
+            ),
+            level: zoom ?? DEFAULT_ZOOM_LEVEL
           };
           const map = new window.kakao.maps.Map(mapContainer, mapOption);
           const marker = new window.kakao.maps.Marker({ 

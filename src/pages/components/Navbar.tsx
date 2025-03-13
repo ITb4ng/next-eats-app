@@ -11,13 +11,11 @@ import { useSession, signOut } from "next-auth/react";
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const {data, status} = useSession();
-
-    console.log(data, status);
     return (
         <>
             <div className="navbar">
                 <Link href ="/" className="navbar__logo">
-                    Like Eats
+                    우아한맛집들
                 </Link>
                     <div className="navbar__list">
                         <Link href ="/stores" className="navbar__list--item">

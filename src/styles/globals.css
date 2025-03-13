@@ -13,10 +13,20 @@
 @tailwind utilities;
 
 
-
+html, body {
+  font-family: "BMEULJIROTTF";
+}
 body{
   @apply text-lg;
   /* font-size: 1.25em; */
+  /* font-family: BMEULJIROTTF, sans-serif; */
+}
+
+@font-face {
+  font-family: "BMEULJIROTTF";
+  src: url("/public/fonts/BMEULJIROTTF.ttf") format("truetype");
+  font-style: medium;
+  font-display: swap;
 }
 
 .layout {
@@ -34,18 +44,21 @@ body{
   top: 0;
   height: 52px;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  background: #fff; */
-  @apply flex justify-between items-center fixed w-full h-[52px] top-0 shadow-sm bg-white;
+  background: #fff; 
+  z-index : 100;
+  */
+  @apply flex justify-between items-center fixed w-full h-[52px] top-0 shadow-sm bg-white z-[100];
 }
 
 .navbar__logo{
-  /* font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  color: #ff6677;
+  font-family: "BMEULJIROTTF";
+  color: #000;
   padding: 0 10px;
-  transition: .3s; */
-  @apply text-blue-400 text-xl font-semibold cursor-pointer px-[18px] py-0;
+  transition: .3s;
+  /* @apply text-blue-700 text-xl font-semibold cursor-pointer px-[18px] py-0; */
 }
 
 .navbar__logo:hover {
@@ -90,7 +103,7 @@ body{
     width: 100%;
     background-color: #f1ecde;
     height: 100vh; */
-    @apply fixed top-[52px] w-full bg-yellow-100 h-screen text-white;
+    @apply fixed top-[52px] w-full bg-slate-400 h-screen text-gray-700;
   }
 
   .navbar__button {

@@ -9,7 +9,11 @@ const prisma = new PrismaClient();
 
 
 export const authOption = {
-  
+  session:{
+    strategy: "jwt" as const,
+    maxAge : 60 * 60 * 24, //세션 최대 수명 24h
+    updateAge : 60 * 60 * 2, // 업데이트 주기 2h
+  },
   providers: [
     GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID || "",

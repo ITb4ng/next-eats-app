@@ -7,6 +7,8 @@ import {
   AiOutlinePhone, } from "react-icons/ai";
 import { HiOutlineMapPin } from "react-icons/hi2";
 import { StoreType } from "@/interface";
+import { useRouter } from "next/router";
+
 
 
 interface StoreBoxProps{
@@ -15,6 +17,7 @@ interface StoreBoxProps{
 }
 
 export default function StoreBox({ store, setStore} : StoreBoxProps) {
+    const router = useRouter();
     return (
       <div className="active transition ease-in-out delay-150 inset-x-0 mx-auto bottom-20 rounded-lg shadow-lg max-w-sm md:max-w-xl absolute z-20 w-full bg-white">
           {store && (
@@ -62,7 +65,11 @@ export default function StoreBox({ store, setStore} : StoreBoxProps) {
                     {store?.category}
                 </div>
               </div>
-              <button type="button" onClick={() => window.alert("To be continue")} className="w-full bg-blue-700 hover:bg-blue-500 focus:bg-blue-500 py-3 text-white font-medium rounded-b-lg">
+              <button 
+                type="button" 
+                onClick={() => router.push(`/stores/${store.id}`)} 
+                className="w-full bg-blue-700 hover:bg-blue-500 focus:bg-blue-500 py-3 text-white font-medium rounded-b-lg"
+              >
                 상세보기
               </button> 
             </>
