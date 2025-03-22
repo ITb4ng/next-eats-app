@@ -1,4 +1,4 @@
-export const SEOUL_DISTRICT_ARR = [
+export const DISTRICT_ARR = [
     "강남구",
     "강동구",
     "강북구",
@@ -24,6 +24,31 @@ export const SEOUL_DISTRICT_ARR = [
     "종로구",
     "중구",
     "중랑구",
+    "후평동", 
+    "효자동", 
+    "약사명동", 
+    "조운동", 
+    "근화동", 
+    "소양동", 
+    "석사동", 
+    "퇴계동", 
+    "강남동",
+    "신사우동", 
+    "강남동",
+    "교동", 
+    "동산면", 
+    "신동면", 
+    "동내면",
+    "남면",
+    "서면",
+    "북산면",
+    "사북면",
+    "남산면",
+    "신북읍",
+    "동면",
+    "사북면",
+    "우두동",
+    "조양동",
 ]
 
 export const REGION_ARR = [
@@ -43,29 +68,33 @@ export const REGION_ARR = [
     "경상남도",
     "강원특별자치도",
     "전북특별자치도",
-    "제주특별자치도",
+    "경기도",
 ]
 
 
 export interface ColourOption {
     readonly value: string;
     readonly label: string;
-    readonly color: string;
-    readonly isFixed?: boolean;
     readonly isDisabled?: boolean;
   }
   
   export const colourOptions: readonly ColourOption[] = [
-    { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
-    { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
-    { value: 'purple', label: 'Purple', color: '#5243AA' },
-    { value: 'red', label: 'Red', color: '#FF5630', isFixed: true },
-    { value: 'orange', label: 'Orange', color: '#FF8B00' },
-    { value: 'yellow', label: 'Yellow', color: '#FFC400' },
-    { value: 'green', label: 'Green', color: '#36B37E' },
-    { value: 'forest', label: 'Forest', color: '#00875A' },
-    { value: 'slate', label: 'Slate', color: '#253858' },
-    { value: 'silver', label: 'Silver', color: '#666666' },
+    { value: '강원특별자치도', label: '강원특별자치도', isDisabled: true },
+    { value: '서울특별시', label: '서울특별시',  },
+    { value: '경기도', label: '경기도', },
+    { value: '경상남도', label: '경상남도'},
+    { value: '전북특별자치도', label: '전북특별자치도', },
+    { value: '경상북도', label: '경상북도', },
+    { value: '전라남도', label: '전라남도', },
+    { value: '충청남도', label: '충청남도', },
+    { value: '충청북도', label: '충청북도', },
+    { value: '세종특별자치시', label: '세종특별자치시', },
+    { value: '울산광역시', label: '울산광역시', },
+    { value: '광주광역시', label: '광주광역시', },
+    { value: '대전광역시', label: '대전광역시', },
+    { value: '대구광역시', label: '대구광역시', },
+    { value: '인천광역시', label: '인천광역시', },
+    { value: '부산광역시', label: '부산광역시', },
   ];
   
   export interface FlavourOption {
@@ -181,7 +210,7 @@ export interface ColourOption {
   
   export const groupedOptions: readonly GroupedOption[] = [
     {
-      label: 'Colours',
+      label: '지역',
       options: colourOptions,
     }
   ];
