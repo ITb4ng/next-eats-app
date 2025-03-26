@@ -1,5 +1,13 @@
-# 250323
+# 250327
+<strong>전역 상태 Recoil사용</strong>
+<li>Next15, React19에서 Recoil 향후 업데이트 중단 및 호환성 이슈</li>
 
+![image](https://github.com/user-attachments/assets/06ee9ddc-7b07-483c-898d-7b166575315c)
+<h2><a href="https://zustand.docs.pmnd.rs/guides/typescript">Zustand</a></h2>
+<li> 기존 Map, Markers 컴포넌트 리팩토링</li>
+<li> Type Error에 따른 Zustand 라이브러리 채택</li>
+
+# <del>250323</del>
 <li>
   <del>기존 참고 React Select UI 제거 https://react-select.com/home </del>  
 </li>
