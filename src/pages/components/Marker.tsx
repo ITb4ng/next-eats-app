@@ -1,15 +1,15 @@
 import { StoreType } from "@/interface";
-import { useEffect, Dispatch, SetStateAction, useCallback } from "react";
+import { useEffect, useCallback } from "react";
+import { useMapStore } from "@/zustand";
 
 interface MarkersProps {
-    map: any;
     store: StoreType;
 }
 
 export default function Marker({
-  map, 
   store
  } : MarkersProps){
+    const map = useMapStore((state) => state.map);
     const loadKakaoMarker = useCallback(() => {
         if(map && store){ //루트 MAP의 Markers에서 선택한 store'한개만' 마커 보여주기
                 var imageSrc = store?.category 

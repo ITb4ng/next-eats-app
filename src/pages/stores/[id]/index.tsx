@@ -9,7 +9,6 @@ import Map from "@/pages/components/Map";
 import Marker from "@/pages/components/Marker";
 
 export default function StorePage() {
-    const [map, setMap] = useState();
     const router = useRouter();
     const { id } = router.query;
     
@@ -101,8 +100,8 @@ export default function StorePage() {
       </div>
       { isSuccess && (
         <div className="overflow-hidden w-full mb-20 max-w-5xl mx-auto max-h-[600px] sm:-h-[390px]">
-          <Map setMap={setMap} lat={store?.lat} lng={store?.lng} zoom={2}/>
-          <Marker map={map} store={store}/>
+          <Map lat={store?.lat} lng={store?.lng} zoom={2}/>
+          <Marker store={store}/>
         </div>
       )
     }

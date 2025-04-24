@@ -8,16 +8,14 @@ import {
 import { HiOutlineMapPin } from "react-icons/hi2";
 import { StoreType } from "@/interface";
 import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
+import { useMapStore } from "@/zustand";
 
 
-
-interface StoreBoxProps{
-    store: StoreType | null;
-    setStore: Dispatch<SetStateAction<any>>;
-}
-
-export default function StoreBox({ store, setStore} : StoreBoxProps) {
+export default function StoreBox() {
     const router = useRouter();
+    const store = useMapStore((state) => state.currentStore); // 상태를 가져옴
+    const setStore = useMapStore((state) => state.setCurrentStore); // Setter
     return (
       <div className="active transition ease-in-out delay-150 inset-x-0 mx-auto bottom-20 rounded-lg shadow-lg max-w-sm md:max-w-xl absolute z-20 w-full bg-white">
           {store && (

@@ -1,17 +1,15 @@
+// import { currentStoreState, mapState } from "@/atom";
 import { StoreType } from "@/interface";
-import { useEffect, Dispatch, SetStateAction, useCallback } from "react";
-
+import { useEffect, useCallback } from "react";
+import { useMapStore } from "@/zustand";
+// import { useRecoilValue, useSetRecoilState } from "recoil";
 interface MarkersProps {
-    map: any;
     stores: StoreType[];
-    setCurrentStore: Dispatch<SetStateAction<any>>;
 }
 
-export default function Markers({
-  map, 
-  stores,
-  setCurrentStore,
- } : MarkersProps){
+export default function Markers({ stores } : MarkersProps){
+  const map = useMapStore((state) => state.map);
+  const setCurrentStore = useMapStore((state) => state.setCurrentStore);
     const loadKakaoMarkers = useCallback(() => {
         if(map){
             stores?.map((store) =>{
@@ -42,7 +40,6 @@ export default function Markers({
                 
                 marker.setMap(map);
     
-    
                 var content = `<div class="infowindow">${store?.name}</div>`;
     
                 var customOverlay = new window.kakao.maps.CustomOverlay({
@@ -71,12 +68,10 @@ export default function Markers({
 
               });
         }
-    },[map, 
-      stores,
-      setCurrentStore]);
+    }, [map, stores, setCurrentStore]);
     
-    useEffect(() => {
-      loadKakaoMarkers();
- }, [loadKakaoMarkers, map])
- return <></>;
+        useEffect(() => {
+          loadKakaoMarkers();
+    }, [loadKakaoMarkers, map])
+  return <></>;
 }
