@@ -10,15 +10,15 @@ import Loading from "../components/Loading";
 
 import Loader from "../components/Loader";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
-import SearchFilter from "../components/SearchFilter";
+import { RegionSelector } from "../components/SearchFilter";
 
 export default function StoreListPage() {
   const ref = useRef<HTMLDivElement | null>(null);
   const pageRef = useIntersectionObserver(ref, {});
   const isPageEnd = !!pageRef?.isIntersecting;
-  const [q, setQ] = useState<String | null> (null);
-  const [district, setDistrict] = useState<String | null> (null);
-
+  const [q, setQ] = useState<string | null>(null);
+  const [district, setDistrict] = useState<string | null>(null);
+  
 
   const searchParams = {
     q: q,
@@ -99,7 +99,7 @@ export default function StoreListPage() {
 
   return (
     <div className="px-4 md:max-w-4xl mx-auto py-8">
-      <SearchFilter setQ={setQ} setDistrict={setDistrict}/>
+      <RegionSelector setQ={setQ} setDistrict={setDistrict} />
       <ul role="list" className="divide-y divide-gray-100">
         {isLoading ? (
           <Loading />

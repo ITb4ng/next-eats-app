@@ -1,4 +1,7 @@
-# 250327
+# 250425
+Zustand 적용 및 검색 필터 Ui 수정 및 춘천시 추가
+
+# <del>250327</del>
 <strong>전역 상태 Recoil사용</strong>
 <li>Next15, React19에서 Recoil 향후 업데이트 중단 및 호환성 이슈</li>
 

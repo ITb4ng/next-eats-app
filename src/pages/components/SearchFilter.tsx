@@ -1,73 +1,145 @@
 import { CiSearch } from "react-icons/ci";
-// import Select from 'react-select';
-import { 
-  DISTRICT_ARR,
-  ColourOption,
-  colourOptions,
-  FlavourOption,
-  GroupedOption,
-  groupedOptions,
- } from "@/data/region";
-import React, { CSSProperties, Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { REGION_DATA } from "@/data/region";
 
 interface SearchFilterProps {
-  setQ : Dispatch<SetStateAction<String | null>>;
-  setDistrict : Dispatch<SetStateAction<String | null>>;
+  setQ: Dispatch<SetStateAction<string | null>>;
+  setDistrict: Dispatch<SetStateAction<string | null>>;
 }
 
+interface RegionSelectorProps {
+  setDistrict: Dispatch<SetStateAction<string | null>>;
+  setQ: Dispatch<SetStateAction<string | null>>;
+}
 
-// const groupStyles = {
-//   display: 'flex',
-//   alignItems: 'center',
-//   justifyContent: 'space-between',
-// };
-// const groupBadgeStyles: CSSProperties = {
-//   backgroundColor: '#EBECF0',
-//   borderRadius: '2em',
-//   color: '#172B4D',
-//   display: 'inline-block',
-//   fontSize: 12,
-//   fontWeight: 'normal',
-//   lineHeight: '1',
-//   minWidth: 1,
-//   padding: '0.16666666666667em 0.5em',
-//   textAlign: 'center',
-// };
+export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
+  const [selectedDo, setSelectedDo] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedDong, setSelectedDong] = useState<string>("");
 
-// const formatGroupLabel = (data: GroupedOption) => (
-//   <div style={groupStyles}>
-//     <span>{data.label}</span>
-//     <span style={groupBadgeStyles}>{data.options.length}</span>
-//   </div>
-// );
+  const resetSelections = () => {
+    setSelectedDo("");
+    setSelectedCity("");
+    setSelectedDong("");
+    setDistrict(null);
+    setQ(null);
+  };
 
+  const handleDoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedDo(value);
+    setSelectedCity("");
+    setSelectedDong("");
+    setDistrict(null);
+  };
 
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedCity(value);
+    setSelectedDong("");
 
-export default function SearchFilter({setQ, setDistrict} : SearchFilterProps) {
-    return (
-      <div className="flex flex-col md:flex-row gap-2 my-4">
-          <div className="flex items-center justify-center w-full">
-            <CiSearch className="w-9 h-9 pr-3"/>
-            <input 
-              type="search"
-              onChange={(e) => setQ(e.target.value)} 
-              placeholder="맛집 검색"
-              className="block w-full p-2 text-base text-gray-800 border border-gray-300 rounded-lg bg-gray-100 focus:border-blue-500 outline-none"
-            />
-          </div>
-          <select 
-            onChange={(e) => setDistrict(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-800 text-sm md:max-w-[200px] rounded-lg focus:border-blue-500 outline-none"
-          >
-            <option value="">
-              지역 선택
+    const selectedRegion = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
+    setDistrict(`${selectedDo} ${value}`);
+  };
+
+  const handleDongChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedDong(value);
+    setDistrict(`${selectedDo} ${selectedCity} ${value}`);
+  };
+
+  const getSecondLevelOptions = () => {
+    const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
+    if (Array.isArray(selected)) return selected;
+    if (typeof selected === "object" && selected !== null)
+      return Object.keys(selected);
+    return [];
+  };
+
+  const getThirdLevelOptions = () => {
+    const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
+    if (
+      typeof selected === "object" &&
+      selected !== null &&
+      !Array.isArray(selected)
+    ) {
+      return selected[selectedCity as keyof typeof selected] ?? [];
+    }
+    return [];
+  };
+
+  return (
+    <div className="flex flex-wrap gap-4 w-full">
+      {/* 시/도 */}
+      <select
+        onChange={handleDoChange}
+        value={selectedDo}
+        className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+      >
+        <option value="">시/도 선택</option>
+        {Object.keys(REGION_DATA).map((sido) => (
+          <option key={sido} value={sido}>
+            {sido}
+          </option>
+        ))}
+      </select>
+
+      {/* 시/군/구 */}
+      {selectedDo && (
+        <select
+          onChange={handleCityChange}
+          value={selectedCity}
+          className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        >
+          <option value="">시/군/구 선택</option>
+          {getSecondLevelOptions().map((city) => (
+            <option key={city} value={city}>
+              {city}
             </option>
-            {DISTRICT_ARR.map((data) => (
-              <option value={data} key={data}>
-                {data}
-              </option>
-            ))}
-          </select>
+          ))}
+        </select>
+      )}
+
+      {/* 읍/면/동 */}
+      {selectedDo === "강원도" && selectedCity && (
+        <select
+          onChange={handleDongChange}
+          value={selectedDong}
+          className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        >
+          <option value="">읍/면/동 선택</option>
+          {getThirdLevelOptions().map((dong) => (
+            <option key={dong} value={dong}>
+              {dong}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {/* 초기화 버튼 */}
+      <button
+        onClick={resetSelections}
+        className="flex-1 min-w-[150px] px-4 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition"
+      >
+        초기화
+      </button>
+    </div>
+  );
+}
+
+export default function SearchFilter({ setQ, setDistrict }: SearchFilterProps) {
+  return (
+    <div className="flex flex-col gap-3 my-4 w-full">
+      <div className="flex items-center w-full">
+        <CiSearch className="w-6 h-6 text-gray-500 mr-2" />
+        <input
+          type="search"
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="맛집 검색"
+          className="block w-full p-2.5 text-base text-gray-800 border border-gray-300 rounded-xl bg-gray-100 focus:border-indigo-500 focus:outline-none transition"
+        />
       </div>
-    );
+      <RegionSelector setQ={setQ} setDistrict={setDistrict} />
+    </div>
+  );
 }

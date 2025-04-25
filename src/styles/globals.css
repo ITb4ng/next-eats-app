@@ -47,7 +47,8 @@ body{
   background: #fff; 
   z-index : 100;
   */
-  @apply flex justify-between items-center fixed w-full h-[52px] top-0 shadow-sm bg-white z-[100];
+  
+  @apply flex justify-around items-center fixed w-full h-[52px] top-0 shadow-sm bg-white z-[100];
 }
 
 .navbar__logo{
