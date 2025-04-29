@@ -17,6 +17,14 @@ interface MapStore {
   setLocation: (location: LocationType) => void;
 }
 
+interface SearchStore {
+  q: string | null;
+  district: string | null;
+  setQ: (q: string | null) => void;
+  setDistrict: (district: string | null) => void;
+}
+
+
 export const useMapStore = create<MapStore>((set) => ({
   map: null,
   setMap: (map) => set({ map }),
@@ -30,4 +38,11 @@ export const useMapStore = create<MapStore>((set) => ({
     zoom: DEFAULT_ZOOM_LEVEL,
   },
   setLocation: (location) => set({ location }),
+}));
+
+export const useSearchStore = create<SearchStore>((set) => ({
+  q: null,
+  district: null,
+  setQ: (q) => set({ q }),
+  setDistrict: (district) => set({ district }),
 }));

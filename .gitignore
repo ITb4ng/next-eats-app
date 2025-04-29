@@ -38,7 +38,7 @@ yarn-error.log*
 .vercel
 
 # git
-.gitaddributes
+.gitattributes
 
 # typescript
 *.tsbuildinfo

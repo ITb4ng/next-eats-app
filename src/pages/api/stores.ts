@@ -1,8 +1,7 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { StoreApiResponse, StoreType} from "@/interface";
-import { PrismaClient } from "@prisma/client";
-
+// import { PrismaClient } from "@prisma/client";
+import prisma from "@/db";
 interface Responsetype {
   page?: string;
   limit?: string;
@@ -17,7 +16,7 @@ export default async function handler(
 ) 
 {
   const { page ="", limit = "", q, district} : Responsetype = req.query;
-  const prisma = new PrismaClient();
+  // const prisma = new PrismaClient();
 
   if (page) {
     const count = await prisma.store.count();

@@ -1,6 +1,7 @@
 import { CiSearch } from "react-icons/ci";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { REGION_DATA } from "@/data/region";
+import { useSearchStore } from "@/zustand";
 
 interface SearchFilterProps {
   setQ: Dispatch<SetStateAction<string | null>>;
@@ -9,43 +10,28 @@ interface SearchFilterProps {
 
 interface RegionSelectorProps {
   setDistrict: Dispatch<SetStateAction<string | null>>;
-  setQ: Dispatch<SetStateAction<string | null>>;
 }
 
-export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
-  const [selectedDo, setSelectedDo] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
-  const [selectedDong, setSelectedDong] = useState<string>("");
+export function RegionSelector() {
+  const [selectedDo, setSelectedDo] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDong, setSelectedDong] = useState("");
+  const setDistrict = useSearchStore((state) => state.setDistrict);
+  useEffect(() => {
+    if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
+      setDistrict(`${selectedDo} ${selectedCity} ${selectedDong}`);
+    } else if (selectedDo && selectedCity) {
+      setDistrict(`${selectedDo} ${selectedCity}`);
+    } else {
+      setDistrict(null);
+    }
+  }, [selectedDo, selectedCity, selectedDong,setDistrict]);
 
   const resetSelections = () => {
     setSelectedDo("");
     setSelectedCity("");
     setSelectedDong("");
     setDistrict(null);
-    setQ(null);
-  };
-
-  const handleDoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedDo(value);
-    setSelectedCity("");
-    setSelectedDong("");
-    setDistrict(null);
-  };
-
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedCity(value);
-    setSelectedDong("");
-
-    const selectedRegion = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
-    setDistrict(`${selectedDo} ${value}`);
-  };
-
-  const handleDongChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedDong(value);
-    setDistrict(`${selectedDo} ${selectedCity} ${value}`);
   };
 
   const getSecondLevelOptions = () => {
@@ -70,9 +56,13 @@ export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
 
   return (
     <div className="flex flex-wrap gap-4 w-full">
-      {/* 시/도 */}
+      {/* 시/도 선택 */}
       <select
-        onChange={handleDoChange}
+        onChange={(e) => {
+          setSelectedDo(e.target.value);
+          setSelectedCity("");
+          setSelectedDong("");
+        }}
         value={selectedDo}
         className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
       >
@@ -84,10 +74,13 @@ export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
         ))}
       </select>
 
-      {/* 시/군/구 */}
+      {/* 시/군/구 선택 */}
       {selectedDo && (
         <select
-          onChange={handleCityChange}
+          onChange={(e) => {
+            setSelectedCity(e.target.value);
+            setSelectedDong("");
+          }}
           value={selectedCity}
           className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         >
@@ -100,10 +93,10 @@ export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
         </select>
       )}
 
-      {/* 읍/면/동 */}
+      {/* 읍/면/동 선택 (강원도만) */}
       {selectedDo === "강원도" && selectedCity && (
         <select
-          onChange={handleDongChange}
+          onChange={(e) => setSelectedDong(e.target.value)}
           value={selectedDong}
           className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         >
@@ -127,19 +120,20 @@ export function RegionSelector({ setDistrict, setQ }: RegionSelectorProps) {
   );
 }
 
-export default function SearchFilter({ setQ, setDistrict }: SearchFilterProps) {
+export default function SearchFilter() {
+  const setQ = useSearchStore((state) => state.setQ);
   return (
     <div className="flex flex-col gap-3 my-4 w-full">
       <div className="flex items-center w-full">
         <CiSearch className="w-6 h-6 text-gray-500 mr-2" />
         <input
           type="search"
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => setQ(e.target.value || null)}
           placeholder="맛집 검색"
           className="block w-full p-2.5 text-base text-gray-800 border border-gray-300 rounded-xl bg-gray-100 focus:border-indigo-500 focus:outline-none transition"
         />
       </div>
-      <RegionSelector setQ={setQ} setDistrict={setDistrict} />
+      <RegionSelector />
     </div>
   );
 }
