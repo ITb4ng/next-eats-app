@@ -1,3 +1,10 @@
+# 250429
+Zustand를 사용해 검색어(q)와 지역(district) 상태를 전역 관리
+
+React Query를 통해 무한 스크롤 기반의 Store 리스트 데이터를 요청
+
+Intersection Observer로 리스트 끝에 도달 시 다음 페이지 자동 로드
+
 # 250425
 Zustand 적용 및 검색 필터 Ui 수정 및 춘천시 추가
 
