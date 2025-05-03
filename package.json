@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "studio" : "npx prisma studio",
+    "dev:all" : "concurrently \"yarn dev\" \"yarn studio\""
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -15,13 +17,15 @@
     "@auth/prisma-adapter": "^2.7.4",
     "@prisma/client": "^6.3.0",
     "axios": "^1.7.9",
-    "next": "15.0.3",
+    "next": "^15.3.1",
     "next-auth": "^4.24.11",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react-hook-form": "^7.56.1",
     "react-icons": "^5.4.0",
     "react-query": "^3.39.3",
     "react-select": "^5.10.1",
+    "react-toastify": "^11.0.5",
     "recoil": "^0.7.7",
     "zustand": "^5.0.3"
   },
