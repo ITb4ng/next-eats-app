@@ -99,12 +99,22 @@ export default function StorePage() {
           </div>
       </div>
       { isSuccess && (
-        <div className="overflow-hidden w-full mb-20 max-w-5xl mx-auto max-h-[600px] sm:-h-[390px]">
+        <div className="overflow-hidden w-full mb-5 max-w-5xl mx-auto max-h-[600px] sm:-h-[390px]">
           <Map lat={store?.lat} lng={store?.lng} zoom={2}/>
           <Marker store={store}/>
         </div>
       )
+      
     }
+    <div className="max-w-5xl mx-auto mb-5 flex justify-end">
+    <button
+          type="button"
+          onClick={() => router.push('/stores')}
+          className="text-2xl font-medium leading-4 text-gray-900 border border-gray-100 rounded-md"
+        >
+          목록으로
+        </button>
+    </div>
     </>
     )
 }
