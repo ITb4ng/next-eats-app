@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, {NextAuthOptions} from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import GoogleProvider from "next-auth/providers/google"
@@ -10,12 +10,14 @@ import prisma from "@/db";
 const prisma = new PrismaClient();
 
 
-export const authOption = {
+export const authOption: NextAuthOptions = {
   session:{
     strategy: "jwt" as const,
     maxAge : 60 * 60 * 24, //세션 최대 수명 24h
     updateAge : 60 * 60 * 2, // 업데이트 주기 2h
   },
+  adapter: PrismaAdapter(prisma),
+
   providers: [
     GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -32,10 +34,25 @@ export const authOption = {
         allowDangerousEmailAccountLinking: true,
     })
   ],
-  adapter: PrismaAdapter(prisma),
   pages: {
     signIn: "/users/login",
-  }
+  },
+  callbacks: {
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.sub,
+      },
+    }),
+    jwt: async ({ user, token }) => {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
+    },
+  },
 };
+
 
 export default NextAuth(authOption);

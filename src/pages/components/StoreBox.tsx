@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import { 
   AiOutlineClose, 
@@ -6,10 +5,9 @@ import {
   AiOutlineCheck, 
   AiOutlinePhone, } from "react-icons/ai";
 import { HiOutlineMapPin } from "react-icons/hi2";
-import { StoreType } from "@/interface";
 import { useRouter } from "next/router";
-import { useRecoilState } from "recoil";
 import { useMapStore } from "@/zustand";
+import Like from "./Like";
 
 
 export default function StoreBox() {
@@ -33,10 +31,12 @@ export default function StoreBox() {
                       height={40}
                       alt="아이콘 이미지"
                       />
-                      <div>
+                      <div className="flex justify-center gap-4">
                         <div className="font-bold">{store?.name}</div>
                         <div className="font-sm">{store?.storeType}</div>
+                        <Like storeId={store.id} />
                       </div>
+                      
                   </div>
                   <button type="button" className="text-lg" 
                     onClick={(
@@ -54,9 +54,9 @@ export default function StoreBox() {
                   <AiOutlineInfoCircle />
                     {store?.foodCertifyName}
                 </div>
-                <div className="mt-4 flex gap-2 items-center">
+                <div className="mt-4 flex gap-2 items-center col-span-3">
                   <HiOutlineMapPin />
-                    {store?.address}
+                  {store?.address || "주소가 없습니다."}
                 </div>
                 <div className="mt-4 flex gap-2 items-center">
                   <AiOutlineCheck />

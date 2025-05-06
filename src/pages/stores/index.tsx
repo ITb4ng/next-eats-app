@@ -19,8 +19,6 @@ export default function StoreListPage() {
   const pageRef = useIntersectionObserver(ref, {});
   const isPageEnd = !!pageRef?.isIntersecting;
 
-  // const [q, setQ] = useState<string>("");
-  // const [district, setDistrict] = useState<string>("");
 
   const q = useSearchStore((state) => state.q);
   const district = useSearchStore((state) => state.district);

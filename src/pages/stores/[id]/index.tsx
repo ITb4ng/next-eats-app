@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Like from "@/pages/components/Like";
 
 export default function StorePage() {
     const router = useRouter();
@@ -97,6 +98,7 @@ export default function StorePage() {
             </div>
             { status === 'authenticated' && (
               <div className="flex items-center justify-end gap-4 sm:justify-end sm:py-2">
+                {store && <Like storeId={store.id} />}
                 <Link href={`/stores/${store?.id}/edit`} className="underline hover:text-gray-600">수정</Link>
                 <button
                   type="button"

@@ -14,20 +14,21 @@
 
 
 html, body {
-  font-family: "BMEULJIROTTF";
+    font-family: sans-serif; 
 }
 body{
   @apply text-lg;
   /* font-size: 1.25em; */
-  /* font-family: BMEULJIROTTF, sans-serif; */
+  /* font-family: 'BMEULJIROTTF', sans-serif; */
 }
 
 @font-face {
   font-family: "BMEULJIROTTF";
-  src: url("/public/fonts/BMEULJIROTTF.ttf") format("truetype");
-  font-style: medium;
-  font-display: swap;
+  src: url("/fonts/BMEULJIROTTF.ttf") format("truetype");
+  font-style: normal;
+  font-weight: normal;
 }
+
 
 .layout {
   /* padding: 52px 0 0 0; */
@@ -53,7 +54,7 @@ body{
 
 .navbar__logo{
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   font-family: "BMEULJIROTTF";
   color: #000;

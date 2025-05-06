@@ -22,6 +22,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  likes         Like[]
 }
 
 model Store {
@@ -34,6 +35,7 @@ model Store {
   category        String?  //bizcnd_code_nm
   storeType       String?  //cob_code_nm
   foodCertifyName String? //crtfc_gbn_nm
+  likes           Like[]
 }
 
 model Account {
@@ -72,4 +74,18 @@ model VerificationToken {
   token      String
   expires    DateTime
   @@id([identifier, token])
+}
+
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  storeId   Int
+  createdAt DateTime @default(now())
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store     Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([storeId])
 }
