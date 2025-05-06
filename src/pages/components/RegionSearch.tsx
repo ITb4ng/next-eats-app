@@ -35,7 +35,7 @@ export default function RegionSearch({
   };
   return (
     <>
-    <div className="sm:col-span-full md:col-span-4">
+    <div className="sm:col-span-full md:col-span-4 lg:col-span-full">
       <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">
         주소
       </label>

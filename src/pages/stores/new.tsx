@@ -92,7 +92,8 @@ export default function StoreNewPage() {
               </label>
               <div className="mt-2">
                 <input
-                  placeholder="010-0000-0000"
+                  placeholder="-을 제외한 숫자를 입력해주세요"
+                  type="tel"
                   {...register("phone", { required: true })}
                   className={`block w-[74%] rounded-md border-0 outline-none px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:w-full sm:text-sm sm:leading-6 ${
                     errors?.phone ? "animate-shake ring-red-500" : ""
@@ -175,7 +176,7 @@ export default function StoreNewPage() {
           type="submit"
           className="rounded-md bg-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          제출하기
+          등록하기
         </button>
       </div>
     </form>

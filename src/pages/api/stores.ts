@@ -8,6 +8,7 @@ interface Responsetype {
   limit?: string;
   q?: string;
   district?: string;
+  id?: string;
 }
 
 export default async function handler(
@@ -29,15 +30,47 @@ export default async function handler(
       { headers }
     );
 
-    console.log(
-      '@@@@@DATA:',data,data.documents[0].y ,data.documents[0].x)
-
     const result = await prisma.store.create({
       data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
     });
 
     return res.status(200).json(result);
-  } else {
+  } 
+
+  else if (req.method === "PUT") {
+    // 데이터 수정을 처리한다
+    const formData = req.body;
+    const headers = {
+      Authorization: `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
+    };
+
+    const { data } = await axios.get(
+      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURI(
+        formData.address
+      )}`,
+      { headers }
+    );
+
+    const result = await prisma.store.update({
+      where: { id: formData.id },
+      data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
+    });
+
+    return res.status(200).json(result);
+  } 
+  else if (req.method === "DELETE") {
+    // 데이터 삭제를 처리한다
+    const { id }: { id?: string } = req.query;
+    if (id) {
+      const result = await prisma.store.delete({
+        where: { id: parseInt(id) },
+      });
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(null);
+    }
+  }
+  else {
     // GET 요청 처리
     if (page) {
       const count = await prisma.store.count();
