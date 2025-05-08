@@ -20,6 +20,7 @@ export interface LikeInterface {
 export interface LikeApiResponse {
     data: LikeInterface[];
     totalPage?: number;
+    totalCount?: number;
     page?: number;
 }
 

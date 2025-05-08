@@ -1,4 +1,3 @@
-import { MdFolderZip } from "react-icons/md";
 import type { Config } from "tailwindcss";
 
 export default {

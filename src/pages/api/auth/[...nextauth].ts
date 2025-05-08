@@ -1,13 +1,11 @@
 import NextAuth, {NextAuthOptions} from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client"
 import GoogleProvider from "next-auth/providers/google"
 import NaverProvider from "next-auth/providers/naver";
 import KakaoProvider from "next-auth/providers/kakao";
 
 import prisma from "@/db";
 
-const prisma = new PrismaClient();
 
 
 export const authOption: NextAuthOptions = {
@@ -29,8 +27,8 @@ export const authOption: NextAuthOptions = {
         clientSecret: process.env.NAVER_CLIENT_SECRET || "",
     }),
     KakaoProvider({
-        clientId: process.env.KAKAO_CLIENT_ID,
-        clientSecret: process.env.KAKAO_CLIENT_SECRET,
+        clientId: process.env.KAKAO_CLIENT_ID || "",
+        clientSecret: process.env.KAKAO_CLIENT_SECRET || "",
         allowDangerousEmailAccountLinking: true,
     })
   ],

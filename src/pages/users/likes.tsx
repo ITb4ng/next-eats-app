@@ -1,7 +1,73 @@
+import { LikeApiResponse, LikeInterface } from "@/interface";
+import axios from "axios";
+import { useQuery } from "react-query";
+import Loading from "../components/Loading";
+import StoreLikelist from "../components/StoreLikelist";
+import { useRouter } from "next/router";
+import Pagination from "../components/Pagination";
+
 export default function likesPage () {
+    const router = useRouter();
+    const { page = '1' } : any = router.query;
+    const fetchLikes = async () => {
+        const { data } = await axios.get(`/api/likes?limit=10&page=${page}`);
+        return data as LikeApiResponse;
+    };
+
+    const { 
+        data:likes,
+        isLoading,
+        isError,
+     } = useQuery(`likes-${page}`, fetchLikes);
+     
+    if (isError) {
+        return (
+          <main className="grid h-screen place-items-center pb-10 bg-white px-6 sm:pb-32 lg:px-8">
+            <div className="text-center">
+              <p className="text-base font-semibold text-indigo-600">404</p>
+              <h1 className="mt-4 text-xs font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">
+                요청하신 페이지를 찾을 수 없습니다.
+              </h1>
+              <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
+                Sorry, we couldn’t find the page you’re looking for.
+              </p>
+              <div className="mt-10 flex items-center justify-center gap-x-6">
+                <a
+                  href="/"
+                  className="rounded-md bg-CustombgColor px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  홈으로
+                </a>
+                <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
+                  방성환에게 문의하기<span aria-hidden="true">&rarr;</span>
+                </a>
+              </div>
+            </div>
+          </main>
+        );
+      }
+
     return (
-        <div>
-            <h1>Users likes Page</h1>
+        <div className="px-4 md:max-w-4xl mx-auto py-8">
+            <h2 className="text-lg font-medium">즐겨찾기</h2>
+            <div className="mt-1 text-gray-500 text-lg">나의 찜 리스트</div>
+            <div> 
+                총{likes?.totalCount}개
+            </div>
+            <ul role="list" className="divide-y divide-gray-100 mt-10">
+                { isLoading ? (
+                    <Loading />
+                ) : (
+                   likes?.data.map((like: LikeInterface, index) => 
+                    like.store && (
+                    <StoreLikelist i={index} store={like.store} key={index} />
+                    )
+                )
+                )}
+            </ul>
+            {likes?.totalPage && likes?.totalPage > 0 && (
+                <Pagination total={likes?.totalPage} page={page} pathname="/users/likes"/>
+            )}
         </div>
     );
 }

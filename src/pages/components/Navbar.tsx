@@ -10,8 +10,7 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const {data, status} = useSession();
-    console.log(data);
+    const {status} = useSession();
     return (
         <>
             <div className="navbar">

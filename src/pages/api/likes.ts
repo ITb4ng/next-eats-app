@@ -3,10 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOption } from "./auth/[...nextauth]";
 import prisma from "@/db";
 import { LikeInterface, LikeApiResponse } from "@/interface";
+
 interface ResponseType {
-  page?: string;
+  page?: string; 
   limit?: string;
 }
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -50,17 +52,16 @@ export default async function handler(
 
       return res.status(201).json(like);
     }
-  } else {
+  } 
+    else {
     // GET 요청 처리
+    const { page = "1", limit = "10" } : ResponseType = req.query;
     const count = await prisma.like.count({
       where: {
         userId: session.user.id,
       },
     });
-
-    const { page = "1", limit = "10" }: ResponseType = req.query;
-    const skipPage = parseInt(page) - 1;
-
+    const skippage = parseInt(page) - 1;
     const likes = await prisma.like.findMany({
       orderBy: { createdAt: "desc" },
       where: {
@@ -69,14 +70,24 @@ export default async function handler(
       include: {
         store: true,
       },
-      skip: skipPage * parseInt(limit),
+      skip: skippage * parseInt(limit),
       take: parseInt(limit),
     });
-
+    const convertedLikes: LikeInterface[] = likes.map((like) => ({
+      ...like,
+      store: like.store
+        ? {
+            ...like.store,
+            lat: like.store.lat !== null ? parseFloat(like.store.lat as unknown as string) : undefined,
+            lng: like.store.lng !== null ? parseFloat(like.store.lng as unknown as string) : undefined,
+          }
+        : undefined,
+    }));
     return res.status(200).json({
-      data: likes,
+      data: convertedLikes,
       page: parseInt(page),
       totalPage: Math.ceil(count / parseInt(limit)),
+      totalCount: count,
     });
   }
 }
