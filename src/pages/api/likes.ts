@@ -5,36 +5,36 @@ import prisma from "@/db";
 import { LikeInterface, LikeApiResponse } from "@/interface";
 
 interface ResponseType {
-  page?: string; 
+  storeId?: string;
+  page?: string;
   limit?: string;
 }
 
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<LikeInterface | LikeApiResponse>
+  res: NextApiResponse<LikeInterface | LikeApiResponse | { isLiked: boolean }>
 ) {
   const session = await getServerSession(req, res, authOption);
 
   if (!session?.user) {
-    return res.status(401);
+    return res.status(401).end(); // 명시적으로 종료
   }
 
+  const { storeId, page = "1", limit = "10" } = req.query as ResponseType;
+
   if (req.method === "POST") {
-    // 찜하기 로직 처리
+    // ✅ 좋아요 토글
     const { storeId }: { storeId: number } = req.body;
 
-    // Like 데이터가 있는지 확인
     let like = await prisma.like.findFirst({
       where: {
         storeId,
-        userId: session?.user?.id,
+        userId: session.user.id,
       },
     });
 
-    // 만약 이미 찜을 했다면, 해당 like 데이터 삭제. 아니라면, 데이터 생성
     if (like) {
-      // 이미 찜을 한 상황
+      // 이미 좋아요한 경우 → 삭제
       like = await prisma.like.delete({
         where: {
           id: like.id,
@@ -42,26 +42,39 @@ export default async function handler(
       });
       return res.status(204).json(like);
     } else {
-      // 찜을 하지 않은 상황
+      // 좋아요하지 않은 경우 → 생성
       like = await prisma.like.create({
         data: {
           storeId,
-          userId: session?.user?.id,
+          userId: session.user.id,
+        },
+      });
+      return res.status(201).json(like);
+    }
+  }
+
+  if (req.method === "GET") {
+    if (storeId) {
+      // ✅ 특정 가게에 대해 좋아요했는지 확인
+      const like = await prisma.like.findFirst({
+        where: {
+          storeId: parseInt(storeId),
+          userId: session.user.id,
         },
       });
 
-      return res.status(201).json(like);
+      return res.status(200).json({ isLiked: !!like });
     }
-  } 
-    else {
-    // GET 요청 처리
-    const { page = "1", limit = "10" } : ResponseType = req.query;
+
+    // ✅ 좋아요 목록 조회
     const count = await prisma.like.count({
       where: {
         userId: session.user.id,
       },
     });
+
     const skippage = parseInt(page) - 1;
+
     const likes = await prisma.like.findMany({
       orderBy: { createdAt: "desc" },
       where: {
@@ -73,6 +86,7 @@ export default async function handler(
       skip: skippage * parseInt(limit),
       take: parseInt(limit),
     });
+
     const convertedLikes: LikeInterface[] = likes.map((like) => ({
       ...like,
       store: like.store
@@ -83,6 +97,7 @@ export default async function handler(
           }
         : undefined,
     }));
+
     return res.status(200).json({
       data: convertedLikes,
       page: parseInt(page),
@@ -90,4 +105,7 @@ export default async function handler(
       totalCount: count,
     });
   }
+
+  // 허용되지 않은 메서드
+  return res.status(405).end();
 }

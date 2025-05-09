@@ -12,12 +12,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap");
 
+:root{
+  --color-signature: #2ac1bc;
+  --font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif; 
+}
 html, body {
-    font-family: sans-serif; 
+  font-family: var(--font-family);
+  @apply text-base;
 }
 body{
-  @apply text-xl;
+  @apply text-base;
   /* font-size: 1.25em; */
   /* font-family: 'BMEULJIROTTF', sans-serif; */
 }
@@ -31,36 +38,27 @@ body{
 
 
 .layout {
-  /* padding: 52px 0 0 0; */
-  /* padding-top: 52px; */
-  @apply pt-[52px];
+  @apply pt-[68px];
+}
+.navbar-wrapper {
+  @apply fixed top-0 left-0 w-full bg-white z-[100];
 }
 
-.navbar {
-  /* display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  height: 52px;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  background: #fff; 
-  z-index : 100;
-  */
-  
-  @apply flex justify-between items-center fixed w-full h-[52px] top-0 shadow-sm bg-white z-[100];
+.navbar-container {
+  @apply flex justify-between items-center h-[68px] px-4 mx-auto w-full max-w-[1200px];
 }
+/* .navbar__inner {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+} */
 
-.navbar__logo{
-  font-size: 16px;
-  font-weight: 500;
+.navbar__logo {
+  font-size: 22px;
+  font-weight: 400;
   cursor: pointer;
   font-family: "BMEULJIROTTF";
   color: #000;
   padding: 0 10px;
   transition: .3s;
-  /* @apply text-blue-700 text-xl font-semibold cursor-pointer px-[18px] py-0; */
 }
 
 .navbar__logo:hover {
@@ -75,15 +73,15 @@ body{
   @apply flex gap-3 px-[18px] py-0 items-center;
 }
 
-.navbar__list--item {
+.navbar__list--item, button {
   /* cursor: pointer;
   transition: .3s; */
-  @apply delay-100 cursor-pointer;
+  @apply delay-100 cursor-pointer text-xl;
 }
 
-.navbar__list--item:hover {
+.navbar__list--item:hover, button:hover {
   /* color: #999; */
-  @apply text-gray-600;
+  @apply font-medium;
 }
 
 .navbar__button {
@@ -105,7 +103,7 @@ body{
     width: 100%;
     background-color: #f1ecde;
     height: 100vh; */
-    @apply fixed top-[52px] w-full bg-slate-400 h-screen text-gray-700;
+    @apply fixed top-[52px] w-full bg-white h-screen text-gray-700 text-[19.2px] shadow-sm;
   }
 
   .navbar__button {
@@ -116,7 +114,7 @@ body{
   .navbar__button svg{
     @apply text-3xl;
   }
-  .navbar__button svg path {
+  .navbar__button svg path d {
     /* font-size: 1.5em; */
     @apply text-4xl;
   }
@@ -126,18 +124,18 @@ body{
     border-bottom: 1px solid gray;
     transition: .3s;
     padding: 10px; */
-    @apply cursor-pointer border-b border-gray-600 delay-75 py-[10px] px-[10px];
+    @apply cursor-pointer border-b border-gray-600 delay-75 py-[20px] px-[10px] font-normal text-[19.2px];
   }
   
   .navbar__list--item--mobile:hover {
     /* color: #999; */
-    @apply text-gray-400;
+    @apply font-semibold;
   }
 
   .navbar__list--mobile {
     /* display: flex;
     flex-direction: column; */
-    @apply flex flex-col 
+    @apply flex flex-col;
     /* gap: 16px; */
 
   }
@@ -167,4 +165,24 @@ body{
 
 .animate-shake {
   animation: shake 0.5s ease-in-out;
+}
+
+
+.animate-slideFadeIn {
+  animation-fill-mode: forwards !important;
+}
+
+
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slideFadeIn {
+  animation: slideFadeIn 0.4s ease-out forwards;
 }

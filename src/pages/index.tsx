@@ -9,7 +9,7 @@ import axios from "axios";
 export default function Home({ stores }: { stores: StoreType[] }) {
   return (
     <>
-      <Map/>
+      <Map />
       <Markers stores={stores} />
       <StoreBox />
     </>
@@ -17,9 +17,16 @@ export default function Home({ stores }: { stores: StoreType[] }) {
 }
 
 export async function getStaticProps() {
-  const stores = await axios(`${process.env.NEXT_PUBLIC_API_URL}/api/stores`);
-  return {
-    props: { stores: stores.data },
-    revalidate: 60 * 60,
-  };
+  try {
+    const stores = await axios(`${process.env.NEXT_PUBLIC_API_URL}/api/stores`);
+    return {
+      props: { stores: stores.data },
+      revalidate: 60 * 60,
+    };
+  } catch (error) {
+    console.error('에러', error);
+    return {
+      props: { stores: [] }, // 오류 발생 시 빈 배열 반환
+    };
+  }
 }

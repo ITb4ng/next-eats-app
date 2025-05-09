@@ -1,4 +1,5 @@
 export interface StoreType {
+    isLiked? : boolean;
     id      : number;
     phone?  : string | null;
     address?: string | null;

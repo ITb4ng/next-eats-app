@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { StoreApiResponse, StoreType } from "@/interface";
 import prisma from "@/db";
 import axios from "axios";
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 
@@ -107,6 +106,7 @@ export default async function handler(
           },
         },
       });
+
       return res.status(200).json(id ? stores[0] : stores);
     }
   }

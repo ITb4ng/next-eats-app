@@ -57,10 +57,11 @@ export default function Markers({ stores }: MarkersProps): null {
         });
 
         window.kakao.maps.event.addListener(marker, "click", function () {
+          console.log(store);
           setCurrentStore(store);
           setLocation({
-            lat: store.lat,
-            lng: store.lng,
+            lat: store.lat ?? 0,
+            lng: store.lng ?? 0,
             zoom: 4,
           });
         });

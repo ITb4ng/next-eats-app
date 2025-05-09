@@ -1,59 +1,47 @@
-import { StoreType } from "@/interface";
+import { useQueryClient } from "react-query";
+import { useStore } from "@/zustand";
 import axios from "axios";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { useQuery } from "react-query";
-
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 
-interface LikeProps {
-  storeId: number;
-}
+export default function Like({ storeId, isLiked }: { storeId: number; isLiked: boolean }) {
+  const { status } = useSession();
+  const queryClient = useQueryClient();
+  const toggleLike = useStore(s => s.toggleLike);
 
-export default function Like({ storeId }: LikeProps) {
-  const { data: session } = useSession();
-
-  const fetchStore = async () => {
-    const { data } = await axios(`/api/stores?id=${storeId}`);
-    return data as StoreType;
-  };
-
-  const { data: store, refetch } = useQuery<StoreType>(
-    `like-store-${storeId}`,
-    fetchStore,
-    {
-      enabled: !!storeId,
-      refetchOnWindowFocus: false,
+  const handleLike = async () => {
+    if (status !== "authenticated") {
+      toast.warn("로그인 후 찜하기를 이용해주세요.");
+      return;
     }
-  );
 
-  const toggleLike = async () => {
-    // 찜하기/찜취소 로직
-    if (session?.user && store) {
-      try {
-        const like = await axios.post("/api/likes", {
-          storeId: store.id,
-        });
+    // 1) Optimistic React‑Query update
+    const prev = queryClient.getQueryData<boolean>(["isLiked", storeId]);
+    queryClient.setQueryData(["isLiked", storeId], !prev);
 
-        if (like.status === 201) {
-          toast.success("가게를 찜했습니다.");
-        } else {
-          toast.warn("찜을 취소했습니다.");
-        }
-        refetch();
-      } catch (e) {
-        console.log(e);
-      }
+    // 2) Zustand 상태 토글
+    toggleLike(storeId);
+
+    try {
+      const res = await axios.post("/api/likes", { storeId });
+      toast[res.status === 201 ? "success" : "warning"](
+        res.status === 201 ? "가게를 찜했습니다." : "찜을 취소했습니다."
+      );
+    } catch (e) {
+      // rollback
+      queryClient.setQueryData(["isLiked", storeId], prev);
+      toggleLike(storeId);
+      toast.error("찜 처리 중 오류가 발생했습니다.");
     }
   };
 
   return (
-    <button type="button" onClick={toggleLike}>
-      {/* 로그인된 사용자가 좋아요를 눌렀다면? */}
-      {store?.likes?.length ? (
-        <AiFillHeart className="hover:text-red-600 focus:text-red-600 text-red-500" />
+    <button onClick={handleLike}>
+      {isLiked ? (
+        <AiFillHeart className="text-red-500" />
       ) : (
-        <AiOutlineHeart className="hover:text-red-600 focus:text-red-600" />
+        <AiOutlineHeart />
       )}
     </button>
   );
