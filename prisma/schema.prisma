@@ -23,19 +23,22 @@ model User {
   accounts      Account[]
   sessions      Session[]
   likes         Like[]
+  comments      Comment[]
 }
 
+// data.json
 model Store {
   id              Int      @id @default(autoincrement())
-  phone           String?  //tel_no
+  phone           String?  // tel_no
   address         String?  // rdn_code_nm
-  lat             String?  //y_dnts
-  lng             String?  //x_cnts
-  name            String?  //upso_nm
-  category        String?  //bizcnd_code_nm
-  storeType       String?  //cob_code_nm
-  foodCertifyName String? //crtfc_gbn_nm
+  lat             String?  // y_dnts
+  lng             String?  // x_cnts
+  name            String?  // upso_nm
+  category        String?  // bizcnd_code_nm
+  storeType       String?  // cob_code_nm
+  foodCertifyName String?  // crtfc_gbn_nm
   likes           Like[]
+  comments        Comment[]
 }
 
 model Account {
@@ -83,6 +86,19 @@ model Like {
   storeId   Int
   createdAt DateTime @default(now())
 
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store     Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([storeId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  storeId   Int
+  createdAt DateTime @default(now())
+  body      String
   user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   store     Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 

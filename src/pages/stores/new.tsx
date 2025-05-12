@@ -1,3 +1,5 @@
+// new.tsx
+
 import { CATEGORY_ARR, FOOD_CERTIFY_ARR, STORE_TYPE_ARR } from "@/data/store";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -5,6 +7,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import RegionSearch from "../components/RegionSearch";
 import { StoreType } from "@/interface";
+import { useEffect } from "react";
 
 export default function StoreNewPage() {
   const router = useRouter();
@@ -12,8 +15,47 @@ export default function StoreNewPage() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
-  } = useForm <StoreType> ();
+  } = useForm<StoreType>();
+
+  const phone = watch("phone");
+
+  // 연락처 자동 하이픈 포맷팅 함수
+  const formatPhoneNumber = (value: string) => {
+    const onlyNums = value.replace(/\D/g, "");
+
+    if (/^01[0-9]/.test(onlyNums)) {
+      if (onlyNums.length <= 3) return onlyNums;
+      if (onlyNums.length <= 7) return onlyNums.replace(/(\d{3})(\d+)/, "$1-$2");
+      return onlyNums.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+    }
+
+    // 서울번호 (02)
+    if (/^02/.test(onlyNums)) {
+      if (onlyNums.length <= 2) return onlyNums;
+      if (onlyNums.length <= 5) return onlyNums.replace(/(\d{2})(\d+)/, "$1-$2");
+      if (onlyNums.length === 9) return onlyNums.replace(/(\d{2})(\d{3})(\d{4})/, "$1-$2-$3"); // 02-123-4567
+      return onlyNums.replace(/(\d{2})(\d{4})(\d{4})/, "$1-$2-$3"); // 02-1234-5678
+    }
+
+    // 지역번호 (031, 033 등)
+    if (/^0[3-6][0-9]/.test(onlyNums)) {
+      if (onlyNums.length <= 3) return onlyNums;
+      if (onlyNums.length <= 6) return onlyNums.replace(/(\d{3})(\d+)/, "$1-$2");
+      if (onlyNums.length === 10) return onlyNums.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); // 033-123-4567
+      return onlyNums.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3"); // 033-1234-5678
+    }
+
+    return onlyNums;
+  };
+
+  useEffect(() => {
+    const formatted = formatPhoneNumber(phone || "");
+    if (formatted !== phone) {
+      setValue("phone", formatted, { shouldValidate: true });
+    }
+  }, [phone, setValue]);
 
   return (
     <form
@@ -50,9 +92,8 @@ export default function StoreNewPage() {
                 <input
                   type="text"
                   {...register("name", { required: true })}
-                  className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 outline-none px-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
-                    errors?.name ? "animate-shake ring-red-500" : ""
-                  }`}
+                  className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 outline-none px-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  
+                    ${errors?.name ? "animate-shake ring-red-500" : ""}`}
                 />
                 {errors?.name && (
                   <div className="pt-2 text-xs text-red-600">필수 입력사항입니다.</div>
@@ -68,9 +109,7 @@ export default function StoreNewPage() {
               <div className="mt-2">
                 <select
                   {...register("category", { required: true })}
-                  className={`block w-full rounded-md border-0 px-2 outline-none py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
-                    errors?.category ? "animate-shake ring-red-500" : ""
-                  }`}
+                  className={`block w-full rounded-md border-0 px-2 outline-none py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.category ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">카테고리 선택</option>
                   {CATEGORY_ARR?.map((category) => (
@@ -95,9 +134,8 @@ export default function StoreNewPage() {
                   placeholder="-을 제외한 숫자를 입력해주세요"
                   type="tel"
                   {...register("phone", { required: true })}
-                  className={`block w-[74%] rounded-md border-0 outline-none px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:w-full sm:text-sm sm:leading-6 ${
-                    errors?.phone ? "animate-shake ring-red-500" : ""
-                  }`}
+                  className={`block w-[74%] rounded-md border-0 outline-none px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:w-full sm:text-sm sm:leading-6 
+                    ${errors?.phone ? "animate-shake ring-red-500" : ""}`}
                 />
                 {errors?.phone && (
                   <div className="pt-2 text-xs text-red-600">필수 입력사항입니다.</div>
@@ -106,10 +144,7 @@ export default function StoreNewPage() {
             </div>
 
             {/* 주소 */}
-            <RegionSearch 
-            setValue={setValue} 
-            register={register} 
-            errors={errors}/>
+            <RegionSearch setValue={setValue} register={register} errors={errors} />
 
             {/* 식품인증구분 */}
             <div className="sm:col-span-3 sm:col-start-1">
@@ -119,9 +154,7 @@ export default function StoreNewPage() {
               <div className="mt-2">
                 <select
                   {...register("foodCertifyName", { required: true })}
-                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
-                    errors?.foodCertifyName ? "animate-shake ring-red-500" : ""
-                  }`}
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.foodCertifyName ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">식품인증구분 선택</option>
                   {FOOD_CERTIFY_ARR?.map((data) => (
@@ -144,9 +177,7 @@ export default function StoreNewPage() {
               <div className="mt-2">
                 <select
                   {...register("storeType", { required: true })}
-                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
-                    errors?.storeType ? "animate-shake ring-red-500" : ""
-                  }`}
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.storeType ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">업종구분 선택</option>
                   {STORE_TYPE_ARR?.map((data) => (

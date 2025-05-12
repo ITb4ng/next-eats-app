@@ -1,22 +1,22 @@
 // pages/stores/[id]/index.tsx
 
 import { useRouter } from "next/router";
-import { useQuery, useQueryClient } from "react-query";
-import axios from "axios";
+import { useQuery } from "react-query";
 import { StoreType } from "@/interface";
+import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 import Loader from "@/pages/components/Loader";
 import Map from "@/pages/components/Map";
 import Marker from "@/pages/components/Marker";
-import { toast } from "react-toastify";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Like from "@/pages/components/Like";
+import Comments from "@/pages/components/comments";
 
 export default function StorePage() {
   const router = useRouter();
   const { id } = router.query;
   const { status } = useSession();
-  const queryClient = useQueryClient();
 
   // 1) store 정보 불러오기
   const { data: store, isFetching, isError, isSuccess } = useQuery<StoreType>(
@@ -97,7 +97,7 @@ export default function StorePage() {
             <p className="mt-1 text-gray-500">{store?.address}</p>
           </div>
           {status === "authenticated" && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mt-8 min-[310px]:justify-end">
               {likeLoading ? (
                 <Loader className="w-8 h-8 rounded-full bg-gray-200" />
               ) : (
@@ -105,13 +105,13 @@ export default function StorePage() {
               )}
               <Link
                 href={`/stores/${store?.id}/edit`}
-                className="underline hover:text-gray-600"
+                className="underline hover:text-gray-600 min-[310px]:text-base"
               >
                 수정
               </Link>
               <button
                 onClick={handleDelete}
-                className="underline hover:text-gray-600"
+                className="underline hover:text-gray-600 min-[310px]:text-base"
               >
                 삭제
               </button>
@@ -135,7 +135,7 @@ export default function StorePage() {
               >
                 <dt className="text-lg font-medium text-gray-900">{dt}</dt>
                 <dd className="mt-1 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {dd ?? "-"}
+                  {dd ?? ""}
                 </dd>
               </div>
             ))}
@@ -144,10 +144,13 @@ export default function StorePage() {
       </div>
 
       {isSuccess && (
+        <>
         <div className="max-w-5xl mx-auto mb-5">
           <Map lat={store?.lat} lng={store?.lng} zoom={2} />
           <Marker store={store!} />
         </div>
+        <Comments storeId={store?.id}/>
+        </>
       )}
 
       <div className="max-w-5xl mx-auto mb-5 flex justify-end">

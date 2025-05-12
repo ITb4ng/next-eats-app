@@ -26,7 +26,7 @@ const ErrorPage = () => (
           href="/"
           className="bg-teal-500 text-white py-2 px-3.5 text-sm font-semibold rounded-md shadow-sm hover:bg-teal-600 transition-colors"
         >
-          홈으로
+          홈으로 텅텅
         </a>
         <a
           href="#"

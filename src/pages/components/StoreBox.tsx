@@ -21,7 +21,7 @@ export default function StoreBox() {
   const router = useRouter();
   const store = useMapStore((state) => state.currentStore);
   const setStore = useMapStore((state) => state.setCurrentStore);
-  const { data: isLiked, isLoading } = useQuery(
+  const { data: isLiked } = useQuery(
     ["isLiked", store?.id],
     () => axios.get(`/api/likes?storeId=${store?.id}`).then((r) => r.data.isLiked),
     {

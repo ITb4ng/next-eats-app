@@ -21,12 +21,7 @@
 }
 html, body {
   font-family: var(--font-family);
-  @apply text-base;
-}
-body{
-  @apply text-base;
-  /* font-size: 1.25em; */
-  /* font-family: 'BMEULJIROTTF', sans-serif; */
+  @apply text-lg font-normal;
 }
 
 @font-face {
@@ -34,6 +29,17 @@ body{
   src: url("/fonts/BMEULJIROTTF.ttf") format("truetype");
   font-style: normal;
   font-weight: normal;
+}
+
+@font-face {
+  font-family: "BMHANNAAir.ttf";
+  src: url("/fonts/BMHANNAAir.ttf") format("truetype");
+  font-style: normal;
+  font-weight: normal;
+}
+
+.font-bm {
+  font-family: "BMHANNAAir.ttf", "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif;
 }
 
 
@@ -70,18 +76,17 @@ body{
   gap: 12px;
   align-items: center;
   padding: 0 18px; */
+  
   @apply flex gap-3 px-[18px] py-0 items-center;
 }
 
 .navbar__list--item, button {
-  /* cursor: pointer;
-  transition: .3s; */
-  @apply delay-100 cursor-pointer text-xl;
+  @apply delay-100 cursor-pointer font-medium text-xl;
 }
 
 .navbar__list--item:hover, button:hover {
   /* color: #999; */
-  @apply font-medium;
+  @apply font-semibold;
 }
 
 .navbar__button {
@@ -124,7 +129,7 @@ body{
     border-bottom: 1px solid gray;
     transition: .3s;
     padding: 10px; */
-    @apply cursor-pointer border-b border-gray-600 delay-75 py-[20px] px-[10px] font-normal text-[19.2px];
+    @apply cursor-pointer border-b border-gray-600 delay-75 py-[20px] px-[10px] font-medium text-[19.2px] font-bm;
   }
   
   .navbar__list--item--mobile:hover {

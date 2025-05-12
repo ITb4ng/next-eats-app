@@ -3,7 +3,7 @@ import { StoreApiResponse, StoreType } from "@/interface";
 import prisma from "@/db";
 import axios from "axios";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./auth/[...nextauth]";
+import { authOption } from "./auth/[...nextauth]";
 
 interface Responsetype {
   page?: string;
@@ -18,7 +18,7 @@ export default async function handler(
   res: NextApiResponse<StoreApiResponse | StoreType[] | StoreType | null>
 ) {
   const { page = "", limit = "", q, district, id }: Responsetype = req.query;
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOption);
 
   if (req.method === "POST") {
     // 데이터 생성을 처리한다

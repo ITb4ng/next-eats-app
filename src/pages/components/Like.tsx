@@ -37,7 +37,7 @@ export default function Like({ storeId, isLiked }: { storeId: number; isLiked: b
   };
 
   return (
-    <button onClick={handleLike}>
+    <button onClick={handleLike} className="h-5 w-5">
       {isLiked ? (
         <AiFillHeart className="text-red-500" />
       ) : (
