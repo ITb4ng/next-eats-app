@@ -18,7 +18,12 @@ export default function Navbar() {
   return (
     <div className="navbar-wrapper shadow-md">
       <div className="navbar-container">
-        <Link href="/" className="navbar__logo">
+        <Link 
+          href="/" 
+          className="navbar__logo" 
+          onClick={() => 
+            {setIsOpen(false);}}
+        >
           우아한맛집들
         </Link>
 

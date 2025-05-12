@@ -44,7 +44,7 @@ export default function StoreEditPage() {
     formState: { errors },
   } = useForm <StoreType> ();
  
-  if (!isError) {
+  if (isError) {
           return (
               <main className="grid h-screen place-items-center pb-10 bg-white px-6 sm:pb-32 lg:px-8">
                   <div className="text-center">
@@ -53,7 +53,7 @@ export default function StoreEditPage() {
                           해당 페이지를 찾을 수 없음.
                       </h1>
                     <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
-                        페이지가 텅텅 비었네요.
+                          페이지가 텅텅 비었네요.
                     </p>
                     <img src="/images/markers/404.png" className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"/>
                     <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -64,7 +64,7 @@ export default function StoreEditPage() {
                         Go back home
                       </a>
                       <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
-                        Contact support <span aria-hidden="true">&rarr;</span>
+                        Contact support <span aria-hidden="true">&larr;</span>
                       </a>
                     </div>
                   </div>

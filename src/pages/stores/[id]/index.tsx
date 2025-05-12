@@ -22,7 +22,9 @@ export default function StorePage() {
   const { data: store, isFetching, isError, isSuccess } = useQuery<StoreType>(
     ["store", id],
     () => axios.get(`/api/stores?id=${id}`).then((r) => r.data),
-    { enabled: !!id }
+    { enabled: !!id,
+    },
+    
   );
 
   // 2) 찜 여부 불러오기
@@ -59,24 +61,25 @@ export default function StorePage() {
 
   if (isError) {
     return (
-      <main className="grid h-screen place-items-center bg-white px-6">
+      <main className="grid h-screen place-items-center pb-10 bg-white px-6 sm:pb-32 lg:px-8">
         <div className="text-center">
-          <p className="text-base font-semibold text-indigo-600">404</p>
-          <h1 className="mt-4 text-5xl font-semibold text-gray-900 sm:text-7xl">
-            Page not found
-          </h1>
-          <p className="mt-6 text-lg text-gray-500">
-            Sorry, we couldn’t find the page you’re looking for.
+          <p className="text-2xl font-semibold font-bm text-[--color-signature]">404</p>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
+                해당 페이지를 찾을 수 없음.
+            </h1>
+          <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
+                페이지가 텅텅 비었네요.
           </p>
+          <img src="/images/markers/404.png" className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"/>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
+            <a
               href="/"
-              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+              className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              Go back home
-            </Link>
-            <a href="#" className="text-sm font-semibold text-gray-900">
-              Contact support <span aria-hidden="true">&rarr;</span>
+              홈으로
+            </a>
+            <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
+              방성환에게 문의하기 <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
         </div>
@@ -87,11 +90,13 @@ export default function StorePage() {
   if (isFetching) {
     return <Loader className="mt-[20%]" />;
   }
-
+  if (!id) {
+    return <Loader className="mt-[20%]" />; // id가 없을 때 로딩 화면 표시
+  }
   return (
     <>
       <div className="max-w-5xl mx-auto px-4 py-10">
-        <div className="md:flex justify-between items-center py-4">
+        <div className="md:flex justify-between items-center pt-4">
           <div>
             <h2 className="text-lg font-black text-gray-900">{store?.name}</h2>
             <p className="mt-1 text-gray-500">{store?.address}</p>
@@ -105,7 +110,7 @@ export default function StorePage() {
               )}
               <Link
                 href={`/stores/${store?.id}/edit`}
-                className="underline hover:text-gray-600 min-[310px]:text-base"
+                className="underline hover:text-gray-600 min-[310px]:text-base font-medium"
               >
                 수정
               </Link>
@@ -119,7 +124,7 @@ export default function StorePage() {
           )}
         </div>
 
-        <div className="mt-6 border-t border-gray-100">
+        <div className="mt-4 border-t border-gray-100">
           <dl className="divide-y divide-gray-100">
             {[
               ["카테고리", store?.category],
@@ -156,7 +161,7 @@ export default function StorePage() {
       <div className="max-w-5xl mx-auto mb-5 flex justify-end">
         <button
           onClick={() => router.push("/stores")}
-          className="border border-gray-100 px-4 py-2 rounded-md text-gray-900"
+          className="border border-gray-100 px-4 py-2 rounded-md text-white bg-[--color-signature]"
         >
           목록으로
         </button>

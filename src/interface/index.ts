@@ -57,11 +57,10 @@ export interface CommentInterface {
     store?      : StoreType;
     body?       : string;
     user?       : UserType;
-    createdAt   : string;
+    createdAt   : Date;
 }
 export interface CommentApiResponse {
     data        : CommentInterface[];
     totalPage?  : number;
-    totalCount? : number;
     page?       : number;
 }

@@ -8,6 +8,7 @@ interface CommentResponseType {
   storeId?: string;
   page?: string;
   limit?: string;
+  id? : string;
 }
 
 export default async function handler(
@@ -16,7 +17,11 @@ export default async function handler(
 ) 
 {
   const session = await getServerSession(req, res, authOption);
-  const { page = "1", limit = "10" , storeId = "" }: CommentResponseType = req.query
+  const { 
+    id = "",
+    page = "1", 
+    limit = "10", 
+    storeId = "",}: CommentResponseType = req.query
   if (req.method === 'POST') {
     // 댓글 등록
     if(!session?.user) {
@@ -34,13 +39,13 @@ export default async function handler(
   }
   else if (req.method === 'DELETE') {
     // 댓글 삭제
-    if(!session?.user) {
+    if(!session?.user || !id) {
       return res.status(401);
     }
-    const { id } : { id: number } = req.body;
+    
     const comment = await prisma.comment.delete({
       where: {
-        id,
+        id: parseInt(id),
       },
     });
     return res.status(200).json(comment);
@@ -68,8 +73,15 @@ export default async function handler(
       },
   });
   return res.status(200).json({
-    data: comments,
+    data: comments.map(comment => ({
+      ...comment,
+      user: {
+        ...comment.user,
+        email: comment.user.email || "",
+      },
+    })),
     page: parseInt(page),
     totalPage: Math.ceil(count / parseInt(limit)),
   });
-}}
+}
+}

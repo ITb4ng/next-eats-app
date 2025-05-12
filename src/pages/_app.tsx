@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="icon" href="/favicon.ico" />
-
+        <title>우아한맛집들</title>
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
@@ -28,7 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <SessionProvider session={session}>
         <Layout>
           <Component {...pageProps} />
-          <ToastContainer />
+          {/* <ToastContainer /> */}
         </Layout>
         <ReactQueryDevtools />
         </SessionProvider>

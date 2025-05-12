@@ -1,37 +1,59 @@
 import { CiSearch } from "react-icons/ci";
-import React, { Dispatch, SetStateAction, useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { REGION_DATA } from "@/data/region";
 import { useSearchStore } from "@/zustand";
-
-interface SearchFilterProps {
-  setQ: Dispatch<SetStateAction<string | null>>;
-  setDistrict: Dispatch<SetStateAction<string | null>>;
-}
-
-interface RegionSelectorProps {
-  setDistrict: Dispatch<SetStateAction<string | null>>;
-}
+import { useRouter } from "next/router";
 
 export function RegionSelector() {
   const [selectedDo, setSelectedDo] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
   const setDistrict = useSearchStore((state) => state.setDistrict);
+  const router = useRouter();
+
   useEffect(() => {
     if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
-      setDistrict(`${selectedDo} ${selectedCity} ${selectedDong}`);
+      const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
+      setDistrict(district);
+      router.push({ query: { ...router.query, district } });
     } else if (selectedDo && selectedCity) {
-      setDistrict(`${selectedDo} ${selectedCity}`);
+      const district = `${selectedDo} ${selectedCity}`;
+      setDistrict(district);
+      router.push({ query: { ...router.query, district } });
     } else {
       setDistrict(null);
+      const { district, ...rest } = router.query;
+      router.push({ query: rest });
     }
-  }, [selectedDo, selectedCity, selectedDong,setDistrict]);
+  }, [selectedDo, selectedCity, selectedDong]);
+
+  useEffect(() => {
+    const { district } = router.query;
+    if (typeof district === "string") {
+      const parts = district.split(" ");
+      setSelectedDo(parts[0] || "");
+      setSelectedCity(parts[1] || "");
+      setSelectedDong(parts[2] || "");
+    }
+  }, []);
+  const handleReset = () => {
+    // 쿼리 파라미터 초기화
+    router.push({
+      pathname: router.pathname,
+      query: {},
+    });
+    // Zustand 상태도 초기화
+    useSearchStore.setState({ q: "", district: "" });
+  };
+
 
   const resetSelections = () => {
     setSelectedDo("");
     setSelectedCity("");
     setSelectedDong("");
     setDistrict(null);
+    const { district, ...rest } = router.query;
+    router.push({ query: rest });
   };
 
   const getSecondLevelOptions = () => {
@@ -111,7 +133,7 @@ export function RegionSelector() {
 
       {/* 초기화 버튼 */}
       <button
-        onClick={resetSelections}
+        onClick={handleReset}
         className="flex-1 min-w-[150px] px-4 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition"
       >
         초기화
@@ -122,13 +144,29 @@ export function RegionSelector() {
 
 export default function SearchFilter() {
   const setQ = useSearchStore((state) => state.setQ);
+  const q = useSearchStore((state) => state.q);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.q && typeof router.query.q === "string") {
+      setQ(router.query.q);
+    }
+  }, [router.query.q]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQ = e.target.value || null;
+    setQ(newQ);
+    router.push({ query: { ...router.query, q: newQ || undefined } });
+  };
+
   return (
     <div className="flex flex-col gap-3 my-4 w-full">
       <div className="flex items-center w-full">
         <CiSearch className="w-6 h-6 text-gray-500 mr-2" />
         <input
           type="search"
-          onChange={(e) => setQ(e.target.value || null)}
+          onChange={handleSearchChange}
+          value={q ?? ""}
           placeholder="맛집 검색"
           className="block w-full p-2.5 text-base text-gray-800 border border-gray-300 rounded-xl bg-gray-100 focus:border-indigo-500 focus:outline-none transition"
         />
