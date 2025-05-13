@@ -45,11 +45,11 @@ export default function RegionSearch({
             readOnly
             placeholder="주소를 입력해주세요"
             {...register("address", { required: true })}
-            className={`col-span-3 block sm:w-full rounded-md border-0 py-1.5 px-2 outline-none text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
+            className={`col-span-3 block sm:w-full rounded-md border-0 py-1.5 px-2 outline-none text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 ${
               errors?.address ? "animate-shake ring-red-500" : ""
             }`}
           />
-        <button type="button" onClick={()=> setIsOpen((val) => !val)} className="bg-blue-700 hover:bg-blue-600 py-1.5 px-2 rounded text-white">
+        <button type="button" onClick={()=> setIsOpen((val) => !val)} className="bg-[--color-signature] font-normal hover:font-medium py-1.5 px-2 rounded text-white">
           검색
         </button>
         </div>

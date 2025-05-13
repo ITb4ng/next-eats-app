@@ -40,7 +40,7 @@ export default async function handler(
           id: like.id,
         },
       });
-      return res.status(204).json(like);
+      return res.status(401).end();
     } else {
       // 좋아요하지 않은 경우 → 생성
       like = await prisma.like.create({
@@ -49,7 +49,7 @@ export default async function handler(
           userId: session.user.id,
         },
       });
-      return res.status(201).json(like);
+      return res.status(401).end();
     }
   }
 

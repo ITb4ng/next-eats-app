@@ -84,7 +84,7 @@ html, body {
   @apply delay-100 cursor-pointer font-medium text-xl;
 }
 
-.navbar__list--item:hover, button:hover {
+.navbar__list--item:hover, .navbar__button:hover {
   /* color: #999; */
   @apply font-semibold;
 }
@@ -145,8 +145,9 @@ html, body {
 
   }
 }
+/* map에서 보여지는 마커 정보 스토어명 */
 .infowindow {
-  @apply bg-blue-900 text-white block text-sm h-6 rounded-sm px-2 leading-6;
+  @apply bg-black text-white block text-sm h-6 rounded-sm px-2 leading-6;
 }
 
 
@@ -190,4 +191,8 @@ html, body {
 }
 .animate-slideFadeIn {
   animation: slideFadeIn 0.4s ease-out forwards;
+}
+
+button:hover{
+  opacity: .8;
 }

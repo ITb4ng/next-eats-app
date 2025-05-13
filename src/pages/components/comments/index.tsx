@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { CommentApiResponse } from "../../../interface";
 import CommentList from "./CommentList";
+import Pagination from "../Pagination";
 
 interface CommentProps {
   storeId: number;
@@ -17,14 +18,17 @@ export default function Comments({ storeId }: CommentProps) {
   const queryClient = useQueryClient();
 
   const fetchComments = async () => {
-    const { data } = await axios.get(`/api/comments?storeId=${storeId}&limit=10&page=${page}`);
+    const { data } = await axios.get(`/api/comments?storeId=${storeId}&limit=5&page=${page}`);
     return data as CommentApiResponse;
   };
 
-  const { data: comments } = useQuery(`comments-${storeId}`, fetchComments);
+  const { data: comments } = useQuery(
+    ["comments", storeId, page],
+    fetchComments
+  );
 
   const refetchComments = () => {
-    queryClient.invalidateQueries(`comments-${storeId}`);
+    queryClient.invalidateQueries(["comments", storeId]);
   };
 
   return (
@@ -33,6 +37,10 @@ export default function Comments({ storeId }: CommentProps) {
         <CommentForm storeId={storeId} onCommentAdded={refetchComments} />
       )}
       <CommentList comments={comments} onDeleteSuccess={refetchComments} />
+      {/* pagination */}
+      {comments?.totalPage && (
+        <Pagination total={comments?.totalPage} page={page} pathname={`/stores/${storeId}`}/>
+      )}
     </div>
   );
 }

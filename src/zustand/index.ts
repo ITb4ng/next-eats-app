@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import { LocationType, StoreType } from "@/interface";
 
 // 기본 위치 값
-const DEFAULT_LAT = 37.7777;
-const DEFAULT_LNG = 127.23456;
-const DEFAULT_ZOOM_LEVEL = 10;
+const DEFAULT_LAT = 37.56673633865785;
+
+const DEFAULT_LNG = 126.97855890178955;
+
+const DEFAULT_ZOOM_LEVEL = 4;
 
 // Map 상태를 관리하는 Store
 interface MapStore {

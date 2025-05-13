@@ -1,5 +1,3 @@
-// new.tsx
-
 import { CATEGORY_ARR, FOOD_CERTIFY_ARR, STORE_TYPE_ARR } from "@/data/store";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -7,7 +5,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import RegionSearch from "../components/RegionSearch";
 import { StoreType } from "@/interface";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function StoreNewPage() {
   const router = useRouter();
@@ -16,10 +14,20 @@ export default function StoreNewPage() {
     handleSubmit,
     setValue,
     watch,
+    setFocus,
     formState: { errors },
   } = useForm<StoreType>();
 
   const phone = watch("phone");
+  const isMounted = useRef(false); // 🔹 mount 여부 추적
+
+  useEffect(() => {
+  // 첫 번째 오류 필드로 포커스 이동
+  const firstErrorField = Object.keys(errors)[0]; // 오류가 있는 필드의 첫 번째 항목
+  if (firstErrorField) {
+    setFocus(firstErrorField as keyof StoreType); // 첫 번째 오류 필드로 포커스 이동
+  }
+  }, [errors, setFocus]); // errors가 변경될 때마다 실행
 
   // 연락처 자동 하이픈 포맷팅 함수
   const formatPhoneNumber = (value: string) => {
@@ -31,26 +39,29 @@ export default function StoreNewPage() {
       return onlyNums.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
     }
 
-    // 서울번호 (02)
     if (/^02/.test(onlyNums)) {
       if (onlyNums.length <= 2) return onlyNums;
       if (onlyNums.length <= 5) return onlyNums.replace(/(\d{2})(\d+)/, "$1-$2");
-      if (onlyNums.length === 9) return onlyNums.replace(/(\d{2})(\d{3})(\d{4})/, "$1-$2-$3"); // 02-123-4567
-      return onlyNums.replace(/(\d{2})(\d{4})(\d{4})/, "$1-$2-$3"); // 02-1234-5678
+      if (onlyNums.length === 9) return onlyNums.replace(/(\d{2})(\d{3})(\d{4})/, "$1-$2-$3");
+      return onlyNums.replace(/(\d{2})(\d{4})(\d{4})/, "$1-$2-$3");
     }
 
-    // 지역번호 (031, 033 등)
     if (/^0[3-6][0-9]/.test(onlyNums)) {
       if (onlyNums.length <= 3) return onlyNums;
       if (onlyNums.length <= 6) return onlyNums.replace(/(\d{3})(\d+)/, "$1-$2");
-      if (onlyNums.length === 10) return onlyNums.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); // 033-123-4567
-      return onlyNums.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3"); // 033-1234-5678
+      if (onlyNums.length === 10) return onlyNums.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
+      return onlyNums.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
     }
 
     return onlyNums;
   };
 
   useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+
     const formatted = formatPhoneNumber(phone || "");
     if (formatted !== phone) {
       setValue("phone", formatted, { shouldValidate: true });
@@ -85,14 +96,15 @@ export default function StoreNewPage() {
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             {/* 가게명 */}
             <div className="sm:col-span-3">
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-900">
                 가게명
               </label>
               <div className="mt-2">
                 <input
                   type="text"
+                  placeholder="가게명을 입력해주세요"
                   {...register("name", { required: true })}
-                  className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 outline-none px-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  
+                  className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm px-2 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 
                     ${errors?.name ? "animate-shake ring-red-500" : ""}`}
                 />
                 {errors?.name && (
@@ -103,13 +115,14 @@ export default function StoreNewPage() {
 
             {/* 카테고리 */}
             <div className="sm:col-span-3">
-              <label htmlFor="category" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-900">
                 카테고리
               </label>
               <div className="mt-2">
                 <select
                   {...register("category", { required: true })}
-                  className={`block w-full rounded-md border-0 px-2 outline-none py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.category ? "animate-shake ring-red-500" : ""}`}
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 
+                    ${errors?.category ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">카테고리 선택</option>
                   {CATEGORY_ARR?.map((category) => (
@@ -126,18 +139,19 @@ export default function StoreNewPage() {
 
             {/* 연락처 */}
             <div className="sm:col-span-2">
-              <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
                 연락처
               </label>
               <div className="mt-2">
                 <input
-                  placeholder="-을 제외한 숫자를 입력해주세요"
-                  type="tel"
-                  {...register("phone", { required: true })}
-                  className={`block w-[74%] rounded-md border-0 outline-none px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:w-full sm:text-sm sm:leading-6 
-                    ${errors?.phone ? "animate-shake ring-red-500" : ""}`}
+                  type="text"
+                  placeholder="-제외 숫자만 입력해주세요."
+                  {...register("name", { required: true })}
+                  className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm px-2 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6
+                    ${errors?.name ? "ring-red-500" : ""}
+                    ${errors?.name ? "animate-shake" : ""}`} // 애니메이션을 오류 발생 시에만 적용
                 />
-                {errors?.phone && (
+                {errors?.name && (
                   <div className="pt-2 text-xs text-red-600">필수 입력사항입니다.</div>
                 )}
               </div>
@@ -148,13 +162,14 @@ export default function StoreNewPage() {
 
             {/* 식품인증구분 */}
             <div className="sm:col-span-3 sm:col-start-1">
-              <label htmlFor="foodCertifyName" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="foodCertifyName" className="block text-sm font-medium text-gray-900">
                 식품인증구분
               </label>
               <div className="mt-2">
                 <select
                   {...register("foodCertifyName", { required: true })}
-                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.foodCertifyName ? "animate-shake ring-red-500" : ""}`}
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 
+                    ${errors?.foodCertifyName ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">식품인증구분 선택</option>
                   {FOOD_CERTIFY_ARR?.map((data) => (
@@ -171,13 +186,14 @@ export default function StoreNewPage() {
 
             {/* 업종구분 */}
             <div className="sm:col-span-3">
-              <label htmlFor="storeType" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="storeType" className="block text-sm font-medium text-gray-900">
                 업종구분
               </label>
               <div className="mt-2">
                 <select
                   {...register("storeType", { required: true })}
-                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors?.storeType ? "animate-shake ring-red-500" : ""}`}
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2  sm:text-sm sm:leading-6 
+                    ${errors?.storeType ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">업종구분 선택</option>
                   {STORE_TYPE_ARR?.map((data) => (
@@ -199,13 +215,13 @@ export default function StoreNewPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm font-semibold leading-6 text-gray-900"
+          className="text-sm font-semibold leading-6 text-gray-900 border border-gray-700 px-6 py-3 rounded-md hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 shadow-sm"
         >
           뒤로가기
         </button>
         <button
           type="submit"
-          className="rounded-md bg-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md leading-6 bg-[--color-signature] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
         >
           등록하기
         </button>

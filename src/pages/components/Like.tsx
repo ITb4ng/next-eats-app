@@ -28,7 +28,7 @@ export default function Like({ storeId, isLiked }: { storeId: number; isLiked: b
       toast[res.status === 201 ? "success" : "warning"](
         res.status === 201 ? "가게를 찜했습니다." : "찜을 취소했습니다."
       );
-    } catch (e) {
+    } catch {
       // rollback
       queryClient.setQueryData(["isLiked", storeId], prev);
       toggleLike(storeId);

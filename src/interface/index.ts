@@ -13,7 +13,7 @@ export interface StoreType {
 }
 
 export interface LikeInterface {
-	user        : any;
+	user?        : any;
     id          : number;
     storeId     : number;
     userId      : number;
@@ -63,4 +63,5 @@ export interface CommentApiResponse {
     data        : CommentInterface[];
     totalPage?  : number;
     page?       : number;
+    totalCount  : number;
 }

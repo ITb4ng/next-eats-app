@@ -160,10 +160,10 @@ export default function StorePage() {
 
       <div className="max-w-5xl mx-auto mb-5 flex justify-end">
         <button
-          onClick={() => router.push("/stores")}
+          onClick={() => router.back()}
           className="border border-gray-100 px-4 py-2 rounded-md text-white bg-[--color-signature]"
         >
-          목록으로
+          뒤로가기
         </button>
       </div>
     </>

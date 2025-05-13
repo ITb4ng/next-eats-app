@@ -228,13 +228,13 @@ export default function StoreEditPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm font-semibold leading-6 text-gray-900"
+          className="text-sm font-semibold leading-6 text-gray-900 border border-gray-700 px-6 py-3 rounded-md hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-inset-1 shadow-sm"
         >
           뒤로가기
         </button>
         <button
           type="submit"
-          className="rounded-md bg-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md leading-6 bg-[--color-signature] px-6 py-3 text-sm font-normal text-white shadow-sm hover:font-medium focus-visible:outline focus-visible:outline-2 focus-visible:-inset-1"
         >
           수정하기
         </button>

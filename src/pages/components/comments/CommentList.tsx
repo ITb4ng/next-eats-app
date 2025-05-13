@@ -2,13 +2,15 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { CommentApiResponse } from "@/interface";
+import Link from "next/link";
 
 interface CommentListProps {
   comments?: CommentApiResponse;
   onDeleteSuccess?: () => void;
+  commentStore? : boolean;
 }
 
-export default function CommentList({ comments, onDeleteSuccess }: CommentListProps) {
+export default function CommentList({ comments, onDeleteSuccess, commentStore }: CommentListProps) {
   const { data: session } = useSession();
 
   const handleDeleteComment = async (id: number) => {
@@ -54,8 +56,18 @@ export default function CommentList({ comments, onDeleteSuccess }: CommentListPr
                 {new Date(comment.createdAt).toLocaleDateString()}
               </div>
               <div className="text-black mt-1 text-lg">
-                {comment.body}
+                댓글 : &nbsp; {comment.body}
               </div>
+              {commentStore && comment.store && (
+                <div className="mt-2">
+                  맛집 - &nbsp;
+                  <Link href={`/stores/${comment.store.id}`}
+                    className="text-gray-400 underline font-normal hover:font-bold hover:text-gray-600 underline-offset-2"
+                  >
+                    {comment.store.name}
+                  </Link>
+                </div>
+              )}
             </div>
             {comment.userId === session?.user.id && (
               <button

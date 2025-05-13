@@ -28,7 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <SessionProvider session={session}>
         <Layout>
           <Component {...pageProps} />
-          {/* <ToastContainer /> */}
+          <ToastContainer autoClose={500} pauseOnFocusLoss={false} pauseOnHover={false} />
         </Layout>
         <ReactQueryDevtools />
         </SessionProvider>

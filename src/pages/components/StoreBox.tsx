@@ -88,7 +88,7 @@ export default function StoreBox() {
       <button
         type="button"
         onClick={() => router.push(`/stores/${store.id}`)}
-        className="w-full bg-blue-600 hover:bg-blue-500 py-3 text-white font-medium rounded-b-lg"
+        className="w-full bg-[--color-signature] hover:font-bold py-3 text-white font-normal rounded-b-lg"
       >
         상세보기
       </button>
