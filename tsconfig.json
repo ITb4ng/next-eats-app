@@ -17,8 +17,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types":  ["next-auth"]
+    "types": ["next-auth"] // 또는 "types" 폴더 전체를 포함
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types"],
   "exclude": ["node_modules"]
 }

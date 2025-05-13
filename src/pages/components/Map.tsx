@@ -4,7 +4,7 @@ import { useMapStore } from "@/zustand/index";
 // 1. 타입 직접 정의
 declare global {
   interface Window {
-    kakao: any; 
+    kakao: typeof kakao; 
   }
 }
 

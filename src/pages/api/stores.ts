@@ -38,7 +38,11 @@ export default async function handler(
       data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
     });
 
-    return res.status(200).json(result);
+    return res.status(200).json({
+      ...result,
+      lat: result.lat ? parseFloat(result.lat) : undefined,   
+      lng: result.lng ? parseFloat(result.lng) : undefined,
+    });
   } else if (req.method === "PUT") {
     // 데이터 수정을 처리한다
     const formData = req.body;
@@ -58,7 +62,11 @@ export default async function handler(
       data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
     });
 
-    return res.status(200).json(result);
+    return res.status(200).json({
+      ...result,
+      lat: result.lat ? parseFloat(result.lat) : undefined,
+      lng: result.lng ? parseFloat(result.lng) : undefined,
+    });
   } else if (req.method === "DELETE") {
     // 데이터 삭제
     if (id) {
@@ -68,7 +76,11 @@ export default async function handler(
         },
       });
 
-      return res.status(200).json(result);
+      return res.status(200).json({
+        ...result,
+        lat: result.lat ? parseFloat(result.lat) : undefined,
+        lng: result.lng ? parseFloat(result.lng) : undefined,
+      });
     }
     return res.status(500).json(null);
   } else {
@@ -88,7 +100,11 @@ export default async function handler(
 
       res.status(200).json({
         page: parseInt(page),
-        data: stores,
+        data: stores.map(store => ({
+          ...store,
+          lat: store.lat ? parseFloat(store.lat) : undefined,
+          lng: store.lng ? parseFloat(store.lng) : undefined,
+        })),
         totalCount: count,
         totalPage: Math.ceil(count / 10),
       });
@@ -107,7 +123,19 @@ export default async function handler(
         },
       });
 
-      return res.status(200).json(id ? stores[0] : stores);
+      return res.status(200).json(
+        id
+          ? {
+              ...stores[0],
+              lat: stores[0]?.lat ? parseFloat(stores[0].lat) : undefined,
+              lng: stores[0]?.lng ? parseFloat(stores[0].lng) : undefined,
+            }
+          : stores.map(store => ({
+              ...store,
+              lat: store.lat ? parseFloat(store.lat) : undefined,
+              lng: store.lng ? parseFloat(store.lng) : undefined,
+            }))
+      );
     }
   }
 }

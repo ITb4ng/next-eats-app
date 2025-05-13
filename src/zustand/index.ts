@@ -3,13 +3,13 @@ import { StoreType } from "@/interface";
 
 
 
-
 // 기본 위치 값
 const DEFAULT_LAT = 37.56673633865785;
 const DEFAULT_LNG = 126.97855890178955;
 const DEFAULT_ZOOM_LEVEL = 4;
 
 declare namespace kakao.maps {
+  function load(callback: () => void): void;
   namespace event {
     interface MouseEvent {
       latLng: {
@@ -31,6 +31,7 @@ declare namespace kakao.maps {
   }
 
   class Map {
+	  panTo: any;
     constructor(container: HTMLElement, options: { center: LatLng; level: number });
     getCenter(): LatLng;
   }
