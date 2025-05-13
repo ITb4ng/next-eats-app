@@ -1,11 +1,44 @@
-// components/Map.tsx
 import Script from "next/script";
 import { useMapStore } from "@/zustand/index";
 
+// 1. 타입 직접 정의
 declare global {
-    interface Window {
-        kakao: any;
+  interface Window {
+    kakao: any; 
+  }
+}
+
+declare namespace kakao.maps {
+  namespace event {
+    interface MouseEvent {
+      latLng: {
+        getLat(): number;
+        getLng(): number;
+      };
     }
+    function addListener(
+      target: any,
+      type: string,
+      callback: (event: MouseEvent) => void
+    ): void;
+  }
+
+  class LatLng {
+    constructor(lat: number, lng: number);
+    getLat(): number;
+    getLng(): number;
+  }
+
+  class Map {
+    constructor(container: HTMLElement, options: { center: LatLng; level: number });
+    getCenter(): LatLng;
+  }
+
+  class Marker {
+    constructor(options: { position: LatLng });
+    setMap(map: Map): void;
+    setPosition(position: LatLng): void;
+  }
 }
 
 interface MapProps {
@@ -42,16 +75,20 @@ export default function Map({ lat, lng, zoom }: MapProps) {
       setMap(map);
       marker.setMap(map);
 
-      window.kakao.maps.event.addListener(map, 'click', function (e: { latLng: any }) {
-        const latlng = e.latLng;
-        marker.setPosition(latlng);
+      // 2. 타입 좁히기
+      window.kakao.maps.event.addListener(
+        map,
+        "click",
+        (e: kakao.maps.event.MouseEvent) => {
+          const latlng = e.latLng;
+          marker.setPosition(latlng);
 
-        const resultDiv = document.getElementById('clickLatlng');
-        if (resultDiv) {
-          resultDiv.innerHTML =
-            `클릭한 위치의 위도는 ${latlng.getLat()} 이고, 경도는 ${latlng.getLng()} 입니다`;
+          const resultDiv = document.getElementById("clickLatlng");
+          if (resultDiv) {
+            resultDiv.innerHTML = `클릭한 위치의 위도는 ${latlng.getLat()} 이고, 경도는 ${latlng.getLng()} 입니다`;
+          }
         }
-      });
+      );
     });
   };
 

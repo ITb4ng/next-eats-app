@@ -107,3 +107,6 @@ export default async function handler(
     });
   }
 }
+
+// Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+// 62:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars

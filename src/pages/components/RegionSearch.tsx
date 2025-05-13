@@ -4,19 +4,21 @@ import { StoreType } from "@/interface";
 import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import DaumPostcodeEmbed from "react-daum-postcode";
 
+import type { Address } from 'react-daum-postcode';
+
 interface RegionSearchProps {
   setValue: UseFormSetValue<StoreType>;
   register: UseFormRegister<StoreType>;
   errors: FieldErrors<StoreType>;
 }
-
+// Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 export default function RegionSearch({
   register, 
   errors, 
   setValue,
 } : RegionSearchProps ) {
   const [isOpen, setIsOpen] = useState <boolean>(false);
-  const handleComplete = ( data:any ) => {
+  const handleComplete = ( data: Address ) => {
     let fullAddress = data.address;
     let extraAddress = '';
 

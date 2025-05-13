@@ -1,17 +1,51 @@
 import { create } from 'zustand';
-import { LocationType, StoreType } from "@/interface";
+import { StoreType } from "@/interface";
+
+
+
 
 // 기본 위치 값
 const DEFAULT_LAT = 37.56673633865785;
-
 const DEFAULT_LNG = 126.97855890178955;
-
 const DEFAULT_ZOOM_LEVEL = 4;
+
+declare namespace kakao.maps {
+  namespace event {
+    interface MouseEvent {
+      latLng: {
+        getLat(): number;
+        getLng(): number;
+      };
+    }
+    function addListener(
+      target: any,
+      type: string,
+      callback: (event: MouseEvent) => void
+    ): void;
+  }
+
+  class LatLng {
+    constructor(lat: number, lng: number);
+    getLat(): number;
+    getLng(): number;
+  }
+
+  class Map {
+    constructor(container: HTMLElement, options: { center: LatLng; level: number });
+    getCenter(): LatLng;
+  }
+
+  class Marker {
+    constructor(options: { position: LatLng });
+    setMap(map: Map): void;
+    setPosition(position: LatLng): void;
+  }
+}
 
 // Map 상태를 관리하는 Store
 interface MapStore {
-  map: any | null;
-  setMap: (map: any | null) => void;
+  map: kakao.maps.Map | null; // Kakao Maps 타입 지정
+  setMap: (map: kakao.maps.Map | null) => void;
   location: {
     lat: number;
     lng: number;
@@ -66,7 +100,6 @@ export const useMapStore = create<MapStore>((set) => ({
   },
   setLocation: (location) => set({ location }),
 
-  // 아래 두 줄을 반드시 추가하세요!
   currentStore: null,
   setCurrentStore: (store) => set({ currentStore: store }),
 }));

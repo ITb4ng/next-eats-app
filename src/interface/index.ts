@@ -13,12 +13,13 @@ export interface StoreType {
 }
 
 export interface LikeInterface {
-	user?        : any;
+    user?       : UserType;  // 'any' -> 'UserType'로 변경
     id          : number;
     storeId     : number;
     userId      : number;
     store?      : StoreType;
 }
+
 export interface LikeApiResponse {
     data        : LikeInterface[];
     totalPage?  : number;
@@ -50,6 +51,7 @@ interface UserType {
     name?    : string | null;
     image?   : string | null;
 }
+
 export interface CommentInterface {
     id          : number;
     storeId     : number;
@@ -59,6 +61,7 @@ export interface CommentInterface {
     user?       : UserType;
     createdAt   : Date;
 }
+
 export interface CommentApiResponse {
     data        : CommentInterface[];
     totalPage?  : number;

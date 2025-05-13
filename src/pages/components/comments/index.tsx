@@ -14,7 +14,8 @@ interface CommentProps {
 export default function Comments({ storeId }: CommentProps) {
   const { status } = useSession();
   const router = useRouter();
-  const { page = "1" }: any = router.query;
+  // page를 string으로 처리
+  const page = (parseInt(router.query.page as string, 10) || 1).toString(); // string으로 변환
   const queryClient = useQueryClient();
 
   const fetchComments = async () => {
@@ -39,7 +40,7 @@ export default function Comments({ storeId }: CommentProps) {
       <CommentList comments={comments} onDeleteSuccess={refetchComments} />
       {/* pagination */}
       {comments?.totalPage && (
-        <Pagination total={comments?.totalPage} page={page} pathname={`/stores/${storeId}`}/>
+        <Pagination total={comments?.totalPage} page={page} pathname={`/stores/${storeId}`} />
       )}
     </div>
   );

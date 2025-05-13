@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { CommentApiResponse } from "@/interface";
 import Link from "next/link";
+import Image from "next/image";
 
 interface CommentListProps {
   comments?: CommentApiResponse;
@@ -39,12 +40,13 @@ export default function CommentList({ comments, onDeleteSuccess, commentStore }:
             key={comment.id}
             className="flex space-x-4 items-center text-lg text-gray-500 mb-8 border-b border-gray-200 pb-8"
           >
-            <img
+            <Image
               src={comment?.user?.image || '/images/markers/user.png'}
               alt="사용자 이미지"
               width={40}
               height={40}
               className="h-10 w-10 rounded-full"
+              unoptimized // 외부 URL 또는 최적화 비원할 시 사용
             />
             <div className="flex flex-col space-y-1 flex-1">
               <div>
@@ -87,3 +89,6 @@ export default function CommentList({ comments, onDeleteSuccess, commentStore }:
     </div>
   );
 }
+
+
+// Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element

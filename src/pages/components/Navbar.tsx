@@ -3,12 +3,11 @@ import Link from "next/link";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoIosClose } from "react-icons/io";
 import { useSession, signOut } from "next-auth/react";
-import { PiCornersOutLight } from "react-icons/pi";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-  const { data , status } = useSession();
+  const {status } = useSession();
 
   useEffect(() => {
     if (status === "authenticated" || status === "unauthenticated") {
@@ -112,3 +111,6 @@ export default function Navbar() {
     </div>
   );
 }
+
+// 6:10  Error: 'PiCornersOutLight' is defined but never used.  @typescript-eslint/no-unused-vars
+// 11:11  Error: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars

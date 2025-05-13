@@ -12,6 +12,8 @@ import Marker from "@/pages/components/Marker";
 import Link from "next/link";
 import Like from "@/pages/components/Like";
 import Comments from "@/pages/components/comments";
+import Image from "next/image";
+
 
 export default function StorePage() {
   const router = useRouter();
@@ -72,12 +74,12 @@ export default function StorePage() {
           </p>
           <img src="/images/markers/404.png" className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"/>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <a
+            <Link
               href="/"
               className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              홈으로
-            </a>
+            홈으로 가기
+            </Link>
             <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
               방성환에게 문의하기 <span aria-hidden="true">&rarr;</span>
             </a>
@@ -169,3 +171,8 @@ export default function StorePage() {
     </>
   );
 }
+
+
+// 73:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+// 73:11  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+// 75:13  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages

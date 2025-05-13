@@ -11,8 +11,10 @@ import Loading from "../components/Loading";
 import Loader from "../components/Loader";
 import SearchFilter from "../components/SearchFilter";
 import StoreLikelist from "../components/StoreLikelist";
+import Link from "next/link";
+import Image from "next/image"; // Image 컴포넌트 추가
 
-const ErrorPage = () => (
+const ErrorPage = ({ message }: { message?: string }) => (
   <main className="grid h-screen place-items-center pb-10 bg-white px-6 sm:pb-32 lg:px-8">
     <div className="text-center">
       <p className="text-2xl font-semibold font-bm text-[--color-signature]">404</p>
@@ -20,21 +22,24 @@ const ErrorPage = () => (
         해당 페이지를 찾을 수 없음.
       </h1>
       <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
-        페이지가 텅텅 비었네요.
+        {message || "페이지가 텅텅 비었네요."}
       </p>
-      <img
+      <Image
         src="/images/markers/404.png"
-        className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"
+        alt="404 오류"
+        width={500}
+        height={500}
+        className="mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"
       />
       <div className="mt-10 flex items-center justify-center gap-x-6">
-        <a
+        <Link
           href="/"
-          className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          Go back home
-        </a>
+          홈으로 가기
+        </Link>
         <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
-          Contact support <span aria-hidden="true">&larr;</span>
+          방성환에게 문의하기 <span aria-hidden="true">&larr;</span>
         </a>
       </div>
     </div>
@@ -71,7 +76,7 @@ export default function StoreListPage() {
     isError,
     isLoading,
   } = useInfiniteQuery(["stores", q, district], fetchStores, {
-    getNextPageParam: (lastPage: any) =>
+    getNextPageParam: (lastPage: { data: StoreType[]; page: number }) =>
       lastPage.data?.length > 0 ? lastPage.page + 1 : undefined,
     keepPreviousData: false,
   });
@@ -99,9 +104,8 @@ export default function StoreListPage() {
       useSearchStore.setState({ district });
     }
   }, [router.query]);
-  // 초기화 버튼 클릭 시 상태 초기화
 
-  if (isError) return <ErrorPage />;
+  if (isError) return <ErrorPage message="서버 오류가 발생했습니다. 다시 시도해주세요." />;
 
   return (
     <div className="px-4 md:max-w-4xl mx-auto py-8">
@@ -109,6 +113,8 @@ export default function StoreListPage() {
 
       {isLoading ? (
         <Loading />
+      ) : isFetching ? (
+        <Loader />
       ) : (
         <ul role="list" className="divide-y divide-gray-100">
           {stores?.pages.map((page, index) => (
@@ -121,7 +127,6 @@ export default function StoreListPage() {
         </ul>
       )}
 
-      {(isFetching || isFetchingNextPage) && <Loader />}
       <div className="w-full touch-none h-10 mb-10" ref={ref} />
     </div>
   );

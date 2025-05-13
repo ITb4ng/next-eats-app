@@ -7,6 +7,7 @@ import RegionSearch from "../../components/RegionSearch";
 import { StoreType } from "@/interface";
 import { useQuery } from "react-query";
 import Loader from "@/pages/components/Loader";
+import Link from "next/link";
 
 export default function StoreEditPage() {
   const router  = useRouter();
@@ -16,9 +17,7 @@ export default function StoreEditPage() {
       return data as StoreType;
   };
   const { 
-    data: store, 
     isFetching, 
-    isSuccess, 
     isError 
   } = useQuery(`store-${id}`, fetchStore,{
     onSuccess: (data) => {
@@ -57,14 +56,13 @@ export default function StoreEditPage() {
                     </p>
                     <img src="/images/markers/404.png" className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"/>
                     <div className="mt-10 flex items-center justify-center gap-x-6">
-                      <a
-                        href="/"
-                        className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2"
-                      >
-                        Go back home
-                      </a>
+                      <Link href="/">
+                        <a className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2">
+                          홈으로 가기
+                        </a>
+                      </Link>
                       <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
-                        Contact support <span aria-hidden="true">&larr;</span>
+                        개발자에게 문의하기 <span aria-hidden="true">&larr;</span>
                       </a>
                     </div>
                   </div>
@@ -242,3 +240,10 @@ export default function StoreEditPage() {
     </form>
   );
 }
+
+
+// 19:11  Error: 'store' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+// 21:5  Error: 'isSuccess' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+// 58:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+// 58:21  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+// 60:23  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages

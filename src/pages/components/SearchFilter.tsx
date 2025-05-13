@@ -11,31 +11,34 @@ export function RegionSelector() {
   const setDistrict = useSearchStore((state) => state.setDistrict);
   const router = useRouter();
 
-  useEffect(() => {
-    if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
-      const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
-      setDistrict(district);
-      router.push({ query: { ...router.query, district } });
-    } else if (selectedDo && selectedCity) {
-      const district = `${selectedDo} ${selectedCity}`;
-      setDistrict(district);
-      router.push({ query: { ...router.query, district } });
-    } else {
-      setDistrict(null);
-      const { district, ...rest } = router.query;
-      router.push({ query: rest });
-    }
-  }, [selectedDo, selectedCity, selectedDong]);
+useEffect(() => {
+  if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
+    const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
+    setDistrict(district);
+    router.push({ query: { ...router.query, district } });
+  } else if (selectedDo && selectedCity) {
+    const district = `${selectedDo} ${selectedCity}`;
+    setDistrict(district);
+    router.push({ query: { ...router.query, district } });
+  } else {
+    setDistrict(null);
+    const { district, ...rest } = router.query;
+    router.push({ query: rest });
+  }
+}, [selectedDo, selectedCity, selectedDong, setDistrict, router]);
 
-  useEffect(() => {
-    const { district } = router.query;
-    if (typeof district === "string") {
-      const parts = district.split(" ");
-      setSelectedDo(parts[0] || "");
-      setSelectedCity(parts[1] || "");
-      setSelectedDong(parts[2] || "");
-    }
-  }, []);
+
+useEffect(() => {
+  const { district } = router.query;
+  if (typeof district === "string") {
+    const parts = district.split(" ");
+    setSelectedDo(parts[0] || "");
+    setSelectedCity(parts[1] || "");
+    setSelectedDong(parts[2] || "");
+  }
+}, [router.query]);
+
+
   const handleReset = () => {
     // 쿼리 파라미터 초기화
     router.push({
@@ -46,15 +49,6 @@ export function RegionSelector() {
     useSearchStore.setState({ q: "", district: "" });
   };
 
-
-  const resetSelections = () => {
-    setSelectedDo("");
-    setSelectedCity("");
-    setSelectedDong("");
-    setDistrict(null);
-    const { district, ...rest } = router.query;
-    router.push({ query: rest });
-  };
 
   const getSecondLevelOptions = () => {
     const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
@@ -175,3 +169,10 @@ export default function SearchFilter() {
     </div>
   );
 }
+
+
+// 25:15  Error: 'district' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+// 28:6  Warning: React Hook useEffect has missing dependencies: 'router' and 'setDistrict'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+// 38:6  Warning: React Hook useEffect has a missing dependency: 'router.query'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+// 50:9  Error: 'resetSelections' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+// 55:13  Error: 'district' is assigned a value but never used.  @typescript-eslint/no-unused-vars
