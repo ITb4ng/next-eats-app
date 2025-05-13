@@ -1,10 +1,10 @@
 import { LikeApiResponse, LikeInterface } from "@/interface";
 import axios from "axios";
 import { useQuery } from "react-query";
-import Loading from "../components/Loading";
-import StoreLikelist from "../components/StoreLikelist";
+import Loading from "../../components/Loading";
+import StoreLikelist from "../../components/StoreLikelist";
 import { useRouter } from "next/router";
-import Pagination from "../components/Pagination";
+import Pagination from "../../components/Pagination";
 import Link from "next/link";
 import Image from "next/image";
 

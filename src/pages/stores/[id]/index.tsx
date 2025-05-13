@@ -6,12 +6,12 @@ import { StoreType } from "@/interface";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import Loader from "@/pages/components/Loader";
-import Map from "@/pages/components/Map";
-import Marker from "@/pages/components/Marker";
+import Loader from "@/components/Loader";
+import Map from "@/components/Map";
+import Marker from "@/components/Marker";
 import Link from "next/link";
-import Like from "@/pages/components/Like";
-import Comments from "@/pages/components/comments";
+import Like from "@/components/Like";
+import Comments from "@/components/comments";
 import Image from "next/image";
 
 

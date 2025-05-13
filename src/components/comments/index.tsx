@@ -3,7 +3,7 @@ import CommentForm from "./CommentForm";
 import { useQuery, useQueryClient } from "react-query";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { CommentApiResponse } from "../../../interface";
+import { CommentApiResponse } from "../../interface";
 import CommentList from "./CommentList";
 import Pagination from "../Pagination";
 

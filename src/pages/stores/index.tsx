@@ -7,10 +7,10 @@ import { useSearchStore } from "@/zustand";
 import { StoreType } from "@/interface";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 
-import Loading from "../components/Loading";
-import Loader from "../components/Loader";
-import SearchFilter from "../components/SearchFilter";
-import StoreLikelist from "../components/StoreLikelist";
+import Loading from "../../components/Loading";
+import Loader from "../../components/Loader";
+import SearchFilter from "../../components/SearchFilter";
+import StoreLikelist from "../../components/StoreLikelist";
 import Link from "next/link";
 import Image from "next/image"; // Image 컴포넌트 추가
 

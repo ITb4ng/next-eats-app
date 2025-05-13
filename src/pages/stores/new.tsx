@@ -3,7 +3,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-import RegionSearch from "../components/RegionSearch";
+import RegionSearch from "@/components/RegionSearch";
 import { StoreType } from "@/interface";
 import { useEffect, useRef } from "react";
 

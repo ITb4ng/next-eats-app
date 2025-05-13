@@ -3,10 +3,10 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-import RegionSearch from "../../components/RegionSearch";
+import RegionSearch from "@/components/RegionSearch";
 import { StoreType } from "@/interface";
 import { useQuery } from "react-query";
-import Loader from "@/pages/components/Loader";
+import Loader from "@/components/Loader";
 import Link from "next/link";
 
 export default function StoreEditPage() {

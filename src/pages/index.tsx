@@ -1,11 +1,11 @@
-import Map from "./components/Map";
-import Markers from "./components/Markers";
+import Map from "../components/Map";
+import Markers from "../components/Markers";
 
-import StoreBox from "./components/StoreBox";
+import StoreBox from "../components/StoreBox";
 import { StoreType } from "../interface";
 
 import axios from "axios";
-import CurrentPosition from "./components/CurrentPosition";
+import CurrentPosition from "../components/CurrentPosition";
 
 export default function Home({ stores }: { stores: StoreType[] }) {
   return (

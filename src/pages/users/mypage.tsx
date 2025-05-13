@@ -3,9 +3,9 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { CommentApiResponse } from "@/interface";
-import CommentList from "../components/comments/CommentList";
-import Pagination from "../components/Pagination";
-import Loader from "../components/Loader";
+import CommentList from "../../components/comments/CommentList";
+import Pagination from "../../components/Pagination";
+import Loader from "../../components/Loader";
 import Image from "next/image"; // Image 컴포넌트 추가
 import Link from "next/link"; // Link 컴포넌트 추가
 
