@@ -154,7 +154,7 @@ export default function SearchFilter() {
   };
 
   return (
-    <div className="flex flex-col gap-3 my-4 w-full">
+    <div className="relative flex flex-col gap-3 my-4 w-full">
       <div className="flex items-center w-full">
         <CiSearch className="w-6 h-6 text-gray-500 mr-2" />
         <input
@@ -169,10 +169,3 @@ export default function SearchFilter() {
     </div>
   );
 }
-
-
-// 25:15  Error: 'district' is assigned a value but never used.  @typescript-eslint/no-unused-vars
-// 28:6  Warning: React Hook useEffect has missing dependencies: 'router' and 'setDistrict'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
-// 38:6  Warning: React Hook useEffect has a missing dependency: 'router.query'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
-// 50:9  Error: 'resetSelections' is assigned a value but never used.  @typescript-eslint/no-unused-vars
-// 55:13  Error: 'district' is assigned a value but never used.  @typescript-eslint/no-unused-vars

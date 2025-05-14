@@ -71,7 +71,6 @@ export default function StoreListPage() {
     data: stores,
     isFetching,
     fetchNextPage,
-    isFetchingNextPage,
     hasNextPage,
     isError,
     isLoading,
@@ -108,7 +107,7 @@ export default function StoreListPage() {
   if (isError) return <ErrorPage message="서버 오류가 발생했습니다. 다시 시도해주세요." />;
 
   return (
-    <div className="px-4 md:max-w-4xl mx-auto py-8">
+    <div className="px-4 md:max-w-4xl mx-auto">
       <SearchFilter />
 
       {isLoading ? (
