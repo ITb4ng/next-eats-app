@@ -33,6 +33,7 @@ export default function Marker({ store }: MarkersProps) {
             // Set the marker on the map
             marker.setMap(map);
 
+            console.log(imageSrc);
             const content = `<div class="infowindow">${store.name}</div>`;
 
             const customOverlay = new window.kakao.maps.CustomOverlay({
