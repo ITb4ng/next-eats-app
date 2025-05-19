@@ -20,9 +20,9 @@ export default function Home({ stores }: { stores: StoreType[] }) {
 
 export async function getServerSideProps() {
   try {
-    const stores = await axios(`${process.env.NEXT_PUBLIC_API_URL}/api/stores`);
+    const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/api/stores`);
     return {
-      props: { stores: stores.data },
+      props: { stores: res.data.data },
     };
   } catch (error) {
     console.error('에러', error);

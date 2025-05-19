@@ -12,7 +12,7 @@ interface ResponseType {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<LikeInterface | LikeApiResponse | { isLiked: boolean }>
+  res: NextApiResponse<LikeInterface | LikeApiResponse | { isLiked: boolean } | { message: string }>
 ) {
   const session = await getServerSession(req, res, authOption);
 
@@ -49,7 +49,7 @@ export default async function handler(
           userId: session.user.id,
         },
       });
-      return res.status(401).end();
+      return res.status(201).json({ message: "찜 완료됨" });
     }
   }
 

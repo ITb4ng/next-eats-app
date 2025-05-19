@@ -11,45 +11,48 @@ export function RegionSelector() {
   const setDistrict = useSearchStore((state) => state.setDistrict);
   const router = useRouter();
 
-useEffect(() => {
-  if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
-    const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
-    setDistrict(district);
-    router.push({ query: { ...router.query, district } });
-  } else if (selectedDo && selectedCity) {
-    const district = `${selectedDo} ${selectedCity}`;
-    setDistrict(district);
-    router.push({ query: { ...router.query, district } });
-  } else {
-    setDistrict(null);
-    const { district, ...rest } = router.query;
-    router.push({ query: rest });
-  }
-}, [selectedDo, selectedCity, selectedDong, setDistrict, router]);
+  // 지역 선택 변경 시 query, Zustand 상태 반영 (300ms debounce)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
+        const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
+        setDistrict(district);
+        router.replace({ query: { ...router.query, district } }, undefined, { shallow: true });
+      } else if (selectedDo && selectedCity) {
+        const district = `${selectedDo} ${selectedCity}`;
+        setDistrict(district);
+        router.replace({ query: { ...router.query, district } }, undefined, { shallow: true });
+      } else {
+        setDistrict(null);
+        const { district, ...rest } = router.query;
+        router.replace({ query: rest }, undefined, { shallow: true });
+      }
+    }, 300);
 
+    return () => clearTimeout(handler);
+  }, [selectedDo, selectedCity, selectedDong]);
 
-useEffect(() => {
-  const { district } = router.query;
-  if (typeof district === "string") {
-    const parts = district.split(" ");
-    setSelectedDo(parts[0] || "");
-    setSelectedCity(parts[1] || "");
-    setSelectedDong(parts[2] || "");
-  }
-}, [router.query]);
+  // query에 따른 초기값 세팅 (페이지 방문 시 등)
+  useEffect(() => {
+    const { district } = router.query;
+    if (typeof district === "string") {
+      const parts = district.split(" ");
+      setSelectedDo(parts[0] || "");
+      setSelectedCity(parts[1] || "");
+      setSelectedDong(parts[2] || "");
+    }
+  }, [router.query]);
 
-
+  // 초기화 버튼 클릭
   const handleReset = () => {
-    // 쿼리 파라미터 초기화
-    router.push({
-      pathname: router.pathname,
-      query: {},
-    });
-    // Zustand 상태도 초기화
-    useSearchStore.setState({ q: "", district: "" });
+    router.push({ pathname: router.pathname, query: {} });
+    useSearchStore.setState({ q: null, district: null });
+    setSelectedDo("");
+    setSelectedCity("");
+    setSelectedDong("");
   };
 
-
+  // 시/도 선택에 따른 시/군/구 옵션 반환
   const getSecondLevelOptions = () => {
     const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
     if (Array.isArray(selected)) return selected;
@@ -58,13 +61,10 @@ useEffect(() => {
     return [];
   };
 
+  // 시/군/구 선택에 따른 읍/면/동 옵션 반환 (강원도만)
   const getThirdLevelOptions = () => {
     const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
-    if (
-      typeof selected === "object" &&
-      selected !== null &&
-      !Array.isArray(selected)
-    ) {
+    if (typeof selected === "object" && selected !== null && !Array.isArray(selected)) {
       return selected[selectedCity as keyof typeof selected] ?? [];
     }
     return [];

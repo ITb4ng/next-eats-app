@@ -3,7 +3,7 @@ import { StoreType } from "@/interface";
 
 
 
-// 기본 위치 값
+// 기본 위치 값 서울 - 춘천 간 수도인 서울별시청으로 지정함
 const DEFAULT_LAT = 37.56673633865785;
 const DEFAULT_LNG = 126.97855890178955;
 const DEFAULT_ZOOM_LEVEL = 4;
@@ -67,8 +67,22 @@ interface StoreState {
 interface SearchStore {
   q: string | null;
   district: string | null;
+
+  // 지역 선택 상태 추가
+  selectedDo: string | null;
+  selectedCity: string | null;
+  selectedDong: string | null;
+
+  // 상태 변경 함수들 추가
   setQ: (q: string | null) => void;
   setDistrict: (district: string | null) => void;
+
+  setSelectedDo: (selectedDo: string | null) => void;
+  setSelectedCity: (selectedCity: string | null) => void;
+  setSelectedDong: (selectedDong: string | null) => void;
+
+  // 초기화 함수 추가
+  resetRegion: () => void;
 }
 
 // Store 상태 업데이트 함수 개선: 상태 불변성을 유지하며 토글 처리
@@ -109,6 +123,22 @@ export const useMapStore = create<MapStore>((set) => ({
 export const useSearchStore = create<SearchStore>((set) => ({
   q: null,
   district: null,
+
+  selectedDo: null,
+  selectedCity: null,
+  selectedDong: null,
+
   setQ: (q) => set({ q }),
   setDistrict: (district) => set({ district }),
+
+  setSelectedDo: (selectedDo) => set({ selectedDo }),
+  setSelectedCity: (selectedCity) => set({ selectedCity }),
+  setSelectedDong: (selectedDong) => set({ selectedDong }),
+
+  resetRegion: () =>
+    set({
+      selectedDo: null,
+      selectedCity: null,
+      selectedDong: null,
+    }),
 }));

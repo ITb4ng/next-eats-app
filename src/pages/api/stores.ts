@@ -13,68 +13,49 @@ interface Responsetype {
   id?: string;
 }
 
+async function getCoordinates(address: string) {
+  const headers = {
+    Authorization: `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
+  };
+
+  const { data } = await axios.get(
+    `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURI(address)}`,
+    { headers }
+  );
+
+  if (!data.documents || data.documents.length === 0) {
+    return { lat: null, lng: null };
+  }
+
+  return {
+    lat: data.documents[0].y,
+    lng: data.documents[0].x,
+  };
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<StoreApiResponse | StoreType[] | StoreType | null>
 ) {
-  const { page = "", limit = "", q, district, id }: Responsetype = req.query;
+  const { page = "1", limit, q, district, id }: Responsetype = req.query;
   const session = await getServerSession(req, res, authOption);
+  const pageNumber = parseInt(page || "1");
+  const limitNumber = limit ? parseInt(limit) : undefined;
 
-  if (req.method === "POST") {
-    // 데이터 생성을 처리한다
-    const formData = req.body;
-    const headers = {
-      Authorization: `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
-    };
+  try {
+    if (req.method === "POST" || req.method === "PUT") {
+      const formData = req.body;
+      const { lat, lng } = await getCoordinates(formData.address);
 
-    const { data } = await axios.get(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURI(
-        formData.address
-      )}`,
-      { headers }
-    );
+      const storeData = {
+        ...formData,
+        lat: lat ? parseFloat(lat) : null,
+        lng: lng ? parseFloat(lng) : null,
+      };
 
-    const result = await prisma.store.create({
-      data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
-    });
-
-    return res.status(200).json({
-      ...result,
-      lat: result.lat ? parseFloat(result.lat) : undefined,   
-      lng: result.lng ? parseFloat(result.lng) : undefined,
-    });
-  } else if (req.method === "PUT") {
-    // 데이터 수정을 처리한다
-    const formData = req.body;
-    const headers = {
-      Authorization: `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
-    };
-
-    const { data } = await axios.get(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURI(
-        formData.address
-      )}`,
-      { headers }
-    );
-
-    const result = await prisma.store.update({
-      where: { id: formData.id },
-      data: { ...formData, lat: data.documents[0].y, lng: data.documents[0].x },
-    });
-
-    return res.status(200).json({
-      ...result,
-      lat: result.lat ? parseFloat(result.lat) : undefined,
-      lng: result.lng ? parseFloat(result.lng) : undefined,
-    });
-  } else if (req.method === "DELETE") {
-    // 데이터 삭제
-    if (id) {
-      const result = await prisma.store.delete({
-        where: {
-          id: parseInt(id),
-        },
-      });
+      const result = req.method === "POST"
+        ? await prisma.store.create({ data: storeData })
+        : await prisma.store.update({ where: { id: formData.id }, data: storeData });
 
       return res.status(200).json({
         ...result,
@@ -82,60 +63,73 @@ export default async function handler(
         lng: result.lng ? parseFloat(result.lng) : undefined,
       });
     }
-    return res.status(500).json(null);
-  } else {
-    // GET 요청 처리
-    if (page) {
-      const count = await prisma.store.count();
-      const skipPage = parseInt(page) - 1;
-      const stores = await prisma.store.findMany({
-        orderBy: { id: "asc" },
-        where: {
-          name: q ? { contains: q } : {},
-          address: district ? { contains: district } : {},
-        },
-        take: parseInt(limit),
-        skip: skipPage * 10,
-      });
 
-      res.status(200).json({
-        page: parseInt(page),
-        data: stores.map(store => ({
+    if (req.method === "DELETE") {
+      if (!id) return res.status(400).json(null);
+
+      const result = await prisma.store.delete({ where: { id: parseInt(id) } });
+      return res.status(200).json({
+        ...result,
+        lat: result.lat ? parseFloat(result.lat) : undefined,
+        lng: result.lng ? parseFloat(result.lng) : undefined,
+      });
+    }
+
+    if (req.method === "GET") {
+      // 단일 조회
+      if (id) {
+        const store = await prisma.store.findUnique({
+          where: { id: parseInt(id) },
+          include: {
+            likes: session ? {
+              where: { userId: session.user.id },
+            } : undefined,
+          },
+        });
+
+        return res.status(200).json(
+          store
+            ? {
+                ...store,
+                lat: store.lat ? parseFloat(store.lat) : undefined,
+                lng: store.lng ? parseFloat(store.lng) : undefined,
+              }
+            : null
+        );
+      }
+
+      // 리스트 조회
+      const whereCondition = {
+        ...(q && { name: { contains: q } }),
+        ...(district && { address: { contains: district } }),
+      };
+
+      const [stores, count] = await Promise.all([
+        prisma.store.findMany({
+          where: whereCondition,
+          orderBy: { id: "asc" },
+          take: limitNumber,
+          skip: limitNumber ? (pageNumber - 1) * limitNumber : undefined,
+        }),
+        prisma.store.count({ where: whereCondition }),
+      ]);
+
+      return res.status(200).json({
+        page: pageNumber,
+        data: stores.map((store) => ({
           ...store,
           lat: store.lat ? parseFloat(store.lat) : undefined,
           lng: store.lng ? parseFloat(store.lng) : undefined,
         })),
         totalCount: count,
-        totalPage: Math.ceil(count / 10),
+        totalPage: limitNumber ? Math.ceil(count / limitNumber) : 1,
       });
-    } else {
-      const { id }: { id?: string } = req.query;
-
-      const stores = await prisma.store.findMany({
-        orderBy: { id: "asc" },
-        where: {
-          id: id ? parseInt(id) : {},
-        },
-        include: {
-          likes: {
-            where: session ? { userId: session.user.id } : {},
-          },
-        },
-      });
-
-      return res.status(200).json(
-        id
-          ? {
-              ...stores[0],
-              lat: stores[0]?.lat ? parseFloat(stores[0].lat) : undefined,
-              lng: stores[0]?.lng ? parseFloat(stores[0].lng) : undefined,
-            }
-          : stores.map(store => ({
-              ...store,
-              lat: store.lat ? parseFloat(store.lat) : undefined,
-              lng: store.lng ? parseFloat(store.lng) : undefined,
-            }))
-      );
     }
+
+    res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  } catch (error) {
+    console.error("API Error:", error);
+    return res.status(500).json(null);
   }
 }

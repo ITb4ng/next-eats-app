@@ -24,12 +24,14 @@ export default function Like({ storeId, isLiked }: { storeId: number; isLiked: b
     toggleLike(storeId);
 
     try {
-      const res = await axios.post("/api/likes", { storeId });
+      const res = await axios.post("/api/likes", { storeId }, {withCredentials: true});
+      console.log("response:", res);
       toast[res.status === 201 ? "success" : "warning"](
         res.status === 201 ? "가게를 찜했습니다." : "찜을 취소했습니다."
       );
-    } catch {
+    } catch (error) {
       // rollback
+      console.error("찜 API 에러:", error);
       queryClient.setQueryData(["isLiked", storeId], prev);
       toggleLike(storeId);
       toast.error("찜 처리 중 오류가 발생했습니다.");

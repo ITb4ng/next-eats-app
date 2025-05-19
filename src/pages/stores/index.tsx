@@ -1,18 +1,18 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useInfiniteQuery } from "react-query";
-import { useRouter } from "next/router"; // useRouter 추가
+import { useRouter } from "next/router";
 
 import { useSearchStore } from "@/zustand";
 import { StoreType } from "@/interface";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 
-import Loading from "../../components/Loading";
-import Loader from "../../components/Loader";
-import SearchFilter from "../../components/SearchFilter";
-import StoreLikelist from "../../components/StoreLikelist";
+import Loading from "@/components/Loading";
+import Loader from "@/components/Loader";
+import SearchFilter from "@/components/SearchFilter";
+import StoreLikelist from "@/components/StoreLikelist";
 import Link from "next/link";
-import Image from "next/image"; // Image 컴포넌트 추가
+import Image from "next/image";
 
 const ErrorPage = ({ message }: { message?: string }) => (
   <main className="grid h-screen place-items-center pb-10 bg-white px-6 sm:pb-32 lg:px-8">
@@ -47,9 +47,9 @@ const ErrorPage = ({ message }: { message?: string }) => (
 );
 
 export default function StoreListPage() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const intersection = useIntersectionObserver(ref, {});
-  const isPageEnd = !!intersection?.isIntersecting;
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const intersection = useIntersectionObserver(bottomRef, {});
+  const shouldLoadMore = !!intersection?.isIntersecting;
   const router = useRouter();
 
   const q = useSearchStore((state) => state.q);
@@ -70,13 +70,16 @@ export default function StoreListPage() {
   const {
     data: stores,
     isFetching,
+    isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
     isError,
     isLoading,
   } = useInfiniteQuery(["stores", q, district], fetchStores, {
-    getNextPageParam: (lastPage: { data: StoreType[]; page: number }) =>
-      lastPage.data?.length > 0 ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.page + 1;
+      return nextPage <= lastPage.totalPage ? nextPage : undefined;
+    },
     keepPreviousData: false,
   });
 
@@ -87,13 +90,13 @@ export default function StoreListPage() {
   }, [fetchNextPage, hasNextPage]);
 
   useEffect(() => {
-    if (isPageEnd) {
+    if (shouldLoadMore && !isFetchingNextPage) {
       const timeout = setTimeout(fetchNext, 300);
       return () => clearTimeout(timeout);
     }
-  }, [isPageEnd, fetchNext]);
+  }, [shouldLoadMore, fetchNext, isFetchingNextPage]);
 
-  // 뒤로가기 시 URL에서 쿼리 파라미터를 읽어 상태 복원
+  // 뒤로가기 시 URL 쿼리에서 검색 상태 복원
   useEffect(() => {
     const { q, district } = router.query;
     if (typeof q === "string") {
@@ -112,21 +115,22 @@ export default function StoreListPage() {
 
       {isLoading ? (
         <Loading />
-      ) : isFetching ? (
-        <Loader />
       ) : (
-        <ul role="list" className="divide-y divide-gray-100">
-          {stores?.pages.map((page, index) => (
-            <React.Fragment key={index}>
-              {page.data.map((store: StoreType, i: number) => (
-                <StoreLikelist key={store.id || i} store={store} i={i} />
-              ))}
-            </React.Fragment>
-          ))}
-        </ul>
-      )}
+        <>
+          <ul role="list" className="divide-y divide-gray-100">
+            {stores?.pages.map((page, index) => (
+              <React.Fragment key={index}>
+                {page.data.map((store: StoreType, i: number) => (
+                  <StoreLikelist key={store.id || i} store={store} i={i} />
+                ))}
+              </React.Fragment>
+            ))}
+          </ul>
 
-      <div className="w-full touch-none h-10 mb-10" ref={ref} />
+          {isFetching && <Loader />}
+          <div className="w-full touch-none h-10 mb-10" ref={bottomRef} />
+        </>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@
   반복 숙달 후 커스터마이징 하기
   https://tailwindcss.com/docs/installation 
 */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -71,6 +72,15 @@ html, body {
   @apply opacity-60;
 }
 
+.navbar__logo:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.navbar__logo:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-signature);
+  border-radius: 4px;
+}
 .navbar__list {
   /* display: flex;
   gap: 12px;
