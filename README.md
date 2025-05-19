@@ -1,3 +1,36 @@
+# 프로젝트 업데이트 기록
+
+## Hotfix / Release Issue 내역 (브랜치: hotfix/release-issue)
+
+- [핫픽스/릴리즈 이슈 기록](./README-release-issue.md)  
+  Navbar UI 및 접근성 오류 수정, 모바일 메뉴 개선 등 주요 수정사항 기록.
+
+## 최근 변경사항
+
+### 🐛 Bug Fixes
+- Navbar가 `/store` 진입 시 작동하지 않던 문제 수정  
+- 모바일 메뉴 토글 안되던 이슈 해결  
+- `status === "loading"` 상태 처리 로직 추가로 깜빡임 방지  
+- `useEffect` 훅 사용 순서 오류(Rendered more hooks than during the previous render) 수정  
+- 로고 클릭 시 포커스 보더가 타원형으로 잡히던 문제 해결  
+- `:focus-visible` 적용으로 접근성과 시각 스타일 모두 만족하도록 수정  
+- 모바일 메뉴 UI 개선  
+- 메뉴 애니메이션과 닫힘 처리 안정화  
+- 로그인/로그아웃 버튼 클릭 시 토글 자동 닫힘 
+- 검색 필터(SearchFilter) Input값이 비워지지 않는 문제 해결
+- `/store` InfiniteScroll 스크롤 감지가 안 되던 문제 해결
+
+### 💄 Style & Accessibility
+- 모바일 및 데스크탑 모두에서 자연스러운 사용자 경험 제공
+- 배달의 민족 모티브 공통 스타일 정리  
+- `font-bm`, 버튼 스타일 통일성 향상  
+- 포커스 스타일 (`box-shadow`) 시각 오류 제거  
+
+---
+
+# 250512
+vercel 첫 배포 후 이슈 발견
+
 # 250509
 우아한형제들에서 글림체 컨셉에 맞게 favicon 등록
 
