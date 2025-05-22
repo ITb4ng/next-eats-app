@@ -20,9 +20,15 @@
   --color-signature: #2ac1bc;
   --font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif; 
 }
-html, body {
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%; /* Edge 대응 */
+  font-size: 16px;
   font-family: var(--font-family);
-  @apply text-lg font-normal;
+}
+body {
+  font-family: var(--font-family);
+  @apply text-base font-normal;
 }
 
 @font-face {
