@@ -8,6 +8,7 @@
   반복 숙달 후 커스터마이징 하기
   https://tailwindcss.com/docs/installation 
 */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,9 +20,15 @@
   --color-signature: #2ac1bc;
   --font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif; 
 }
-html, body {
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%; /* Edge 대응 */
+  font-size: 16px;
   font-family: var(--font-family);
-  @apply text-lg font-normal;
+}
+body {
+  font-family: var(--font-family);
+  @apply text-base font-normal;
 }
 
 @font-face {
@@ -71,6 +78,15 @@ html, body {
   @apply opacity-60;
 }
 
+.navbar__logo:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.navbar__logo:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-signature);
+  border-radius: 4px;
+}
 .navbar__list {
   /* display: flex;
   gap: 12px;
@@ -117,11 +133,7 @@ html, body {
     @apply block py-0 px-[18px];
   }
   .navbar__button svg{
-    @apply text-3xl;
-  }
-  .navbar__button svg path d {
-    /* font-size: 1.5em; */
-    @apply text-4xl;
+    @apply text-xl;
   }
 
   .navbar__list--item--mobile {

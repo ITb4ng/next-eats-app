@@ -7,19 +7,37 @@ import { useSession, signOut } from "next-auth/react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-  const {status } = useSession();
+  const { status } = useSession();
 
+  // 훅은 항상 최상위에서 호출
   useEffect(() => {
     if (status === "authenticated" || status === "unauthenticated") {
-      setAnimationKey(prev => prev + 1); // 강제로 리렌더링
+      setAnimationKey((prev) => prev + 1); // 강제 리렌더링 용
     }
   }, [status]);
+
+  // status가 loading일 때 로딩 UI 반환
+  if (status === "loading") {
+    return (
+      <div className="navbar-wrapper shadow-md">
+        <div className="navbar-container">
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // status가 authenticated 또는 unauthenticated 일 때 정상 Navbar 렌더링
   return (
     <div className="navbar-wrapper shadow-md">
       <div className="navbar-container">
-        <Link href="/" className="navbar__logo" onClick={()=>{
-          setIsOpen(false);
-        }}>
+        <Link
+          href="/"
+          className="navbar__logo"
+          onClick={() => {
+            setIsOpen(false);
+          }}
+        >
           우아한맛집들
         </Link>
         <div className="navbar__list">
@@ -46,13 +64,16 @@ export default function Navbar() {
           )}
         </div>
 
-
         <div
           role="presentation"
           className="navbar__button"
           onClick={() => setIsOpen((value) => !value)}
         >
-          {isOpen ? <IoIosClose /> : <RxHamburgerMenu />}
+          {isOpen ? (
+            <IoIosClose className="w-7 h-7 md:w-8 md:h-8" />
+          ) : (
+            <RxHamburgerMenu className="w-5 h-5 md:w-6 md:h-6" />
+          )}
         </div>
       </div>
 
@@ -61,9 +82,9 @@ export default function Navbar() {
           <div className="navbar__list--mobile flex flex-col gap-2">
             {[
               { href: "/stores", label: "맛집 목록", onclick: () => setIsOpen(false) },
-              { href: "/stores/new", label: "맛집 등록", onclick: () => setIsOpen(false)},
+              { href: "/stores/new", label: "맛집 등록", onclick: () => setIsOpen(false) },
               { href: "/users/likes", label: "즐겨찾기", onclick: () => setIsOpen(false) },
-              { href: "/users/mypage", label: "마이페이지" ,onclick: () => setIsOpen(false)},
+              { href: "/users/mypage", label: "마이페이지", onclick: () => setIsOpen(false) },
             ].map((item, index) => (
               <Link
                 key={item.href}
@@ -89,7 +110,7 @@ export default function Navbar() {
                   setIsOpen(false);
                   signOut();
                 }}
-                className="navbar__list--item--mobile text-left text-black opacity-0 animate-slideFadeIn delay-[400ms] font-bm"             
+                className="navbar__list--item--mobile text-left text-black opacity-0 animate-slideFadeIn delay-[400ms] font-bm"
               >
                 로그아웃
               </button>
@@ -107,6 +128,3 @@ export default function Navbar() {
     </div>
   );
 }
-
-// 6:10  Error: 'PiCornersOutLight' is defined but never used.  @typescript-eslint/no-unused-vars
-// 11:11  Error: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars

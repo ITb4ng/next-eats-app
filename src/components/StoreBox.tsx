@@ -7,16 +7,16 @@ import {
   AiOutlineCheck,
   AiOutlinePhone,
 } from "react-icons/ai";
-import { HiOutlineMapPin } from "react-icons/hi2";
 import { useRouter } from "next/router";
 import { useMapStore } from "@/zustand";
 import Like from "./Like";
 import { useQuery } from "react-query";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-
+import { PiMapPin } from "react-icons/pi";
 
 export default function StoreBox() {
+  const iconClass = "w-4 h-4 mt-1 text-gray-700 text-base";
   const { status } = useSession();
   const router = useRouter();
   const store = useMapStore((state) => state.currentStore);
@@ -35,8 +35,8 @@ export default function StoreBox() {
   }
 
   return (
-    <div className="transition ease-in-out delay-150 inset-x-0 mx-auto bottom-20 rounded-lg shadow-lg max-w-sm md:max-w-xl absolute z-20 w-full bg-white">
-      <div className="p-8">
+    <div className="absolute bottom-20 inset-x-0 mx-auto z-20 w-full max-w-[360px] sm:max-w-[480px] bg-white rounded-lg shadow-lg transition text-sm md:text-base">
+      <div className="p-6">
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
             <Image
@@ -67,21 +67,23 @@ export default function StoreBox() {
          
         </div>
 
-        <div className="mt-4 flex gap-2 items-center text-gray-700">
-          <AiOutlinePhone />
-          {store.phone || "-"}
-        </div>
-        <div className="mt-2 flex gap-2 items-center text-gray-700">
-          <AiOutlineInfoCircle />
-          {store.foodCertifyName || "-"}
-        </div>
-        <div className="mt-2 flex gap-2 items-center text-gray-700">
-          <HiOutlineMapPin />
-          {store.address || "주소가 없습니다."}
-        </div>
-        <div className="mt-2 flex gap-2 items-center text-gray-700">
-          <AiOutlineCheck />
-          {store.category || "-"}
+        <div className="text-sm leading-tight">
+          <div className="mt-4 flex gap-2 items-center text-gray-700">
+            <AiOutlinePhone className="{iconClass}" />
+            <span className="font-medium">{store.phone || "-"}</span>
+          </div>
+          <div className="mt-2 flex gap-2 items-center text-gray-700">
+            <AiOutlineInfoCircle className="{iconClass}" />
+            {store.foodCertifyName || "-"}
+          </div>
+          <div className="mt-2 flex gap-2 items-start text-gray-700 break-words">
+            <PiMapPin className="{iconClass}" />
+            {store.address || "주소가 없습니다."}
+          </div>
+          <div className="mt-2 flex gap-2 items-center text-gray-700">
+            <AiOutlineCheck className="{iconClass}" />
+            {store.category || "-"}
+          </div>
         </div>
       </div>
 
