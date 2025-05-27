@@ -69,7 +69,11 @@ export default function Navbar() {
           className="navbar__button"
           onClick={() => setIsOpen((value) => !value)}
         >
-          {isOpen ? <IoIosClose /> : <RxHamburgerMenu />}
+          {isOpen ? (
+            <IoIosClose className="w-7 h-7 md:w-8 md:h-8" />
+          ) : (
+            <RxHamburgerMenu className="w-5 h-5 md:w-6 md:h-6" />
+          )}
         </div>
       </div>
 

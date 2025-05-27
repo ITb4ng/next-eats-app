@@ -133,11 +133,7 @@ body {
     @apply block py-0 px-[18px];
   }
   .navbar__button svg{
-    @apply text-3xl;
-  }
-  .navbar__button svg path d {
-    /* font-size: 1.5em; */
-    @apply text-4xl;
+    @apply text-xl;
   }
 
   .navbar__list--item--mobile {

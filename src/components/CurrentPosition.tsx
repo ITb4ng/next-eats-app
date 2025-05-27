@@ -46,7 +46,7 @@ export default function CurrentPosition () {
 				onClick={handleCurrentPosition}
 				className="fixed bottom-20 left-1/2 -translate-x-1/2 p-4 z-10 leading-5 shadow bg-black opacity-80 text-white font-bold rounded-full flex items-center justify-center transition-transform duration-300 md:hover:scale-125 ease-in-out will-change-transform"
 			>
-				<CiRoute className="w-7 h-7 md:w-10 md:h-10 subpixel-antialiased" />
+				<CiRoute className="w-4 h-4 md:w-6 md:h-6 subpixel-antialiased" />
 			</button>
 		</>
 	)
