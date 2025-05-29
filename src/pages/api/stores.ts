@@ -49,8 +49,8 @@ export default async function handler(
 
       const storeData = {
         ...formData,
-        lat: lat ? parseFloat(lat) : null,
-        lng: lng ? parseFloat(lng) : null,
+       lat: lat !== null ? parseFloat(lat) : null,
+       lng: lng !== null ? parseFloat(lng) : null,
       };
 
       const result = req.method === "POST"
@@ -59,8 +59,8 @@ export default async function handler(
 
       return res.status(200).json({
         ...result,
-        lat: result.lat ? parseFloat(result.lat) : undefined,
-        lng: result.lng ? parseFloat(result.lng) : undefined,
+        lat: result.lat ?? undefined,
+        lng: result.lng ?? undefined,
       });
     }
 
@@ -70,8 +70,8 @@ export default async function handler(
       const result = await prisma.store.delete({ where: { id: parseInt(id) } });
       return res.status(200).json({
         ...result,
-        lat: result.lat ? parseFloat(result.lat) : undefined,
-        lng: result.lng ? parseFloat(result.lng) : undefined,
+         lat: result.lat ?? undefined,
+         lng: result.lng ?? undefined,
       });
     }
 
@@ -91,8 +91,8 @@ export default async function handler(
           store
             ? {
                 ...store,
-                lat: store.lat ? parseFloat(store.lat) : undefined,
-                lng: store.lng ? parseFloat(store.lng) : undefined,
+                 lat: store.lat ?? undefined,
+                 lng: store.lng ?? undefined,
               }
             : null
         );
@@ -107,7 +107,7 @@ export default async function handler(
       const [stores, count] = await Promise.all([
         prisma.store.findMany({
           where: whereCondition,
-          orderBy: { id: "asc" },
+          orderBy: { id: "desc" },
           take: limitNumber,
           skip: limitNumber ? (pageNumber - 1) * limitNumber : undefined,
         }),
@@ -118,8 +118,8 @@ export default async function handler(
         page: pageNumber,
         data: stores.map((store) => ({
           ...store,
-          lat: store.lat ? parseFloat(store.lat) : undefined,
-          lng: store.lng ? parseFloat(store.lng) : undefined,
+          lat: store.lat ?? undefined,
+          lng: store.lng ?? undefined,
         })),
         totalCount: count,
         totalPage: limitNumber ? Math.ceil(count / limitNumber) : 1,

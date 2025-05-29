@@ -68,7 +68,7 @@ export default async function handler(
     const count = await prisma.comment.count({
       where: {
         storeId: storeId ? parseInt(storeId) : undefined,
-        userId : user ? session?.user.id : {},
+        userId : user ? session?.user.id : undefined,
       },
     });
 
@@ -78,7 +78,7 @@ export default async function handler(
       },
       where: {
         storeId: storeId ? parseInt(storeId) : undefined,
-        userId : user ? session?.user.id : {},
+        userId : user ? session?.user.id : undefined,
       },
       skip: skipPage,
       take: parseInt(limit),
@@ -97,8 +97,8 @@ export default async function handler(
         },
         store: {
           ...comment.store,
-          lat: comment.store.lat ? parseFloat(comment.store.lat) : undefined, // string을 number로 변환
-          lng: comment.store.lng ? parseFloat(comment.store.lng) : undefined, // string을 number로 변환
+          lat: comment.store.lat ?? undefined,
+          lng: comment.store.lng ?? undefined,
         }
       })),
       page: parseInt(page),
@@ -107,6 +107,3 @@ export default async function handler(
     });
   }
 }
-
-// Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
-// 62:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars

@@ -50,10 +50,10 @@ export default function MyPage() {
               href="/"
               className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              Go back home
+              홈으로
             </Link>
             <a href="javascript:void(0);" className="text-sm font-semibold text-gray-900">
-              Contact support <span aria-hidden="true">&larr;</span>
+              방성환에게 문의하기 <span aria-hidden="true">&larr;</span>
             </a>
           </div>
         </div>
