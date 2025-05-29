@@ -23,8 +23,8 @@ model Store {
   id              Int       @id @default(autoincrement())
   phone           String?
   address         String?
-  lat             String?
-  lng             String?
+  lat             Float?
+  lng             Float?
   name            String?
   category        String?
   storeType       String?

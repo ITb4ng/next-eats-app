@@ -16,18 +16,23 @@ export default function StoreNewPage() {
     watch,
     setFocus,
     formState: { errors },
-  } = useForm<StoreType>();
+  } = useForm<StoreType>({
+    shouldFocusError: false,
+    defaultValues: {
+      phone: "",
+    },
+  });
 
   const phone = watch("phone");
-  const isMounted = useRef(false); // 🔹 mount 여부 추적
+  const isMounted = useRef(false); // mount 여부 추적
 
   useEffect(() => {
-  // 첫 번째 오류 필드로 포커스 이동
-  const firstErrorField = Object.keys(errors)[0]; // 오류가 있는 필드의 첫 번째 항목
-  if (firstErrorField) {
-    setFocus(firstErrorField as keyof StoreType); // 첫 번째 오류 필드로 포커스 이동
-  }
-  }, [errors, setFocus]); // errors가 변경될 때마다 실행
+    // 첫 번째 오류 필드로 포커스 이동
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      setFocus(firstErrorField as keyof StoreType);
+    }
+  }, [errors, setFocus]);
 
   // 연락처 자동 하이픈 포맷팅 함수
   const formatPhoneNumber = (value: string) => {
@@ -62,7 +67,9 @@ export default function StoreNewPage() {
       return;
     }
 
-    const formatted = formatPhoneNumber(phone || "");
+    if (!phone?.trim()) return;
+
+    const formatted = formatPhoneNumber(phone);
     if (formatted !== phone) {
       setValue("phone", formatted, { shouldValidate: true });
     }
@@ -146,12 +153,11 @@ export default function StoreNewPage() {
                 <input
                   type="text"
                   placeholder="-제외 숫자만 입력해주세요."
-                  {...register("name", { required: true })}
+                  {...register("phone", { required: true })}
                   className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm px-2 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6
-                    ${errors?.name ? "ring-red-500" : ""}
-                    ${errors?.name ? "animate-shake" : ""}`} // 애니메이션을 오류 발생 시에만 적용
+                    ${errors?.phone ? "ring-red-500 animate-shake" : ""}`}
                 />
-                {errors?.name && (
+                {errors?.phone && (
                   <div className="pt-2 text-xs text-red-600">필수 입력사항입니다.</div>
                 )}
               </div>
@@ -192,7 +198,7 @@ export default function StoreNewPage() {
               <div className="mt-2">
                 <select
                   {...register("storeType", { required: true })}
-                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2  sm:text-sm sm:leading-6 
+                  className={`block w-full rounded-md border-0 py-2 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 sm:text-sm sm:leading-6 
                     ${errors?.storeType ? "animate-shake ring-red-500" : ""}`}
                 >
                   <option value="">업종구분 선택</option>

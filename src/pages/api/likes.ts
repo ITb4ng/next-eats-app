@@ -17,16 +17,15 @@ export default async function handler(
   const session = await getServerSession(req, res, authOption);
 
   if (!session?.user) {
-    return res.status(401).end(); // 명시적으로 종료
+    return res.status(401).end();
   }
 
   const { storeId, page = "1", limit = "10" } = req.query as ResponseType;
 
   if (req.method === "POST") {
-    // ✅ 좋아요 토글
     const { storeId }: { storeId: number } = req.body;
 
-    let like = await prisma.like.findFirst({
+    const like = await prisma.like.findFirst({
       where: {
         storeId,
         userId: session.user.id,
@@ -34,16 +33,16 @@ export default async function handler(
     });
 
     if (like) {
-      // 이미 좋아요한 경우 → 삭제
-      like = await prisma.like.delete({
+      // 좋아요 취소
+      await prisma.like.delete({
         where: {
           id: like.id,
         },
       });
-      return res.status(401).end();
+      return res.status(200).json({ message: "찜 취소됨" });
     } else {
-      // 좋아요하지 않은 경우 → 생성
-      like = await prisma.like.create({
+      // 좋아요 생성
+      const newLike = await prisma.like.create({
         data: {
           storeId,
           userId: session.user.id,
@@ -55,7 +54,7 @@ export default async function handler(
 
   if (req.method === "GET") {
     if (storeId) {
-      // ✅ 특정 가게에 대해 좋아요했는지 확인
+      // 특정 가게 좋아요 여부 조회
       const like = await prisma.like.findFirst({
         where: {
           storeId: parseInt(storeId),
@@ -66,7 +65,7 @@ export default async function handler(
       return res.status(200).json({ isLiked: !!like });
     }
 
-    // ✅ 좋아요 목록 조회
+    // 좋아요 목록 조회
     const count = await prisma.like.count({
       where: {
         userId: session.user.id,
@@ -106,6 +105,5 @@ export default async function handler(
     });
   }
 
-  // 허용되지 않은 메서드
   return res.status(405).end();
 }

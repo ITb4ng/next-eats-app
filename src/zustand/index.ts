@@ -6,7 +6,7 @@ import { StoreType } from "@/interface";
 // 기본 위치 값 서울 - 춘천 간 수도인 서울별시청으로 지정함
 const DEFAULT_LAT = 37.56673633865785;
 const DEFAULT_LNG = 126.97855890178955;
-const DEFAULT_ZOOM_LEVEL = 4;
+const DEFAULT_ZOOM_LEVEL = 7;
 
 declare namespace kakao.maps {
   function load(callback: () => void): void;
