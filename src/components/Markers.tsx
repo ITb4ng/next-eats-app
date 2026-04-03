@@ -1,5 +1,5 @@
 import { StoreType } from "@/interface";
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useMapStore } from "@/zustand";
 
 interface MarkersProps {
@@ -10,68 +10,71 @@ export default function Markers({ stores }: MarkersProps): null {
   const map = useMapStore((state) => state.map);
   const setCurrentStore = useMapStore((state) => state.setCurrentStore);
   const setLocation = useMapStore((state) => state.setLocation);
+  const validStores = stores?.filter(
+    (store) =>
+      typeof store.lat === "number" &&
+      Number.isFinite(store.lat) &&
+      typeof store.lng === "number" &&
+      Number.isFinite(store.lng)
+  );
 
   const loadKakaoMarkers = useCallback(() => {
-    if (map) {
-      stores?.forEach((store) => {
-        const imageSrc = store?.category
-          ? `/images/markers/${store.category}.png`
-          : "/images/markers/default.png";
+    if (!map) return;
 
-        const imageSize = new window.kakao.maps.Size(40, 40);
-        const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+    validStores?.forEach((store) => {
+      const imageSrc = store.category
+        ? `/images/markers/${store.category}.png`
+        : "/images/markers/default.png";
 
-        const markerImage = new window.kakao.maps.MarkerImage(
-          imageSrc,
-          imageSize,
-          imageOption
-        );
+      const imageSize = new window.kakao.maps.Size(40, 40);
+      const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 
-        const markerPosition = new window.kakao.maps.LatLng(
-          store.lat,
-          store.lng
-        );
+      const markerImage = new window.kakao.maps.MarkerImage(
+        imageSrc,
+        imageSize,
+        imageOption
+      );
 
-        const marker = new window.kakao.maps.Marker({
-          position: markerPosition,
-          image: markerImage,
-        });
+      const markerPosition = new window.kakao.maps.LatLng(store.lat!, store.lng!);
 
-        marker.setMap(map);
+      const marker = new window.kakao.maps.Marker({
+        position: markerPosition,
+        image: markerImage,
+      });
 
-        const content = `<div class="infowindow">${store.name}</div>`;
+      marker.setMap(map);
 
-        const customOverlay = new window.kakao.maps.CustomOverlay({
-          position: markerPosition,
-          content,
-          xAnchor: 0.6,
-          yAnchor: 0.91,
-        });
+      const content = `<div class="infowindow">${store.name}</div>`;
 
-        window.kakao.maps.event.addListener(marker, "mouseover", function () {
-          customOverlay.setMap(map);
-        });
+      const customOverlay = new window.kakao.maps.CustomOverlay({
+        position: markerPosition,
+        content,
+        xAnchor: 0.6,
+        yAnchor: 0.91,
+      });
 
-        window.kakao.maps.event.addListener(marker, "mouseout", function () {
-          customOverlay.setMap(null);
-        });
+      window.kakao.maps.event.addListener(marker, "mouseover", function () {
+        customOverlay.setMap(map);
+      });
 
-        window.kakao.maps.event.addListener(marker, "click", function () {
-          console.log(store);
-          setCurrentStore(store);
-          setLocation({
-            lat: store.lat ?? 0,
-            lng: store.lng ?? 0,
-            zoom: 4,
-          });
+      window.kakao.maps.event.addListener(marker, "mouseout", function () {
+        customOverlay.setMap(null);
+      });
+
+      window.kakao.maps.event.addListener(marker, "click", function () {
+        setCurrentStore(store);
+        setLocation({
+          lat: store.lat ?? 0,
+          lng: store.lng ?? 0,
+          zoom: 4,
         });
       });
-    }
-  }, [map, stores, setCurrentStore, setLocation]);
+    });
+  }, [map, validStores, setCurrentStore, setLocation]);
 
   useEffect(() => {
     loadKakaoMarkers();
-  }, [loadKakaoMarkers, map]);
+  }, [loadKakaoMarkers]);
 
   return null;
 }
