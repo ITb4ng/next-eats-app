@@ -26,8 +26,8 @@ export async function getServerSideProps() {
       props: {
         stores: stores.map((store) => ({
           ...store,
-          lat: store.lat ?? undefined,
-          lng: store.lng ?? undefined,
+          lat: store.lat ?? null,
+          lng: store.lng ?? null,
         })),
       },
     };
