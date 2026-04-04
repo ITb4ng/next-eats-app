@@ -1,14 +1,26 @@
 // eslint-disable-next-line no-var
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/client";
 
 declare global {
-  // `prisma`를 `let`으로 변경하여 타입 정의를 안전하게 사용
   var prisma: PrismaClient | undefined;
 }
 
-const prisma = globalThis.prisma ?? new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
 
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set.");
+}
+
+const prisma =
+  globalThis.prisma ??
+  new PrismaClient({
+    adapter: new PrismaPg({ connectionString }),
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
 
 export default prisma;

@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { authOption } from "./auth/[...nextauth]";
-import prisma from "@/db";
-import { CommentInterface, CommentApiResponse } from "@/interface";
 
-// message를 포함하는 응답 타입 정의
+import prisma from "@/db";
+import { CommentApiResponse, CommentInterface } from "@/interface";
+
+import { authOption } from "./auth/[...nextauth]";
+
 interface ApiResponseWithMessage extends CommentApiResponse {
   message?: string;
 }
@@ -14,24 +15,35 @@ interface CommentResponseType {
   page?: string;
   limit?: string;
   id?: string;
-  user? : boolean;
+  user?: boolean;
 }
+
 interface ErrorResponse {
   message: string;
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponseWithMessage | CommentInterface |  ErrorResponse > // 응답 타입을 변경
+  res: NextApiResponse<ApiResponseWithMessage | CommentInterface | ErrorResponse>
 ) {
   const session = await getServerSession(req, res, authOption);
-  const { id = "", page = "1", limit = "10", storeId = "",user = false }: CommentResponseType = req.query;
+  const {
+    id = "",
+    page = "1",
+    limit = "10",
+    storeId = "",
+    user = false,
+  }: CommentResponseType = req.query;
 
-  if (req.method === 'POST') {
-    // 댓글 등록
+  if (req.method === "POST") {
     if (!session?.user) {
-      return res.status(401).json({message: "로그인이 필요합니다." }); // message 추가
+      return res.status(401).json({ message: "로그인이 필요합니다." });
     }
+
+    if (session.user.role === "DEMO") {
+      return res.status(403).json({ message: "데모 계정은 댓글 작성이 제한됩니다." });
+    }
+
     const { storeId, body }: { storeId: number; body: string } = req.body;
 
     try {
@@ -42,68 +54,78 @@ export default async function handler(
           userId: session.user.id,
         },
       });
+
       return res.status(200).json(comment);
     } catch (error) {
-      return res.status(500).json({ message: "댓글 등록에 실패했습니다." }); // message 추가
+      console.error("Comment create error:", error);
+      return res.status(500).json({ message: "댓글 등록에 실패했습니다." });
     }
-  } else if (req.method === 'DELETE') {
-    // 댓글 삭제
+  }
+
+  if (req.method === "DELETE") {
     if (!session?.user || !id) {
-      return res.status(401).json({ message: "로그인이 필요하거나 댓글 ID가 누락되었습니다." }); // message 추가
+      return res.status(401).json({ message: "로그인이 필요하거나 댓글 ID가 누락되었습니다." });
+    }
+
+    if (session.user.role === "DEMO") {
+      return res.status(403).json({ message: "데모 계정은 댓글 삭제가 제한됩니다." });
     }
 
     try {
       const comment = await prisma.comment.delete({
         where: {
-          id: parseInt(id),
+          id: parseInt(id, 10),
         },
       });
+
       return res.status(200).json(comment);
     } catch (error) {
-      return res.status(500).json({ message: "댓글 삭제에 실패했습니다." }); // message 추가
+      console.error("Comment delete error:", error);
+      return res.status(500).json({ message: "댓글 삭제에 실패했습니다." });
     }
-  } else {
-    // 댓글 목록 조회
-    const skipPage = (parseInt(page) - 1) * parseInt(limit);
-    const count = await prisma.comment.count({
-      where: {
-        storeId: storeId ? parseInt(storeId) : undefined,
-        userId : user ? session?.user.id : undefined,
-      },
-    });
-
-    const comments = await prisma.comment.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-      where: {
-        storeId: storeId ? parseInt(storeId) : undefined,
-        userId : user ? session?.user.id : undefined,
-      },
-      skip: skipPage,
-      take: parseInt(limit),
-      include: {
-        user: true,
-        store: true,
-      },
-    });
-
-    return res.status(200).json({
-      data: comments.map(comment => ({
-        ...comment,
-        user: {
-          ...comment.user,
-          email: comment.user.email || "",
-        },
-        store: {
-          ...comment.store,
-          lat: comment.store.lat ?? undefined,
-          lng: comment.store.lng ?? undefined,
-        }
-      })),
-      page: parseInt(page),
-      totalPage: Math.ceil(count / parseInt(limit)),
-      totalCount: count, // 전체 댓글 개수 추가
-    });
   }
+
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const skipPage = (pageNumber - 1) * limitNumber;
+
+  const whereCondition = {
+    storeId: storeId ? parseInt(storeId, 10) : undefined,
+    userId: user ? session?.user.id : undefined,
+  };
+
+  const count = await prisma.comment.count({
+    where: whereCondition,
+  });
+
+  const comments = await prisma.comment.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    where: whereCondition,
+    skip: skipPage,
+    take: limitNumber,
+    include: {
+      user: true,
+      store: true,
+    },
+  });
+
+  return res.status(200).json({
+    data: comments.map((comment) => ({
+      ...comment,
+      user: {
+        ...comment.user,
+        email: comment.user.email || "",
+      },
+      store: {
+        ...comment.store,
+        lat: comment.store.lat ?? undefined,
+        lng: comment.store.lng ?? undefined,
+      },
+    })),
+    page: pageNumber,
+    totalPage: Math.ceil(count / limitNumber),
+    totalCount: count,
+  });
 }
