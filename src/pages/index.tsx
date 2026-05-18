@@ -1,15 +1,21 @@
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
-import CurrentPosition from "../components/CurrentPosition";
 import Map, { type MapRuntimeStatus } from "../components/Map";
 import Markers, { type MarkerRuntimeStatus } from "../components/Markers";
-import StoreBox from "../components/StoreBox";
 import { StoreApiResponse, StoreType } from "../interface";
 
 type StoreFetchStatus = "loading" | "success" | "empty" | "error";
+
+const CurrentPosition = dynamic(() => import("../components/CurrentPosition"), {
+  ssr: false,
+});
+const StoreBox = dynamic(() => import("../components/StoreBox"), {
+  ssr: false,
+});
 
 interface ApiErrorBody {
   message?: string;

@@ -8,6 +8,7 @@ import { StoreType } from "@/interface";
 import { useQuery } from "react-query";
 import Loader from "@/components/Loader";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function StoreEditPage() {
   const router  = useRouter();
@@ -54,7 +55,13 @@ export default function StoreEditPage() {
                     <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
                           페이지가 텅텅 비었네요.
                     </p>
-                    <img src="/images/markers/404.png" className="w-[500px] h-[500px] mx-auto min-[320px]:w-[150px] min-[320px]:h-[150px]"/>
+                    <Image
+                      src="/images/markers/404.png"
+                      width={500}
+                      height={500}
+                      alt="페이지를 찾을 수 없는 상태를 나타내는 404 이미지"
+                      className="mx-auto h-[500px] w-[500px] min-[320px]:h-[150px] min-[320px]:w-[150px]"
+                    />
                     <div className="mt-10 flex items-center justify-center gap-x-6">
                       <Link href="/">
                         <a className="rounded-md bg-[--color-signature] px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-50  focus-visible:outline-2 focus-visible:outline-offset-2">
@@ -244,6 +251,4 @@ export default function StoreEditPage() {
 
 // 19:11  Error: 'store' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 // 21:5  Error: 'isSuccess' is assigned a value but never used.  @typescript-eslint/no-unused-vars
-// 58:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-// 58:21  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
 // 60:23  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
