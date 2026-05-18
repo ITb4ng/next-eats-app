@@ -65,174 +65,169 @@
 - Prisma 7 및 `pg adapter` 기반 환경 정리
 - 빌드 및 프리뷰 배포 안정화
 
-## 스크린샷
+## Version History
 
-아래 경로는 `v1.0.0` 릴리즈 문서와 README에서 함께 사용할 수 있도록 미리 맞춰 둔 자리입니다.
-이미지는 이후 경로에 맞게 추가하면 됩니다.
+### v1.0.0 Initial Release
 
-### 홈 지도
-![홈 지도](./docs/screenshots/v1.0.0/main.png)
+`v1.0.0`은 2026년 4월 4일 최초 배포된 초기 정식 릴리즈입니다.
 
-### 로그인 / 데모 계정
-![로그인 화면](./docs/screenshots/v1.0.0/login.png)
+- 배포 URL: `https://next-eats-p8o1fkw06-itb4ngs-projects.vercel.app/`
+- 맛집 등록, Kakao Map 기반 지도 표시, 마커 표시, 좋아요, 댓글, 마이페이지, 무한 스크롤 등 핵심 기능 구현
+- 실제 배포 환경에서 사용자 탐색, 등록, 개인화 흐름 연결
+- 데모 계정과 권한 분기를 포함해 포트폴리오 확인 흐름 구성
+- Prisma, Supabase, NextAuth, Kakao Map API 기반의 풀스택 서비스 흐름 검증
 
-### 맛집 등록
-![맛집 등록](./docs/screenshots/v1.0.0/new.png)
+`v1.0.0`은 핵심 기능 구현과 배포에 성공했다는 점에서 의미가 있습니다.  
+다만 배포 이후 운영 품질 관점에서 초기 로딩, Kakao Map 렌더링 의존도, Supabase 무료 요금제 한계, SEO, 의존성/보안 안정화, 성능 측정 자동화 측면의 개선 필요성이 확인되었습니다.
 
-## 기술 스택
+### v1.1.0 Loading Stability Plan
 
-### Frontend
-![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+현재 Production 배포본은 `v1.1.0`급 로딩 안정화 버전으로 보고 있습니다.
 
-### State / Data
-![Zustand](https://img.shields.io/badge/Zustand-4A3F35?style=for-the-badge)
-![React Query](https://img.shields.io/badge/React_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)
-![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
+- Production URL: `https://next-eats-app.vercel.app/`
+- fallback store 표시 개선 이후 초기 화면 체감 속도 개선 확인
+- Desktop Performance 평균 `78.66`에서 `88`로 개선
+- Mobile Performance 1회 측정 기준 약 `72`에서 `75`로 소폭 개선
+- SEO `54`에서 `91`로 개선
+- 현재 Production 기준 LCP는 약 `2.1s`로, 추가 개선 여지가 남아 있음
 
-### Auth / Form
-![NextAuth](https://img.shields.io/badge/NextAuth-111111?style=for-the-badge)
-![React Hook Form](https://img.shields.io/badge/React_Hook_Form-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white)
+`v1.1.0`에서는 새로운 기능 확장보다 초기 로딩 안정화, LCP 개선 후보 탐색, 정적 리소스 최적화, debug state 환경 분리, Playwright MCP 기반 성능 측정 자동화 기반 마련에 집중할 계획입니다.
 
-### Database / Infra
-![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+---
 
-### External API
-![Kakao Map API](https://img.shields.io/badge/Kakao_Map_API-FFCD00?style=for-the-badge&logo=kakaotalk&logoColor=000000)
-![Kakao Local API](https://img.shields.io/badge/Kakao_Local_API-FFCD00?style=for-the-badge&logo=kakaotalk&logoColor=000000)
-![Daum Postcode](https://img.shields.io/badge/Daum_Postcode-0052CC?style=for-the-badge)
+## Performance Baseline
 
-## 트러블슈팅 / 개선 경험
+2026년 5월 19일 기준 Lighthouse 수동 측정 결과를 기준으로 `v1.0.0` 배포본과 현재 Production 배포본을 비교했습니다.
 
-### Recoil에서 Zustand로 전환
-- Next 15 / React 19 환경에서 Recoil 유지 비용과 호환성 부담을 줄이기 위해 Zustand로 상태 관리를 전환했습니다.
-- 검색 상태와 지도 상태를 분리해 구조를 단순화했습니다.
+자세한 기록은 아래 문서에 정리했습니다.
 
-### 무한 스크롤 안정화
-- 스크롤 끝 감지 시 중복 호출이 발생하지 않도록 `Intersection Observer`와 `fetchNextPage` 호출 타이밍을 조정했습니다.
-- 검색 조건이 바뀔 때도 자연스럽게 새 목록을 가져오도록 쿼리 키를 구성했습니다.
+- [v1.0.0 대비 현재 Production 로딩 성능 비교](./docs/performance/2026-05-19-v1-loading-comparison.md)
 
-### Hook 순서 오류와 로딩 상태 정리
-- `Rendered more hooks than during the previous render` 문제를 수정하며 조건부 렌더링 구조를 점검했습니다.
-- `status === "loading"` 처리와 로더 분기를 보완해 초기 렌더 오류 가능성을 줄였습니다.
+### Lighthouse 측정 요약
 
-### 모바일 UI / 접근성 개선
-- 모바일 메뉴 동작, 포커스 스타일, 버튼 상호작용을 개선했습니다.
-- 현재 보고 있는 화면이 네비게이션에서 바로 드러나도록 활성 상태 UI를 추가했습니다.
+| 측정 항목 | 측정 기준 | v1.0.0 배포 버전 | 현재 Production | 변화 | 해석 |
+|---|---|---:|---:|---:|---|
+| Performance | Desktop 평균 | 78.66 | 88 | +9.34 | 데스크톱 기준 개선 확인 |
+| Performance | Mobile 1회 측정 | 약 72 | 75 | +3 | 소폭 개선, 반복 측정 필요 |
+| SEO | Desktop Lighthouse | 54 | 91 | +37 | 메타/문서 구조 개선 효과 확인 |
 
-## 주요 폴더 구조
+### 현재 Production 주요 지표
 
-```bash
-docs
-└─ screenshots     # README / 릴리즈 문서에 사용하는 화면 캡처
+| 지표 | 현재 Production | v1.0.0 비교 | 해석 |
+|---|---:|---:|---|
+| LCP | 약 2.1s | 약 2.1s 수준 | 개선 여지가 남아 있는 핵심 지표 |
+| FCP | 약 0.2s | 미기록 | 초기 콘텐츠 표시는 빠른 편 |
+| Speed Index | 약 0.6s | 미기록 | 시각적 표시 속도는 양호한 편 |
+| TBT | 0ms | 미기록 | 측정 시점 기준 장기 작업 영향은 낮음 |
+| CLS | 약 0.001 | 미기록 | 레이아웃 이동은 낮은 수준 |
 
-public
-├─ fonts           # 커스텀 폰트
-└─ images          # 마커 등 정적 이미지 자산
+Desktop Performance 평균과 SEO는 개선이 확인되었고, Mobile Performance는 1회 측정 기준으로 소폭 개선되었습니다.
 
-prisma
-└─ migrations      # DB 마이그레이션 이력
+다만 LCP는 `v1.0.0`과 현재 Production 모두 약 `2.1s` 수준으로 확인되어, Kakao Map, 지도 타일, 커스텀 폰트, 마커 이미지 등 지도 및 정적 리소스 최적화가 계속 필요한 상태입니다.
 
-src
-├─ components      # 지도, 마커, 댓글, 검색 필터, 네비게이션 등 공통 UI
-├─ data            # 카테고리 / 지역 등 정적 데이터
-├─ db              # Prisma Client 연결
-├─ generated       # Prisma generated client
-├─ hooks           # Intersection Observer 커스텀 훅
-├─ interface       # 공통 타입 정의
-├─ pages           # 페이지 및 API Routes
-├─ styles          # 전역 스타일
-├─ types           # 외부 라이브러리 타입 선언
-└─ zustand         # 검색 / 지도 / 선택 상태 관리
+### 측정 한계
 
-prisma/schema.prisma # User, Store, Like, Comment 모델
-```
+- `v1.0.0`은 복원한 Vercel 고유 URL의 Lighthouse 수동 측정 결과를 baseline으로 사용했습니다.
+- 현재 로컬 코드 기준에서 당시 `v1.0.0` 버전을 Playwright MCP 서버로 동일하게 측정하는 것은 불가능합니다.
+- Mobile Performance는 1회 측정값이므로 반복 측정 평균으로 해석하지 않습니다.
+- Vercel 응답 상태, 네트워크, 외부 API, 브라우저 환경, Supabase 무료 요금제 일시정지 여부에 따라 결과가 달라질 수 있습니다.
+- 이 기록은 절대적인 성능 보증이 아니라, `v1.0.0` 이후 운영 품질 개선 흐름을 설명하기 위한 기준선입니다.
 
-## 실행 방법
+---
 
-### 1. 설치
+## Common Improvement Targets
 
-```bash
-npm install
-```
+`v1.0.0`과 현재 Production을 비교한 결과, 다음 항목은 두 버전 모두에서 공통적으로 개선이 필요한 영역으로 판단했습니다.
 
-### 2. 환경 변수 설정
+- LCP 개선
+- Kakao Map 중심 초기 렌더링 구조 완화
+- 지도 타일, 마커 이미지, 커스텀 폰트 등 정적 리소스 최적화
+- 모바일 성능 개선
+- fallback, loading, empty, error 상태의 체계화
+- 개발 환경과 운영 환경의 debug state 분리
+- 반복 가능한 성능 측정 자동화 도입
 
-`.env.local`에 아래 값을 설정합니다.
+특히 LCP는 약 `2.1s` 수준으로 유지되어, 초기 화면 표시 체감은 개선되었지만 주요 콘텐츠 완료 시점은 아직 추가 최적화가 필요합니다.
 
-```bash
-DATABASE_URL=
-NEXTAUTH_URL=
-NEXTAUTH_SECRET=
+---
 
-KAKAO_CLIENT_ID=
-KAKAO_CLIENT_SECRET=
+## Known Issues in v1.0.0
 
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+`v1.0.0`은 핵심 기능 구현과 배포에 성공한 초기 릴리즈였지만, 운영 품질 관점에서는 다음 문제가 있었습니다.
 
-NAVER_CLIENT_ID=
-NAVER_CLIENT_SECRET=
+- 초기 로딩 속도가 충분히 안정화되지 않았습니다.
+- Kakao Map 렌더링 의존도가 높아 지도 SDK, 지도 타일, 마커 이미지 로딩 상태가 초기 화면 경험에 영향을 줄 수 있었습니다.
+- Supabase 무료 요금제 일시정지 또는 cold start로 인해 첫 요청 지연 가능성이 있었습니다.
+- 지도 fallback 상황에서 사용자에게 제공되는 정보가 제한적이었습니다.
+- SEO 점수가 낮아 공개 페이지의 검색 노출과 문서 구조 개선이 필요했습니다.
+- GitHub Dependabot 알림을 통해 의존성 및 보안 패치 필요성이 확인되었습니다.
+- 프로젝트 루트 구조와 의존성 안정화가 필요했습니다.
+- fallback, debug, loading, empty, error 상태 설계가 운영 품질 관점에서 더 정리될 필요가 있었습니다.
+- 성능 측정이 수동 Lighthouse에 의존하고 있어 반복 가능한 자동화 기준선이 부족했습니다.
 
-NEXT_PUBLIC_API_URL=http://localhost:3000
-NEXT_PUBLIC_KAKAO_MAP_API_KEY=
-NEXT_PUBLIC_KAKAO_MAP_CLIENT=
-```
+---
 
-`NEXT_PUBLIC_KAKAO_MAP_API_KEY` is the preferred client-side Kakao Map key.
-`NEXT_PUBLIC_KAKAO_MAP_CLIENT` is still read for backward compatibility.
-Vercel Preview and Production have separate environment variable scopes, and changes
-to these values require redeploying the affected environment.
+## v1.1.0 Loading Stability Scope
 
-### 3. Prisma 반영
+`v1.1.0`은 새로운 기능 확장보다 로딩 안정화와 운영 품질 개선에 초점을 둡니다.
 
-```bash
-npx prisma migrate deploy
-npx prisma generate
-```
+### 진행할 작업
 
-개발 환경에서 빠르게 스키마를 맞출 때는 아래 방식도 사용할 수 있습니다.
+- 초기 로딩 안정화
+- LCP 개선 후보 탐색
+- Kakao Map 렌더링 의존도 완화
+- 지도 타일, 커스텀 폰트, 마커 이미지 등 정적 리소스 최적화 검토
+- fallback UI와 loading state 개선
+- debug state와 production state 환경 분리
+- GitHub Dependabot 알림 기반 의존성 및 보안 패치 반영
+- 프로젝트 루트 구조 및 의존성 안정화
+- Playwright MCP 기반 성능 측정 자동화 기반 마련
+- 필요 시 메인페이지 지도 렌더링 로직 리팩토링
 
-```bash
-npx prisma db push
-```
+### 다루지 않는 범위
 
-### 4. 개발 서버 실행
+`v1.1.0`은 로딩 안정화와 운영 품질 개선에 초점을 두기 때문에, 아래 항목은 `v2.0.0` 구조 개선 과제로 분리합니다.
 
-```bash
-npm run dev
-```
+- 맛집 등록 플로우 전면 개편
+- 지도 클릭 기반 등록 UX 재설계
+- 주소 검색, 좌표 저장, 카테고리 선택 흐름 전면 변경
+- 전체 페이지 구조 재설계
+- 서비스 데이터 흐름 전면 개편
+- 지도 중심 구조와 리스트 중심 구조의 역할 재정의
 
-캐시가 꼬였을 때는 아래 스크립트로 `.next`를 정리할 수 있습니다.
+---
 
-```bash
-npm run clean
-npm run dev
-```
+## Future Improvements
 
-## 브랜치 운영
+향후 개선은 수동 측정이 아니라 반복 가능한 측정과 회귀 확인이 가능한 방향으로 확장할 계획입니다.
 
-- `main`: 배포와 릴리즈 기준 브랜치
-- `dev`: 기본 개발 브랜치
+- Playwright MCP 기반 성능 측정 자동화 도입
+- Production과 Preview 배포본의 반복 측정 기준 마련
+- 홈 진입, 지도 표시, 마커 표시, 목록 스크롤, 상세 진입 시나리오 정의
+- LCP, FCP, CLS, TBT, Speed Index 등 핵심 지표 기록
+- 수동 Lighthouse 결과와 자동화 측정 결과 비교
+- PR 또는 배포 전 체크리스트에 성능 측정 결과 연결
+- Dependabot 알림 기반 의존성 및 보안 패치 흐름 정리
+
+---
+
+## v2.0.0 Roadmap
+
+`v2.0.0`에서는 성능 안정화 이후 서비스 구조와 핵심 사용자 흐름을 더 크게 재설계할 계획입니다.
+
+- 맛집 등록 플로우 전면 재설계
+- Kakao Map 의존 구조 개선
+- 주소 검색, 좌표 저장, 카테고리 선택 흐름 재검토
+- 지도 클릭 기반 등록 UX 강화
+- 지도 중심 구조와 리스트 중심 구조의 역할 재정의
+- fallback, debug, loading, empty, error 상태 설계 전면 개선
+- 서비스 운영 관점의 데이터 흐름 및 검증 흐름 개선
+- 사용자가 지도, 목록, 상세, 등록 화면을 오갈 때의 데이터 흐름 단순화
+
+---
 
 ## 앞으로의 개선 방향
 
-- 지도 클릭 기반 맛집 등록 흐름 강화
-- 주소 입력 부담을 줄이는 위치 선택 UX 개선
-- 공개 페이지 SEO 보완
-- 운영 관점의 데이터 검증 및 관리 기능 확장
-- 테스트와 배포 체크리스트 보강
-
-## 회고
-
-이 프로젝트는 단순 화면 구현보다 실제 사용자 흐름을 갖춘 서비스를 끝까지 연결해 본 경험에 가깝습니다.
-
-- 사용자 경험을 고려해 기능을 설계하고 UI를 개선하는 능력
-- 프론트엔드와 백엔드 경계를 넘나들며 문제를 해결하는 능력
-- 기술 선택 이유와 리팩터링 배경을 설명할 수 있는 개발 태도
-
-를 함께 보여줄 수 있는 프로젝트로 정리하고 있습니다.
+- `v1.1.0`에서는 초기 로딩 안정화, LCP 개선, 정적 리소스 최적화, debug state 환경 분리, Playwright MCP 기반 측정 자동화 기반을 마련합니다.
+- `v2.0.0`에서는 맛집 등록 플로우, Kakao Map 의존 구조, 지도/목록 역할, fallback 상태 설계를 구조적으로 개선합니다.
+- 성능 개선 결과는 수동 Lighthouse 측정뿐 아니라 반복 가능한 테스트 코드와 배포 전 체크리스트로 관리할 계획입니다.
