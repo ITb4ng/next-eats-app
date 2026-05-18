@@ -1,65 +1,63 @@
 import { StoreType } from "@/interface";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useMapStore } from "@/zustand";
 
-interface MarkersProps {
-    store: StoreType;
+interface MarkerProps {
+  store: StoreType;
 }
 
-export default function Marker({ store }: MarkersProps) {
-    const map = useMapStore((state) => state.map);
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value);
 
-    const loadKakaoMarker = useCallback(() => {
-        if (map && store && store.lat && store.lng) {
-            // Check for category and set marker image
-            const imageSrc = store.category
-                ? `/images/markers/${store.category}.png`
-                : "/images/markers/default.png";
-            const imageSize = new window.kakao.maps.Size(40, 40); // Default marker size
-            const imageOption = { offset: new window.kakao.maps.Point(24, 59) }; // Offset
+export default function Marker({ store }: MarkerProps) {
+  const map = useMapStore((state) => state.map);
 
-            // Create the marker image
-            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+  useEffect(() => {
+    if (!map || !isFiniteNumber(store?.lat) || !isFiniteNumber(store?.lng)) {
+      return;
+    }
 
-            // Marker position based on store's lat/lng
-            const markerPosition = new window.kakao.maps.LatLng(store.lat, store.lng);
+    const maps = window.kakao?.maps;
+    if (!maps) return;
 
-            // Create the marker
-            const marker = new window.kakao.maps.Marker({
-                position: markerPosition,
-                image: markerImage,
-            });
+    const imageSrc = store.category
+      ? `/images/markers/${store.category}.png`
+      : "/images/markers/default.png";
+    const imageSize = new maps.Size(40, 40);
+    const imageOption = { offset: new maps.Point(24, 59) };
+    const markerImage = new maps.MarkerImage(imageSrc, imageSize, imageOption);
+    const markerPosition = new maps.LatLng(store.lat, store.lng);
+    const marker = new maps.Marker({
+      position: markerPosition,
+      image: markerImage,
+    });
+    const content = document.createElement("div");
+    content.className = "infowindow";
+    content.textContent = store.name || "이름 없는 가게";
+    const customOverlay = new maps.CustomOverlay({
+      position: markerPosition,
+      content,
+      xAnchor: 0.6,
+      yAnchor: 0.91,
+    });
+    const handleMouseOver: kakao.maps.event.EventHandler = () => {
+      customOverlay.setMap(map);
+    };
+    const handleMouseOut: kakao.maps.event.EventHandler = () => {
+      customOverlay.setMap(null);
+    };
 
-            // Set the marker on the map
-            marker.setMap(map);
+    marker.setMap(map);
+    maps.event.addListener(marker, "mouseover", handleMouseOver);
+    maps.event.addListener(marker, "mouseout", handleMouseOut);
 
-            console.log(imageSrc);
-            const content = `<div class="infowindow">${store.name}</div>`;
+    return () => {
+      maps.event.removeListener(marker, "mouseover", handleMouseOver);
+      maps.event.removeListener(marker, "mouseout", handleMouseOut);
+      customOverlay.setMap(null);
+      marker.setMap(null);
+    };
+  }, [map, store]);
 
-            const customOverlay = new window.kakao.maps.CustomOverlay({
-                position: markerPosition,
-                content: content,
-                xAnchor: 0.6,
-                yAnchor: 0.91,
-            });
-
-            // Register mouseover event
-            window.kakao.maps.event.addListener(marker, "mouseover", function () {
-                customOverlay.setMap(map);
-            });
-
-            // Register mouseout event
-            window.kakao.maps.event.addListener(marker, "mouseout", function () {
-                customOverlay.setMap(null);
-            });
-        }
-    }, [map, store]);
-
-    useEffect(() => {
-        if (map && store?.lat && store?.lng) {
-            loadKakaoMarker();
-        }
-    }, [loadKakaoMarker, map, store?.lat, store?.lng]);
-
-    return <></>;
+  return null;
 }

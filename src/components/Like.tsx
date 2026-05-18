@@ -25,7 +25,6 @@ export default function Like({ storeId, isLiked }: { storeId: number; isLiked: b
 
     try {
       const res = await axios.post("/api/likes", { storeId }, {withCredentials: true});
-      console.log("response:", res);
       toast[res.status === 201 ? "success" : "warning"](
         res.status === 201 ? "가게를 찜했습니다." : "찜을 취소했습니다."
       );

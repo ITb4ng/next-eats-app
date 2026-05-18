@@ -15,6 +15,18 @@ export default function CurrentPosition () {
             timeout: 3000,
             maximumAge: Infinity,
         };
+        if(!map || !window.kakao?.maps){
+            toast.error("지도가 준비된 뒤 현재 위치를 사용할 수 있습니다.");
+            setLoading(false);
+            return;
+        }
+
+        if(!navigator.geolocation){
+            toast.error("현재 위치 기능을 사용할 수 없습니다.");
+            setLoading(false);
+            return;
+        }
+
         if(navigator.geolocation && map){
             navigator.geolocation.getCurrentPosition(
                 (position) => {

@@ -179,8 +179,14 @@ NAVER_CLIENT_ID=
 NAVER_CLIENT_SECRET=
 
 NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_KAKAO_MAP_API_KEY=
 NEXT_PUBLIC_KAKAO_MAP_CLIENT=
 ```
+
+`NEXT_PUBLIC_KAKAO_MAP_API_KEY` is the preferred client-side Kakao Map key.
+`NEXT_PUBLIC_KAKAO_MAP_CLIENT` is still read for backward compatibility.
+Vercel Preview and Production have separate environment variable scopes, and changes
+to these values require redeploying the affected environment.
 
 ### 3. Prisma 반영
 

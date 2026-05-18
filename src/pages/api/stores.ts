@@ -15,6 +15,37 @@ interface ResponseType {
   id?: string;
 }
 
+const getErrorText = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message.toLowerCase();
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    return typeof message === "string" ? message.toLowerCase() : "";
+  }
+
+  return "";
+};
+
+const isDatabaseDelayLikeError = (error: unknown) => {
+  const message = getErrorText(error);
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? String((error as { code?: unknown }).code).toLowerCase()
+      : "";
+
+  return (
+    code.startsWith("54") ||
+    message.includes("timeout") ||
+    message.includes("gateway") ||
+    message.includes("connection") ||
+    message.includes("terminated") ||
+    message.includes("supabase") ||
+    message.includes("pause")
+  );
+};
+
 async function getCoordinates(address: string) {
   const headers = {
     Authorization: `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
@@ -51,7 +82,9 @@ export default async function handler(
       }
 
       if (session.user.role === "DEMO") {
-        return res.status(403).json({ message: "데모 계정은 맛집 등록과 수정이 제한됩니다." });
+        return res.status(403).json({
+          message: "데모 계정은 맛집 등록과 수정을 할 수 없습니다.",
+        });
       }
 
       const formData = req.body;
@@ -81,7 +114,9 @@ export default async function handler(
       }
 
       if (session.user.role === "DEMO") {
-        return res.status(403).json({ message: "데모 계정은 맛집 삭제가 제한됩니다." });
+        return res.status(403).json({
+          message: "데모 계정은 맛집 삭제를 할 수 없습니다.",
+        });
       }
 
       if (!id) {
@@ -154,6 +189,13 @@ export default async function handler(
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (error) {
     console.error("Store API error:", error);
+
+    if (isDatabaseDelayLikeError(error)) {
+      return res.status(503).json({
+        message: "데이터베이스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",
+      });
+    }
+
     return res.status(500).json({ message: "맛집 데이터를 처리하는 중 오류가 발생했습니다." });
   }
 }
