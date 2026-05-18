@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="우아한맛집들">
+  <rect width="64" height="64" rx="14" fill="#2ac1bc"/>
+  <path fill="#ffffff" d="M32 10c-8.3 0-15 6.5-15 14.6 0 10.7 12.5 25.8 14 27.5.5.6 1.5.6 2 0 1.5-1.7 14-16.8 14-27.5C47 16.5 40.3 10 32 10Zm0 21.2a6.7 6.7 0 1 1 0-13.4 6.7 6.7 0 0 1 0 13.4Z"/>
+  <circle cx="32" cy="24.5" r="3.2" fill="#0f8f8a"/>
+</svg>

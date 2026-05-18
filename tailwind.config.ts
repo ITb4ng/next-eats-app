@@ -9,9 +9,6 @@ const config: Config = {
     'animate-slideFadeIn',
     'opacity-0',
     'opacity-100',
-    {
-      pattern: /delay-\[\d+ms\]/, // delay-[100ms] 등 safelist
-    },
   ],
   theme: {
     extend: {

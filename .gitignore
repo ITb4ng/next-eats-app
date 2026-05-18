@@ -31,9 +31,16 @@ yarn-debug.log*
 yarn-error.log*
 
 # env files (can opt-in for committing if needed)
-.env*. local
 .env
 .env.local
+.env.*.local
+
+# local database connection test files
+db-test.js
+test-db.js
+connect-db.js
+local-db-test.js
+scripts/local-db-test.js
 
 # vercel
 .vercel
@@ -46,6 +53,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
+/.vscode
 .vscode/
 .vscode-test/
