@@ -65,6 +65,92 @@
 - Prisma 7 및 `pg adapter` 기반 환경 정리
 - 빌드 및 프리뷰 배포 안정화
 
+## Version History
+
+### v1.0.0 Initial Release
+
+`v1.0.0`은 2026년 4월 4일 최초 배포된 초기 정식 릴리즈입니다.
+
+- 배포 URL: `https://next-eats-p8o1fkw06-itb4ngs-projects.vercel.app/`
+- 맛집 등록, Kakao Map 기반 지도 표시, 마커 표시, 좋아요, 마이페이지, 무한 스크롤 등 핵심 기능 구현
+- 실제 배포 환경에서 사용자 탐색, 등록, 개인화 흐름을 연결
+- 데모 계정과 권한 분기를 포함해 포트폴리오 확인 흐름 구성
+
+이 버전은 핵심 기능 구현과 배포에 성공했다는 점에서 의미가 있지만, 초기 로딩, 지도 의존 구조, Supabase 무료 요금제 한계, SEO, 의존성/보안 안정화 측면에서는 개선 필요성이 확인되었습니다.
+
+### v1.1.0 Loading Stability Plan
+
+현재 Production 배포본은 `v1.1.0`급 로딩 안정화 버전으로 보고 있습니다.
+
+- Production URL: `https://next-eats-app.vercel.app/`
+- fallback store 표시 개선 이후 초기 화면 체감 속도 개선 확인
+- Desktop Performance 평균 `78.66`에서 `88`로 개선
+- Mobile Performance 1회 측정 기준 약 `72`에서 `75`로 개선
+- SEO `54`에서 `91`로 개선
+- 현재 Production 기준 LCP는 약 `2.1s`로, 추가 개선 여지가 남아 있음
+
+`v1.1.0`에서는 새로운 기능 확장보다 초기 로딩 안정화, 리소스 최적화, LCP 개선, debug state 환경 분리, Playwright MCP 기반 성능 측정 자동화 기반 마련에 집중할 계획입니다.
+
+## Performance Baseline
+
+2026년 5월 19일 기준 Lighthouse 수동 측정 결과를 기준으로 `v1.0.0` 배포본과 현재 Production 배포본을 비교했습니다. 자세한 기록은 [docs/performance/2026-05-19-v1-loading-comparison.md](./docs/performance/2026-05-19-v1-loading-comparison.md)에 정리했습니다.
+
+### Lighthouse 측정 요약
+
+| 측정 항목 | 측정 기준 | v1.0.0 배포 버전 | 현재 Production | 변화 | 해석 |
+|---|---|---:|---:|---:|---|
+| Performance | Desktop 평균 | 78.66 | 88 | +9.34 | 데스크톱 기준 개선 확인 |
+| Performance | Mobile 1회 측정 | 약 72 | 75 | +3 | 소폭 개선, 반복 측정 필요 |
+| SEO | Desktop Lighthouse | 54 | 91 | +37 | 메타/문서 구조 개선 효과 확인 |
+
+### 현재 Production 주요 지표
+
+| 지표 | 현재 Production | v1.0.0 비교 | 해석 |
+|---|---:|---:|---|
+| LCP | 약 2.1s | 약 2.1s 수준 | 개선 여지가 남아 있는 핵심 지표 |
+| FCP | 약 0.2s | 미기록 | 초기 콘텐츠 표시는 빠른 편 |
+| Speed Index | 약 0.6s | 미기록 | 시각적 표시 속도는 양호한 편 |
+| TBT | 0ms | 미기록 | 측정 시점 기준 장기 작업 영향은 낮음 |
+| CLS | 약 0.001 | 미기록 | 레이아웃 이동은 낮은 수준 |
+
+요약하면 Desktop Performance 평균과 SEO는 명확한 개선이 확인되었고, Mobile Performance는 1회 측정 기준으로 소폭 개선되었습니다. 다만 LCP는 `v1.0.0`과 현재 Production 모두 약 `2.1s` 수준으로 확인되어, Kakao Map, 지도 타일, 커스텀 폰트, 마커 이미지 등 지도 및 정적 리소스 최적화가 계속 필요한 상태입니다.
+
+### 측정 한계
+
+- `v1.0.0`은 복원한 Vercel 고유 URL의 Lighthouse 수동 측정 결과를 baseline으로 사용했습니다.
+- 현재 로컬 코드 기준에서 당시 `v1.0.0` 버전을 Playwright MCP 서버로 동일하게 측정하는 것은 불가능합니다.
+- Mobile Performance는 1회 측정값이므로 반복 측정 평균으로 해석하지 않습니다.
+- Vercel 응답 상태, 네트워크, 외부 API, 브라우저 환경, Supabase 무료 요금제 일시정지 여부에 따라 결과가 달라질 수 있습니다.
+
+## Known Issues in v1.0.0
+
+- 초기 로딩 속도가 충분히 안정화되지 않았습니다.
+- Kakao Map 렌더링 의존도가 높아 지도 SDK, 지도 타일, 마커 이미지 로딩 상태가 초기 화면 경험에 영향을 줄 수 있었습니다.
+- Supabase 무료 요금제 일시정지 또는 cold start로 인해 첫 요청 지연 가능성이 있었습니다.
+- SEO 점수가 낮아 공개 페이지의 검색 노출과 문서 구조 개선이 필요했습니다.
+- GitHub Dependabot 알림을 통해 의존성 및 보안 패치 필요성이 확인되었습니다.
+- fallback, debug, loading, empty 상태 설계가 운영 품질 관점에서 더 정리될 필요가 있었습니다.
+
+## Future Improvements
+
+- Playwright MCP 기반 성능 측정 자동화 도입
+- Production과 Preview 배포본의 반복 측정 기준 마련
+- LCP 개선을 위한 지도 리소스, 커스텀 폰트, 마커 이미지 최적화 검토
+- debug state와 production state 환경 분리
+- loading, fallback, empty, error 상태의 사용자 경험 개선
+- Dependabot 알림 기반 의존성 및 보안 패치 흐름 정리
+
+## v2.0.0 Roadmap
+
+`v2.0.0`에서는 성능 안정화 이후 서비스 구조와 핵심 사용자 흐름을 더 크게 재설계할 계획입니다.
+
+- 맛집 등록 플로우 전면 재설계
+- Kakao Map 의존 구조 개선
+- 주소 검색, 좌표 저장, 카테고리 선택 흐름 재검토
+- 지도 클릭 기반 등록 UX 강화
+- fallback, debug, loading, empty 상태 설계 전면 개선
+- 서비스 운영 관점의 데이터 흐름 및 검증 흐름 개선
+
 ## 스크린샷
 
 아래 경로는 `v1.0.0` 릴리즈 문서와 README에서 함께 사용할 수 있도록 미리 맞춰 둔 자리입니다.
