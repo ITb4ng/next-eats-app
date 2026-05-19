@@ -2,6 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { logOperationalError, type OperationalErrorCode } from "@/lib/opsLogger";
 
+type KakaoMapSdkErrorCode = Exclude<
+  OperationalErrorCode,
+  "DB_STORES_UNAVAILABLE" | "STORE_API_ERROR"
+>;
+
 export type KakaoMapSdkStatus =
   | "idle"
   | "loading"
@@ -31,10 +36,12 @@ export function useKakaoMapSdk() {
   const appKey = useMemo(getKakaoMapAppKey, []);
   const [status, setStatus] = useState<KakaoMapSdkStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [debugCode, setDebugCode] = useState<KakaoMapSdkErrorCode | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
   const retry = useCallback(() => {
     setErrorMessage(null);
+    setDebugCode(null);
     setStatus("idle");
     setRetryCount((count) => count + 1);
   }, []);
@@ -51,6 +58,7 @@ export function useKakaoMapSdk() {
       );
       setStatus("missing-env");
       setErrorMessage("지도 설정값이 없습니다.");
+      setDebugCode("KAKAO_MAP_SDK_MISSING_CONFIG");
       return;
     }
 
@@ -69,7 +77,7 @@ export function useKakaoMapSdk() {
 
     const finishError = (
       message: string,
-      code: OperationalErrorCode,
+      code: KakaoMapSdkErrorCode,
       error?: unknown
     ) => {
       if (!isActive || isSettled) return;
@@ -79,6 +87,7 @@ export function useKakaoMapSdk() {
         scriptStatus: scriptElement?.dataset.kakaoMapStatus,
       });
       setErrorMessage(message);
+      setDebugCode(code);
       setStatus("error");
       if (scriptElement) {
         scriptElement.dataset.kakaoMapStatus = "error";
@@ -95,6 +104,7 @@ export function useKakaoMapSdk() {
         { timeoutMs: KAKAO_MAP_SDK_TIMEOUT_MS, retryCount }
       );
       setErrorMessage("지도 SDK 응답 시간이 초과되었습니다.");
+      setDebugCode("KAKAO_MAP_SDK_TIMEOUT");
       setStatus("timeout");
       if (scriptElement) {
         scriptElement.dataset.kakaoMapStatus = "timeout";
@@ -178,6 +188,7 @@ export function useKakaoMapSdk() {
   return {
     status,
     errorMessage,
+    debugCode,
     retry,
   };
 }

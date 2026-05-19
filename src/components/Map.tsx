@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useKakaoMapSdk, type KakaoMapSdkStatus } from "@/hooks/useKakaoMapSdk";
+import {
+  getMapStatusCopy,
+  showRuntimeDebugState,
+  type MapDebugState,
+} from "@/lib/debugState";
 import { useMapStore } from "@/zustand/index";
+import Loader from "./Loader";
 
 type MapCreationStatus = "idle" | "creating" | "ready" | "map-error";
 type TileStatus = "idle" | "loading" | "ready" | "timeout";
@@ -18,6 +24,7 @@ interface MapProps {
   zoom?: number;
   onStatusChange?: (status: MapRuntimeStatus) => void;
   presentation?: "fullscreen" | "compact";
+  debugState?: MapDebugState | null;
 }
 
 const MAP_TILES_TIMEOUT_MS = 8000;
@@ -31,11 +38,17 @@ export default function Map({
   zoom,
   onStatusChange,
   presentation = "fullscreen",
+  debugState,
 }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const initialLocationRef = useRef(useMapStore.getState().location);
   const setMap = useMapStore((state) => state.setMap);
-  const { status: sdkStatus, errorMessage, retry: retrySdk } = useKakaoMapSdk();
+  const {
+    status: sdkStatus,
+    errorMessage,
+    debugCode,
+    retry: retrySdk,
+  } = useKakaoMapSdk();
   const [mapStatus, setMapStatus] = useState<MapCreationStatus>("idle");
   const [tileStatus, setTileStatus] = useState<TileStatus>("idle");
   const [mapErrorMessage, setMapErrorMessage] = useState<string | null>(null);
@@ -166,6 +179,27 @@ export default function Map({
   const showMapFailure = sdkStatus === "ready" && mapStatus === "map-error";
   const showTileTimeout =
     sdkStatus === "ready" && mapStatus === "ready" && tileStatus === "timeout";
+  const forcedDebugState = showRuntimeDebugState ? debugState : null;
+  const showForcedLoading = forcedDebugState === "KAKAO_MAP_CREATING";
+  const showForcedTileTimeout = forcedDebugState === "KAKAO_MAP_TILE_TIMEOUT";
+  const showForcedFailure =
+    !!forcedDebugState && !showForcedLoading && !showForcedTileTimeout;
+  const loadingCopy = getMapStatusCopy(
+    showMapCreating || showForcedLoading ? "KAKAO_MAP_CREATING" : "KAKAO_MAP_SDK_SCRIPT_ERROR"
+  );
+  const mapFailureDebugState: MapDebugState | null = showForcedFailure
+    ? forcedDebugState
+    : showMissingEnv
+    ? "KAKAO_MAP_SDK_MISSING_CONFIG"
+    : showMapFailure
+    ? "KAKAO_MAP_CREATE_ERROR"
+    : showSdkFailure
+    ? debugCode || (sdkStatus === "timeout" ? "KAKAO_MAP_SDK_TIMEOUT" : "KAKAO_MAP_SDK_SCRIPT_ERROR")
+    : null;
+  const mapFailureCopy = mapFailureDebugState
+    ? getMapStatusCopy(mapFailureDebugState)
+    : null;
+  const tileTimeoutCopy = getMapStatusCopy("KAKAO_MAP_TILE_TIMEOUT");
   const isCompact = presentation === "compact";
   const sectionClassName = isCompact
     ? "relative bg-slate-50"
@@ -184,39 +218,44 @@ export default function Map({
     <section className={sectionClassName} aria-label="맛집 지도">
       <div ref={mapContainerRef} id="map" className={mapClassName} />
 
-      {(showSdkLoading || showMapCreating) && (
+      {(showSdkLoading || showMapCreating || showForcedLoading) && (
         <div className={statePanelClassName} role="status" aria-live="polite">
-          <div className="w-full max-w-sm rounded-md border border-gray-200 bg-white p-5 text-center shadow-sm">
-            <div className="mx-auto mb-4 h-24 w-full animate-pulse rounded bg-gray-100" />
-            <p className="font-semibold text-gray-900">
-              {showSdkLoading ? "지도를 불러오는 중입니다." : "지도 화면을 준비하는 중입니다."}
+          <div className="w-full max-w-sm rounded-md border border-[rgba(15,143,138,0.18)] bg-white/95 p-5 text-center text-gray-700 shadow-sm">
+            <Loader className="my-0 mb-4" />
+            <p className="font-semibold text-[--color-signature-dark]">
+              {showSdkLoading && !showForcedLoading ? "지도를 불러오는 중입니다." : loadingCopy.title}
             </p>
+            {showForcedLoading && showRuntimeDebugState && (
+              <p className="mt-2 rounded bg-[--color-signature-soft] px-2 py-1 text-xs text-[--color-signature-dark]">
+                debug: KAKAO_MAP_CREATING
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {(showSdkFailure || showMapFailure || showMissingEnv) && (
+      {(showSdkFailure || showMapFailure || showMissingEnv || showForcedFailure) && (
         <div className={errorPanelClassName}>
           <div
-            className="w-full max-w-sm rounded-md border border-red-100 bg-white p-5 text-center shadow-sm"
+            className="w-full max-w-sm rounded-md border border-red-200 bg-white p-5 text-center text-gray-700 shadow-sm"
             role="alert"
             aria-live="assertive"
           >
-            <p className="font-semibold text-gray-900">
-              {showMissingEnv
-                ? "지도 설정값이 없어 지도를 표시할 수 없습니다."
-                : showMapFailure
-                ? "지도 화면을 만들지 못했습니다."
-                : "지도를 불러오지 못했습니다."}
-            </p>
-            {(errorMessage || mapErrorMessage) && !showMissingEnv && (
-              <p className="mt-2 text-sm text-gray-600">{errorMessage || mapErrorMessage}</p>
+            <p className="font-semibold text-gray-900">{mapFailureCopy?.title}</p>
+            {mapFailureCopy?.message && (
+              <p className="mt-2 text-sm text-gray-600">{mapFailureCopy.message}</p>
             )}
-            {!showMissingEnv && (
+            {showRuntimeDebugState && mapFailureDebugState && (
+              <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+                debug: {mapFailureDebugState}
+                {errorMessage || mapErrorMessage ? ` / ${errorMessage || mapErrorMessage}` : ""}
+              </p>
+            )}
+            {!showMissingEnv && !showForcedFailure && (
               <button
                 type="button"
                 onClick={showMapFailure ? resetMap : handleSdkRetry}
-                className="mt-4 rounded-md bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+                className="mt-4 rounded-md bg-[--color-signature] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2"
               >
                 다시 시도
               </button>
@@ -225,9 +264,15 @@ export default function Map({
         </div>
       )}
 
-      {showTileTimeout && (
-        <div className="absolute left-4 top-4 max-w-sm rounded-md border border-amber-200 bg-white/95 p-3 text-sm text-gray-700 shadow-sm">
-          지도 기본 화면은 열렸지만 일부 타일 응답이 느립니다.
+      {(showTileTimeout || showForcedTileTimeout) && (
+        <div className="absolute left-4 top-4 max-w-sm rounded-md border border-[rgba(15,143,138,0.18)] bg-white/95 p-3 text-sm text-gray-700 shadow-sm">
+          <p className="font-semibold text-gray-900">{tileTimeoutCopy.title}</p>
+          {tileTimeoutCopy.message && <p className="mt-1">{tileTimeoutCopy.message}</p>}
+          {showRuntimeDebugState && (
+            <p className="mt-2 text-xs text-[--color-signature-dark]">
+              debug: KAKAO_MAP_TILE_TIMEOUT
+            </p>
+          )}
         </div>
       )}
 
