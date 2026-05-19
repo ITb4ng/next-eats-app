@@ -80,50 +80,50 @@
 `v1.0.0`은 핵심 기능 구현과 배포에 성공했다는 점에서 의미가 있습니다.  
 다만 배포 이후 운영 품질 관점에서 초기 로딩, Kakao Map 렌더링 의존도, Supabase 무료 요금제 한계, SEO, 의존성/보안 안정화, 성능 측정 자동화 측면의 개선 필요성이 확인되었습니다.
 
-### v1.1.0 Loading Stability Plan
+### v1.1.0 Loading Stability
 
-현재 Production 배포본은 `v1.1.0`급 로딩 안정화 버전으로 보고 있습니다.
+PR #9 이후 Production 기준으로 `v1.1.0` 로딩 안정화 목표의 개선을 확인했습니다.
 
 - Production URL: `https://next-eats-app.vercel.app/`
-- fallback store 표시 개선 이후 초기 화면 체감 속도 개선 확인
-- Desktop Performance 평균 `78.66`에서 `88`로 개선
-- Mobile Performance 1회 측정 기준 약 `72`에서 `75`로 소폭 개선
-- SEO `54`에서 `91`로 개선
-- 현재 Production 기준 LCP는 약 `2.1s`로, 추가 개선 여지가 남아 있음
+- Production Lighthouse: Performance `96`, Accessibility `93`, Best Practices `96`, SEO `100`
+- LCP는 기존 `v1.0.0` / 초기 Production 기준 약 `2.1s`에서 약 `1.4s` 수준으로 개선 확인
+- Preview SEO는 noindex 영향으로 Production과 다르게 측정될 수 있음을 분리 확인
+- 이후 과제는 반복 측정 자동화와 회귀 방지
 
-`v1.1.0`에서는 새로운 기능 확장보다 초기 로딩 안정화, LCP 개선 후보 탐색, 정적 리소스 최적화, debug state 환경 분리, Playwright MCP 기반 성능 측정 자동화 기반 마련에 집중할 계획입니다.
+`v1.1.0`은 새로운 기능 확장보다 초기 로딩 안정화, 정적 리소스 최적화, SEO 보완, debug state 환경 분리 점검, Playwright MCP 기반 성능 측정 자동화 기반 마련에 집중합니다.
 
 ---
 
 ## Performance Baseline
 
-2026년 5월 19일 기준 Lighthouse 수동 측정 결과를 기준으로 `v1.0.0` 배포본과 현재 Production 배포본을 비교했습니다.
+2026년 5월 19일 기준 Lighthouse 수동 측정 결과를 기준으로 `v1.0.0` 배포본과 `v1.1.0` Production 배포본을 비교했습니다.
 
 자세한 기록은 아래 문서에 정리했습니다.
 
 - [v1.0.0 대비 현재 Production 로딩 성능 비교](./docs/performance/2026-05-19-v1-loading-comparison.md)
+- [v1.1.0 LCP 원인 후보 분석](./docs/performance/2026-05-19-v1.1.0-lcp-analysis.md)
 
 ### Lighthouse 측정 요약
 
-| 측정 항목 | 측정 기준 | v1.0.0 배포 버전 | 현재 Production | 변화 | 해석 |
+| 측정 항목 | 측정 기준 | v1.0.0 / 초기 기준 | v1.1.0 Production | 변화 | 해석 |
 |---|---|---:|---:|---:|---|
-| Performance | Desktop 평균 | 78.66 | 88 | +9.34 | 데스크톱 기준 개선 확인 |
+| Performance | Desktop Lighthouse | 78.66 | 96 | +17.34 | 데스크톱 기준 개선 확인 |
 | Performance | Mobile 1회 측정 | 약 72 | 75 | +3 | 소폭 개선, 반복 측정 필요 |
-| SEO | Desktop Lighthouse | 54 | 91 | +37 | 메타/문서 구조 개선 효과 확인 |
+| SEO | Desktop Lighthouse | 54 | 100 | +46 | Production 기준 개선 확인 |
 
 ### 현재 Production 주요 지표
 
-| 지표 | 현재 Production | v1.0.0 비교 | 해석 |
+| 지표 | v1.1.0 Production | v1.0.0 / 초기 기준 비교 | 해석 |
 |---|---:|---:|---|
-| LCP | 약 2.1s | 약 2.1s 수준 | 개선 여지가 남아 있는 핵심 지표 |
+| LCP | 약 1.4s | 약 2.1s → 약 1.4s | 측정 기준 개선 확인 |
 | FCP | 약 0.2s | 미기록 | 초기 콘텐츠 표시는 빠른 편 |
 | Speed Index | 약 0.6s | 미기록 | 시각적 표시 속도는 양호한 편 |
 | TBT | 0ms | 미기록 | 측정 시점 기준 장기 작업 영향은 낮음 |
 | CLS | 약 0.001 | 미기록 | 레이아웃 이동은 낮은 수준 |
 
-Desktop Performance 평균과 SEO는 개선이 확인되었고, Mobile Performance는 1회 측정 기준으로 소폭 개선되었습니다.
+Desktop Performance와 SEO는 Production 기준 개선이 확인되었고, Mobile Performance는 1회 측정 기준으로 소폭 개선되었습니다.
 
-다만 LCP는 `v1.0.0`과 현재 Production 모두 약 `2.1s` 수준으로 확인되어, Kakao Map, 지도 타일, 커스텀 폰트, 마커 이미지 등 지도 및 정적 리소스 최적화가 계속 필요한 상태입니다.
+LCP는 약 `1.4s` 수준으로 확인되어 `v1.1.0` 로딩 안정화 목표는 Production 기준으로 개선을 확인했습니다. 이후 과제는 반복 측정 자동화와 회귀 방지입니다.
 
 ### 측정 한계
 
@@ -147,7 +147,7 @@ Desktop Performance 평균과 SEO는 개선이 확인되었고, Mobile Performan
 - 개발 환경과 운영 환경의 debug state 분리
 - 반복 가능한 성능 측정 자동화 도입
 
-특히 LCP는 약 `2.1s` 수준으로 유지되어, 초기 화면 표시 체감은 개선되었지만 주요 콘텐츠 완료 시점은 아직 추가 최적화가 필요합니다.
+특히 LCP는 PR #9 이후 약 `1.4s` 수준으로 개선 확인되었으므로, 이후에는 대규모 구조 변경보다 반복 측정과 회귀 방지를 우선합니다.
 
 ---
 
@@ -173,16 +173,13 @@ Desktop Performance 평균과 SEO는 개선이 확인되었고, Mobile Performan
 
 ### 진행할 작업
 
-- 초기 로딩 안정화
-- LCP 개선 후보 탐색
-- Kakao Map 렌더링 의존도 완화
-- 지도 타일, 커스텀 폰트, 마커 이미지 등 정적 리소스 최적화 검토
+- 초기 로딩 안정화 결과 문서화
+- LCP 회귀 방지 기준 마련
+- 지도 타일, 커스텀 폰트, 마커 이미지 등 정적 리소스 영향 확인
 - fallback UI와 loading state 개선
 - debug state와 production state 환경 분리
-- GitHub Dependabot 알림 기반 의존성 및 보안 패치 반영
-- 프로젝트 루트 구조 및 의존성 안정화
 - Playwright MCP 기반 성능 측정 자동화 기반 마련
-- 필요 시 메인페이지 지도 렌더링 로직 리팩토링
+- 모바일 Lighthouse 반복 측정 기준 정리
 
 ### 다루지 않는 범위
 
@@ -228,6 +225,6 @@ Desktop Performance 평균과 SEO는 개선이 확인되었고, Mobile Performan
 
 ## 앞으로의 개선 방향
 
-- `v1.1.0`에서는 초기 로딩 안정화, LCP 개선, 정적 리소스 최적화, debug state 환경 분리, Playwright MCP 기반 측정 자동화 기반을 마련합니다.
+- `v1.1.0`에서는 Production 기준 로딩 안정화 개선을 확인했고, 이후 반복 측정 자동화와 회귀 방지 기준을 마련합니다.
 - `v2.0.0`에서는 맛집 등록 플로우, Kakao Map 의존 구조, 지도/목록 역할, fallback 상태 설계를 구조적으로 개선합니다.
 - 성능 개선 결과는 수동 Lighthouse 측정뿐 아니라 반복 가능한 테스트 코드와 배포 전 체크리스트로 관리할 계획입니다.
