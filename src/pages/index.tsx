@@ -2,12 +2,26 @@ import axios, { AxiosError } from "axios";
 import Head from "next/head";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
 import Map, { type MapRuntimeStatus } from "../components/Map";
 import type { MarkerRuntimeStatus } from "../components/Markers";
 import { StoreApiResponse, StoreType } from "../interface";
+import {
+  getDebugReasonFromQuery,
+  getDebugStateFromQuery,
+  getRuntimeStateCopy,
+  getStoreStatusCopy,
+  isMapDebugState,
+  isStoreDebugState,
+  showRuntimeDebugState,
+  type RuntimeDebugState,
+  type RuntimeUiState,
+  type StoreDebugState,
+} from "../lib/debugState";
+import Loader from "../components/Loader";
 
 type StoreFetchStatus = "loading" | "success" | "empty" | "error";
 
@@ -62,13 +76,33 @@ const isDatabaseDelayLikeError = (error: AxiosError<ApiErrorBody> | null) => {
   );
 };
 
-const getStoreErrorMessage = (error: AxiosError<ApiErrorBody> | null) => {
+const getStoreDebugState = (error: AxiosError<ApiErrorBody> | null): StoreDebugState => {
   if (isDatabaseDelayLikeError(error)) {
-    return "데이터베이스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.";
+    return "store-database-delay";
   }
 
-  return error?.response?.data?.message || "가게 정보를 불러오지 못했습니다.";
+  if (!error?.response) {
+    return "store-network-error";
+  }
+
+  return "store-api-error";
 };
+
+type StoreRequestDebugState = Extract<
+  StoreDebugState,
+  "store-database-delay" | "store-network-error" | "store-api-error"
+>;
+
+const storeRequestDebugStates: StoreRequestDebugState[] = [
+  "store-database-delay",
+  "store-network-error",
+  "store-api-error",
+];
+
+const isStoreRequestDebugState = (
+  debugState: StoreDebugState | null
+): debugState is StoreRequestDebugState =>
+  !!debugState && storeRequestDebugStates.includes(debugState as StoreRequestDebugState);
 
 function StoreStatusPanel({
   status,
@@ -77,6 +111,7 @@ function StoreStatusPanel({
   onRetry,
   markerStatus,
   floating,
+  debugState,
 }: {
   status: StoreFetchStatus;
   error: AxiosError<ApiErrorBody> | null;
@@ -84,69 +119,168 @@ function StoreStatusPanel({
   onRetry: () => void;
   markerStatus: MarkerRuntimeStatus;
   floating: boolean;
+  debugState: StoreDebugState | null;
 }) {
-  if (status === "success" && ["idle", "success", "rendering"].includes(markerStatus.status)) {
+  if (status === "error" && isStoreRequestDebugState(debugState)) {
     return null;
   }
 
+  if (
+    !debugState &&
+    status === "success" &&
+    ["idle", "success", "rendering"].includes(markerStatus.status)
+  ) {
+    return null;
+  }
+
+  const activeDebugState =
+    debugState ||
+    (status === "loading"
+      ? "store-loading"
+      : status === "empty"
+      ? "store-empty"
+      : markerStatus.status === "empty"
+      ? "marker-empty"
+      : markerStatus.status === "partial-marker-error"
+      ? "marker-partial-error"
+      : markerStatus.status === "marker-error"
+      ? "marker-error"
+      : null);
+  const isMarkerDebugState = ["marker-empty", "marker-partial-error", "marker-error"].includes(
+    activeDebugState || ""
+  );
+  const copy = activeDebugState ? getStoreStatusCopy(activeDebugState) : null;
+  const displayStatus =
+    isMarkerDebugState
+      ? "success"
+      : activeDebugState === "store-loading"
+      ? "loading"
+      : activeDebugState === "store-empty"
+      ? "empty"
+      : ["store-database-delay", "store-network-error", "store-api-error"].includes(
+          activeDebugState || ""
+        )
+      ? "error"
+      : status;
   const className = floating
-    ? "absolute right-4 top-4 z-10 w-[min(calc(100vw-2rem),360px)] rounded-md border border-gray-200 bg-white/95 p-4 text-sm text-gray-700 shadow-sm"
-    : "mx-auto mt-4 w-[min(calc(100vw-2rem),520px)] rounded-md border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm";
+    ? "absolute right-4 top-4 z-10 w-[min(calc(100vw-2rem),360px)] rounded-md border border-[rgba(15,143,138,0.18)] bg-white/95 p-4 text-sm text-gray-700 shadow-sm"
+    : "mx-auto mt-4 w-[min(calc(100vw-2rem),520px)] rounded-md border border-[rgba(15,143,138,0.18)] bg-white p-4 text-sm text-gray-700 shadow-sm";
 
   return (
     <div className={className}>
-      {status === "loading" && (
-        <div role="status" aria-live="polite">
-          <p className="font-semibold text-gray-900">가게 정보를 불러오는 중입니다.</p>
-          <div className="mt-3 space-y-2">
-            <div className="h-3 w-3/4 animate-pulse rounded bg-gray-100" />
-            <div className="h-3 w-1/2 animate-pulse rounded bg-gray-100" />
-          </div>
+      {displayStatus === "loading" && (
+        <div className="text-center" role="status" aria-live="polite">
+          <Loader className="my-0 mb-4" />
+          <p className="font-semibold text-[--color-signature-dark]">{copy?.title}</p>
+          {showRuntimeDebugState && activeDebugState && (
+            <p className="mt-2 rounded bg-[--color-signature-soft] px-2 py-1 text-xs text-[--color-signature-dark]">
+              debug: {activeDebugState}
+            </p>
+          )}
         </div>
       )}
 
-      {status === "error" && (
+      {displayStatus === "error" && (
         <div role="alert" aria-live="assertive">
-          <p className="font-semibold text-gray-900">가게 정보를 불러오지 못했습니다.</p>
-          <p className="mt-2">{getStoreErrorMessage(error)}</p>
+          <p className="font-semibold text-gray-900">{copy?.title}</p>
+          {copy?.message && <p className="mt-2">{copy.message}</p>}
+          {showRuntimeDebugState && activeDebugState && (
+            <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+              debug: {activeDebugState}
+              {error?.response?.status ? ` / status ${error.response.status}` : ""}
+            </p>
+          )}
           <button
             type="button"
             onClick={onRetry}
             disabled={isFetching}
-            className="mt-3 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            className="mt-3 rounded-md bg-[--color-signature] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             {isFetching ? "다시 불러오는 중" : "다시 시도"}
           </button>
         </div>
       )}
 
-      {status === "empty" && (
-        <p role="status" aria-live="polite" className="font-semibold text-gray-900">
-          등록된 가게가 없습니다.
-        </p>
+      {displayStatus === "empty" && (
+        <div role="status" aria-live="polite">
+          <p className="font-semibold text-gray-900">{copy?.title}</p>
+          {copy?.message && <p className="mt-2">{copy.message}</p>}
+        </div>
       )}
 
-      {status === "success" && markerStatus.status === "empty" && (
-        <p role="status" aria-live="polite" className="font-semibold text-gray-900">
-          {markerStatus.message || "지도는 정상적으로 불러왔지만 표시할 위치 정보가 없습니다."}
-        </p>
+      {activeDebugState === "marker-empty" && (
+        <div role="status" aria-live="polite">
+          <p className="font-semibold text-gray-900">{copy?.title}</p>
+          <p className="mt-2">{copy?.message || markerStatus.message}</p>
+          {showRuntimeDebugState && (
+            <p className="mt-2 rounded bg-[--color-signature-soft] px-2 py-1 text-xs text-[--color-signature-dark]">
+              debug: marker-empty
+            </p>
+          )}
+        </div>
       )}
 
-      {status === "success" &&
-        ["partial-marker-error", "marker-error"].includes(markerStatus.status) && (
-          <div role="alert" aria-live="assertive">
-            <p className="font-semibold text-gray-900">
-              {markerStatus.status === "partial-marker-error"
-                ? "일부 위치를 표시하지 못했습니다."
-                : "가게 위치를 표시하지 못했습니다."}
+      {["marker-partial-error", "marker-error"].includes(activeDebugState || "") && (
+        <div role="alert" aria-live="assertive">
+          <p className="font-semibold text-gray-900">{copy?.title}</p>
+          <p className="mt-2">
+            {markerStatus.message ||
+              `${markerStatus.rendered}개 표시, ${markerStatus.failed}개 실패`}
+          </p>
+          {copy?.message && <p className="mt-1">{copy.message}</p>}
+          {showRuntimeDebugState && activeDebugState && (
+            <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+              debug: {activeDebugState} / rendered {markerStatus.rendered} / failed{" "}
+              {markerStatus.failed}
             </p>
-            <p className="mt-2">
-              {markerStatus.message ||
-                `${markerStatus.rendered}개 표시, ${markerStatus.failed}개 실패`}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
+      )}
     </div>
+  );
+}
+
+function StoreErrorToast({
+  debugState,
+  error,
+  isFetching,
+  onRetry,
+}: {
+  debugState: StoreDebugState | null;
+  error: AxiosError<ApiErrorBody> | null;
+  isFetching: boolean;
+  onRetry: () => void;
+}) {
+  if (!isStoreRequestDebugState(debugState)) {
+    return null;
+  }
+
+  const activeDebugState = debugState;
+  const copy = getStoreStatusCopy(activeDebugState);
+
+  return (
+    <aside
+      className="fixed left-4 right-4 top-[calc(var(--navbar-height)+12px)] z-50 rounded-md border border-red-200 bg-white p-4 text-sm text-gray-700 shadow-lg sm:left-auto sm:right-4 sm:top-[calc(var(--navbar-height)+16px)] sm:w-[min(calc(100vw-2rem),360px)]"
+      role="alert"
+      aria-live="assertive"
+    >
+      <p className="font-semibold text-gray-900">{copy.title}</p>
+      {copy.message && <p className="mt-2">{copy.message}</p>}
+      {showRuntimeDebugState && (
+        <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+          debug: {activeDebugState}
+          {error?.response?.status ? ` / status ${error.response.status}` : ""}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={isFetching}
+        className="mt-3 rounded-md bg-[--color-signature] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300"
+      >
+        {isFetching ? "다시 불러오는 중" : "다시 시도"}
+      </button>
+    </aside>
   );
 }
 
@@ -210,7 +344,56 @@ function StoreListFallback({ stores }: { stores: StoreType[] }) {
   );
 }
 
+function HomeRuntimeStatePreview({
+  state,
+  reason,
+}: {
+  state: Exclude<RuntimeUiState, "success">;
+  reason: RuntimeDebugState | null;
+}) {
+  const copy = getRuntimeStateCopy(state);
+  const isLoading = state === "loading";
+  const isFailure = state === "failure";
+
+  return (
+    <section
+      className="flex min-h-[calc(100dvh-var(--navbar-height))] items-center justify-center bg-slate-50 px-4"
+      aria-label="디버그 상태 미리보기"
+    >
+      <div
+        className={`w-full max-w-md rounded-md border bg-white p-5 text-center text-gray-700 shadow-sm ${
+          isFailure ? "border-red-200" : "border-[rgba(15,143,138,0.18)]"
+        }`}
+        role={isFailure ? "alert" : "status"}
+        aria-live={isFailure ? "assertive" : "polite"}
+      >
+        {isLoading && <Loader className="my-0 mb-4" />}
+        <p className={`font-semibold ${isLoading ? "text-[--color-signature-dark]" : "text-gray-900"}`}>
+          {copy.title}
+        </p>
+        {copy.message && <p className="mt-2 text-sm text-gray-600">{copy.message}</p>}
+        {showRuntimeDebugState && (
+          <p
+            className={`mt-3 rounded px-2 py-1 text-xs ${
+              isFailure
+                ? "bg-red-50 text-red-700"
+                : "bg-[--color-signature-soft] text-[--color-signature-dark]"
+            }`}
+          >
+            debugState: {state}
+            {reason ? ` / reason: ${reason}` : ""}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
+  const router = useRouter();
+  const queryDebugState = getDebugStateFromQuery(router.query.debugState);
+  const queryDebugReason = getDebugReasonFromQuery(router.query.debugReason);
+  const isDebugPreview = !!queryDebugState && queryDebugState !== "success";
   const [mapStatus, setMapStatus] = useState<MapRuntimeStatus>(initialMapStatus);
   const [markerStatus, setMarkerStatus] =
     useState<MarkerRuntimeStatus>(initialMarkerStatus);
@@ -227,6 +410,7 @@ export default function Home() {
     ["home-stores"],
     fetchHomeStores,
     {
+      enabled: !isDebugPreview,
       retry: false,
       staleTime: 5 * 60 * 1000,
       cacheTime: 10 * 60 * 1000,
@@ -242,6 +426,10 @@ export default function Home() {
     : isSuccess && stores.length === 0
     ? "empty"
     : "success";
+  const mapDebugState = isMapDebugState(queryDebugReason) ? queryDebugReason : null;
+  const queryStoreDebugState = isStoreDebugState(queryDebugReason) ? queryDebugReason : null;
+  const storeDebugState =
+    queryStoreDebugState || (isError ? getStoreDebugState(error ?? null) : null);
 
   const handleMapStatusChange = useCallback((status: MapRuntimeStatus) => {
     setMapStatus(status);
@@ -274,24 +462,39 @@ export default function Home() {
         />
       </Head>
       <main className="relative min-h-[calc(100dvh-var(--navbar-height))] bg-slate-50">
-        <Map
-          onStatusChange={handleMapStatusChange}
-          presentation={showListFallback ? "compact" : "fullscreen"}
-        />
-        {canRenderMarkers && (
-          <Markers stores={stores} onStatusChange={handleMarkerStatusChange} />
+        {isDebugPreview && (
+          <HomeRuntimeStatePreview state={queryDebugState} reason={queryDebugReason} />
         )}
-        <StoreStatusPanel
-          status={storeStatus}
-          error={error ?? null}
-          isFetching={isFetching}
-          onRetry={retryStoreFetch}
-          markerStatus={markerStatus}
-          floating={useFloatingStoreStatus}
-        />
-        {showListFallback && <StoreListFallback stores={stores} />}
-        {mapAvailable && <StoreBox />}
-        {mapAvailable && <CurrentPosition />}
+        {!isDebugPreview && (
+          <>
+            <Map
+              onStatusChange={handleMapStatusChange}
+              presentation={showListFallback ? "compact" : "fullscreen"}
+              debugState={mapDebugState}
+            />
+            {canRenderMarkers && (
+              <Markers stores={stores} onStatusChange={handleMarkerStatusChange} />
+            )}
+            <StoreErrorToast
+              debugState={storeDebugState}
+              error={error ?? null}
+              isFetching={isFetching}
+              onRetry={retryStoreFetch}
+            />
+            <StoreStatusPanel
+              status={storeStatus}
+              error={error ?? null}
+              isFetching={isFetching}
+              onRetry={retryStoreFetch}
+              markerStatus={markerStatus}
+              floating={useFloatingStoreStatus}
+              debugState={storeDebugState}
+            />
+            {showListFallback && <StoreListFallback stores={stores} />}
+            {mapAvailable && <StoreBox />}
+            {mapAvailable && <CurrentPosition />}
+          </>
+        )}
       </main>
     </>
   );

@@ -1,6 +1,23 @@
 // next.config.ts
 import type { NextConfig } from "next";
 
+const faviconCacheHeaders = [
+  {
+    key: "Cache-Control",
+    value: "public, max-age=0, must-revalidate",
+  },
+];
+
+const faviconHeaderSources = [
+  "/favicon.ico",
+  "/favicon.svg",
+  "/favicon-32x32.png",
+  "/apple-touch-icon.png",
+  "/android-chrome-192x192.png",
+  "/android-chrome-512x512.png",
+  "/site.webmanifest",
+];
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -38,23 +55,13 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/favicon.svg",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-    ];
-  },
-  async redirects() {
-    return [
-      {
         source: "/favicon.ico",
-        destination: "/favicon.svg",
-        permanent: true,
+        headers: faviconCacheHeaders,
       },
+      ...faviconHeaderSources.slice(1).map((source) => ({
+        source,
+        headers: faviconCacheHeaders,
+      })),
     ];
   },
 };
