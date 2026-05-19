@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
 import Map, { type MapRuntimeStatus } from "../components/Map";
-import Markers, { type MarkerRuntimeStatus } from "../components/Markers";
+import type { MarkerRuntimeStatus } from "../components/Markers";
 import { StoreApiResponse, StoreType } from "../interface";
 
 type StoreFetchStatus = "loading" | "success" | "empty" | "error";
@@ -14,6 +14,9 @@ const CurrentPosition = dynamic(() => import("../components/CurrentPosition"), {
   ssr: false,
 });
 const StoreBox = dynamic(() => import("../components/StoreBox"), {
+  ssr: false,
+});
+const Markers = dynamic(() => import("../components/Markers"), {
   ssr: false,
 });
 
@@ -224,6 +227,9 @@ export default function Home() {
     fetchHomeStores,
     {
       retry: false,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -254,7 +260,7 @@ export default function Home() {
     mapStatus.sdk === "timeout" ||
     mapStatus.map === "map-error";
   const mapAvailable = mapStatus.sdk === "ready" && mapStatus.map === "ready";
-  const canRenderMarkers = storeStatus === "success" || storeStatus === "empty";
+  const canRenderMarkers = mapAvailable && storeStatus === "success";
   const showListFallback = mapFailed && storeStatus === "success" && stores.length > 0;
   const useFloatingStoreStatus = !mapFailed;
 

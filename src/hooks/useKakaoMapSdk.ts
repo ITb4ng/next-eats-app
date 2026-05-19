@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { logOperationalError, type OperationalErrorCode } from "@/lib/opsLogger";
+
 export type KakaoMapSdkStatus =
   | "idle"
   | "loading"
@@ -43,6 +45,10 @@ export function useKakaoMapSdk() {
     }
 
     if (!appKey) {
+      logOperationalError(
+        "KAKAO_MAP_SDK_MISSING_CONFIG",
+        "Kakao Map SDK app key is missing."
+      );
       setStatus("missing-env");
       setErrorMessage("지도 설정값이 없습니다.");
       return;
@@ -61,9 +67,17 @@ export function useKakaoMapSdk() {
       setStatus("ready");
     };
 
-    const finishError = (message: string) => {
+    const finishError = (
+      message: string,
+      code: OperationalErrorCode,
+      error?: unknown
+    ) => {
       if (!isActive || isSettled) return;
       isSettled = true;
+      logOperationalError(code, message, error, {
+        retryCount,
+        scriptStatus: scriptElement?.dataset.kakaoMapStatus,
+      });
       setErrorMessage(message);
       setStatus("error");
       if (scriptElement) {
@@ -74,6 +88,12 @@ export function useKakaoMapSdk() {
     const timeoutId = window.setTimeout(() => {
       if (!isActive || isSettled) return;
       isSettled = true;
+      logOperationalError(
+        "KAKAO_MAP_SDK_TIMEOUT",
+        "Kakao Map SDK response timed out.",
+        undefined,
+        { timeoutMs: KAKAO_MAP_SDK_TIMEOUT_MS, retryCount }
+      );
       setErrorMessage("지도 SDK 응답 시간이 초과되었습니다.");
       setStatus("timeout");
       if (scriptElement) {
@@ -89,7 +109,11 @@ export function useKakaoMapSdk() {
         maps.load(finishReady);
         return true;
       } catch (error) {
-        finishError(error instanceof Error ? error.message : "지도 SDK 초기화에 실패했습니다.");
+        finishError(
+          "지도 SDK 초기화에 실패했습니다.",
+          "KAKAO_MAP_SDK_INIT_ERROR",
+          error
+        );
         return true;
       }
     };
@@ -116,12 +140,18 @@ export function useKakaoMapSdk() {
         scriptElement.dataset.kakaoMapStatus = "loaded";
       }
       if (!loadFromKakaoNamespace()) {
-        finishError("지도 SDK를 확인할 수 없습니다.");
+        finishError(
+          "지도 SDK를 확인할 수 없습니다.",
+          "KAKAO_MAP_SDK_INIT_ERROR"
+        );
       }
     };
 
     const handleError = () => {
-      finishError("지도 SDK 스크립트 로딩에 실패했습니다.");
+      finishError(
+        "지도 SDK 스크립트 로딩에 실패했습니다.",
+        "KAKAO_MAP_SDK_SCRIPT_ERROR"
+      );
     };
 
     if (!scriptElement) {

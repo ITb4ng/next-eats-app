@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 
 import prisma from "@/db";
 import { StoreApiResponse, StoreType } from "@/interface";
+import { logOperationalError } from "@/lib/opsLogger";
 
 import { authOption } from "./auth/[...nextauth]";
 
@@ -36,7 +37,13 @@ const isDatabaseDelayLikeError = (error: unknown) => {
       : "";
 
   return (
+    code === "p1001" ||
+    code === "p1002" ||
+    code === "p1017" ||
     code.startsWith("54") ||
+    message.includes("can't reach database") ||
+    message.includes("database server") ||
+    message.includes("connect") ||
     message.includes("timeout") ||
     message.includes("gateway") ||
     message.includes("connection") ||
@@ -188,13 +195,23 @@ export default async function handler(
     res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (error) {
-    console.error("Store API error:", error);
-
     if (isDatabaseDelayLikeError(error)) {
+      logOperationalError(
+        "DB_STORES_UNAVAILABLE",
+        "Store API database dependency is unavailable.",
+        error,
+        { method: req.method ?? null, route: "/api/stores" }
+      );
+
       return res.status(503).json({
         message: "데이터베이스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",
       });
     }
+
+    logOperationalError("STORE_API_ERROR", "Store API request failed.", error, {
+      method: req.method ?? null,
+      route: "/api/stores",
+    });
 
     return res.status(500).json({ message: "맛집 데이터를 처리하는 중 오류가 발생했습니다." });
   }

@@ -10,6 +10,7 @@
     "build:clean": "npm run clean && next build",
     "start": "next start",
     "lint": "next lint",
+    "test:perf:v1.1.0": "node scripts/performance-v1.1.0-runtime-checks.mjs",
     "studio": "npx prisma studio",
     "dev:all": "concurrently \"yarn dev\" \"yarn studio\"",
     "postinstall": "prisma generate",
