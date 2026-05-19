@@ -1,11 +1,12 @@
 import axios, { AxiosError } from "axios";
+import Head from "next/head";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
 import Map, { type MapRuntimeStatus } from "../components/Map";
-import Markers, { type MarkerRuntimeStatus } from "../components/Markers";
+import type { MarkerRuntimeStatus } from "../components/Markers";
 import { StoreApiResponse, StoreType } from "../interface";
 
 type StoreFetchStatus = "loading" | "success" | "empty" | "error";
@@ -14,6 +15,9 @@ const CurrentPosition = dynamic(() => import("../components/CurrentPosition"), {
   ssr: false,
 });
 const StoreBox = dynamic(() => import("../components/StoreBox"), {
+  ssr: false,
+});
+const Markers = dynamic(() => import("../components/Markers"), {
   ssr: false,
 });
 
@@ -224,6 +228,9 @@ export default function Home() {
     fetchHomeStores,
     {
       retry: false,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -254,30 +261,38 @@ export default function Home() {
     mapStatus.sdk === "timeout" ||
     mapStatus.map === "map-error";
   const mapAvailable = mapStatus.sdk === "ready" && mapStatus.map === "ready";
-  const canRenderMarkers = storeStatus === "success" || storeStatus === "empty";
+  const canRenderMarkers = mapAvailable && storeStatus === "success";
   const showListFallback = mapFailed && storeStatus === "success" && stores.length > 0;
   const useFloatingStoreStatus = !mapFailed;
 
   return (
-    <main className="relative min-h-[calc(100dvh-var(--navbar-height))] bg-slate-50">
-      <Map
-        onStatusChange={handleMapStatusChange}
-        presentation={showListFallback ? "compact" : "fullscreen"}
-      />
-      {canRenderMarkers && (
-        <Markers stores={stores} onStatusChange={handleMarkerStatusChange} />
-      )}
-      <StoreStatusPanel
-        status={storeStatus}
-        error={error ?? null}
-        isFetching={isFetching}
-        onRetry={retryStoreFetch}
-        markerStatus={markerStatus}
-        floating={useFloatingStoreStatus}
-      />
-      {showListFallback && <StoreListFallback stores={stores} />}
-      {mapAvailable && <StoreBox />}
-      {mapAvailable && <CurrentPosition />}
-    </main>
+    <>
+      <Head>
+        <meta
+          name="description"
+          content="위치 기반으로 맛집을 탐색하고, 사용자가 직접 맛집을 등록하며 좋아요와 댓글로 기록을 남길 수 있는 맛집 지도 서비스입니다."
+        />
+      </Head>
+      <main className="relative min-h-[calc(100dvh-var(--navbar-height))] bg-slate-50">
+        <Map
+          onStatusChange={handleMapStatusChange}
+          presentation={showListFallback ? "compact" : "fullscreen"}
+        />
+        {canRenderMarkers && (
+          <Markers stores={stores} onStatusChange={handleMarkerStatusChange} />
+        )}
+        <StoreStatusPanel
+          status={storeStatus}
+          error={error ?? null}
+          isFetching={isFetching}
+          onRetry={retryStoreFetch}
+          markerStatus={markerStatus}
+          floating={useFloatingStoreStatus}
+        />
+        {showListFallback && <StoreListFallback stores={stores} />}
+        {mapAvailable && <StoreBox />}
+        {mapAvailable && <CurrentPosition />}
+      </main>
+    </>
   );
 }

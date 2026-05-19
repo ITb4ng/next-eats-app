@@ -4,15 +4,20 @@ import dynamic from "next/dynamic";
 import Layout from "../components/Layout";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { SessionProvider } from "next-auth/react"
-import { ToastContainer } from 'react-toastify';
 import Head from "next/head";
 
 const queryClient = new QueryClient();
-const ReactQueryDevtools = dynamic(
-  () => import("react-query/devtools").then((mod) => mod.ReactQueryDevtools),
+const showReactQueryDevtools = process.env.NODE_ENV !== "production";
+const ReactQueryDevtools = showReactQueryDevtools
+  ? dynamic(
+      () => import("react-query/devtools").then((mod) => mod.ReactQueryDevtools),
+      { ssr: false }
+    )
+  : null;
+const ToastContainer = dynamic(
+  () => import("react-toastify").then((mod) => mod.ToastContainer),
   { ssr: false }
 );
-const showReactQueryDevtools = process.env.NODE_ENV !== "production";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { session } = pageProps
@@ -20,6 +25,8 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://dapi.kakao.com" />
+        <link rel="preconnect" href="https://t1.daumcdn.net" />
         <title>우아한맛집들</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -30,7 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
           <ToastContainer autoClose={500} pauseOnFocusLoss={false} pauseOnHover={false} />
         </Layout>
-        {showReactQueryDevtools && <ReactQueryDevtools />}
+        {ReactQueryDevtools && <ReactQueryDevtools />}
         </SessionProvider>
       </QueryClientProvider>
     </>

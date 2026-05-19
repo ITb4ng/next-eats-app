@@ -123,6 +123,23 @@ export default function Markers({ stores, onStatusChange }: MarkersProps): null 
     const markers: kakao.maps.Marker[] = [];
     const overlays: kakao.maps.CustomOverlay[] = [];
     const listeners: MarkerListener[] = [];
+    const markerImages = new Map<string, kakao.maps.MarkerImage>();
+    const imageSize = new maps.Size(40, 40);
+    const imageOption = { offset: new maps.Point(27, 69) };
+    const getMarkerImage = (category?: string | null) => {
+      const imageSrc = category
+        ? `/images/markers/${category}.png`
+        : "/images/markers/default.png";
+      const cachedImage = markerImages.get(imageSrc);
+
+      if (cachedImage) {
+        return cachedImage;
+      }
+
+      const markerImage = new maps.MarkerImage(imageSrc, imageSize, imageOption);
+      markerImages.set(imageSrc, markerImage);
+      return markerImage;
+    };
 
     onStatusChange?.(
       makeMarkerStatus("rendering", stores.length, renderableStores.length, 0, 0)
@@ -130,18 +147,11 @@ export default function Markers({ stores, onStatusChange }: MarkersProps): null 
 
     renderableStores.forEach(({ store, lat, lng }) => {
       try {
-        const imageSrc = store.category
-          ? `/images/markers/${store.category}.png`
-          : "/images/markers/default.png";
-
-        const imageSize = new maps.Size(40, 40);
-        const imageOption = { offset: new maps.Point(27, 69) };
-        const markerImage = new maps.MarkerImage(imageSrc, imageSize, imageOption);
         const markerPosition = new maps.LatLng(lat, lng);
 
         const marker = new maps.Marker({
           position: markerPosition,
-          image: markerImage,
+          image: getMarkerImage(store.category),
         });
 
         marker.setMap(map);
