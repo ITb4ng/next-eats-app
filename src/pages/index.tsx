@@ -8,7 +8,7 @@ import { useQuery } from "react-query";
 
 import Map, { type MapRuntimeStatus } from "../components/Map";
 import type { MarkerRuntimeStatus } from "../components/Markers";
-import { StoreApiResponse, StoreType } from "../interface";
+import { StoreApiResponse } from "../interface";
 import {
   getDebugReasonFromQuery,
   getDebugStateFromQuery,
@@ -21,6 +21,7 @@ import {
   type RuntimeUiState,
   type StoreDebugState,
 } from "../lib/debugState";
+import { fallbackToneClasses, type FallbackTone } from "../lib/fallbackTone";
 import Loader from "../components/Loader";
 
 type StoreFetchStatus = "loading" | "success" | "empty" | "error";
@@ -172,6 +173,7 @@ function StoreStatusPanel({
         <div className="text-center" role="status" aria-live="polite">
           <Loader className="my-0 mb-4" />
           <p className="font-semibold text-[--color-signature-dark]">{copy?.title}</p>
+          {copy?.message && <p className="mt-2">{copy.message}</p>}
           {showRuntimeDebugState && activeDebugState && (
             <p className="mt-2 rounded bg-[--color-signature-soft] px-2 py-1 text-xs text-[--color-signature-dark]">
               debug: {activeDebugState}
@@ -205,6 +207,14 @@ function StoreStatusPanel({
         <div role="status" aria-live="polite">
           <p className="font-semibold text-gray-900">{copy?.title}</p>
           {copy?.message && <p className="mt-2">{copy.message}</p>}
+          {activeDebugState === "store-empty" && (
+            <Link
+              href="/stores/new"
+              className="mt-3 inline-flex rounded-md bg-[--color-signature] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2"
+            >
+              맛집 등록하기
+            </Link>
+          )}
         </div>
       )}
 
@@ -245,11 +255,13 @@ function StoreErrorToast({
   error,
   isFetching,
   onRetry,
+  tone = "critical",
 }: {
   debugState: StoreDebugState | null;
   error: AxiosError<ApiErrorBody> | null;
   isFetching: boolean;
   onRetry: () => void;
+  tone?: FallbackTone;
 }) {
   if (!isStoreRequestDebugState(debugState)) {
     return null;
@@ -257,17 +269,25 @@ function StoreErrorToast({
 
   const activeDebugState = debugState;
   const copy = getStoreStatusCopy(activeDebugState);
+  const isWarning = tone === "warning";
+  const toneClassNames = fallbackToneClasses[tone];
+  const title = isWarning ? "가게 정보를 잠시 불러오지 못했습니다." : copy.title;
+  const message = isWarning
+    ? "지도는 사용할 수 있지만 맛집 목록과 위치 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+    : copy.message;
+  const containerClassName = `fixed right-4 top-[calc(var(--navbar-height)+16px)] z-50 w-[min(calc(100vw-2rem),360px)] rounded-md border bg-white p-4 text-sm text-gray-700 shadow-lg ${toneClassNames.toastBorder}`;
+  const debugClassName = `mt-2 rounded px-2 py-1 text-xs ${toneClassNames.debug}`;
 
   return (
     <aside
-      className="fixed left-4 right-4 top-[calc(var(--navbar-height)+12px)] z-50 rounded-md border border-red-200 bg-white p-4 text-sm text-gray-700 shadow-lg sm:left-auto sm:right-4 sm:top-[calc(var(--navbar-height)+16px)] sm:w-[min(calc(100vw-2rem),360px)]"
-      role="alert"
-      aria-live="assertive"
+      className={containerClassName}
+      role={isWarning ? "status" : "alert"}
+      aria-live={isWarning ? "polite" : "assertive"}
     >
-      <p className="font-semibold text-gray-900">{copy.title}</p>
-      {copy.message && <p className="mt-2">{copy.message}</p>}
+      <p className="font-semibold text-gray-900">{title}</p>
+      {message && <p className="mt-2">{message}</p>}
       {showRuntimeDebugState && (
-        <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+        <p className={debugClassName}>
           debug: {activeDebugState}
           {error?.response?.status ? ` / status ${error.response.status}` : ""}
         </p>
@@ -276,71 +296,11 @@ function StoreErrorToast({
         type="button"
         onClick={onRetry}
         disabled={isFetching}
-        className="mt-3 rounded-md bg-[--color-signature] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300"
+        className={`mx-auto mt-3 flex rounded-md px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300 ${toneClassNames.retryButton}`}
       >
         {isFetching ? "다시 불러오는 중" : "다시 시도"}
       </button>
     </aside>
-  );
-}
-
-function StoreListFallback({ stores }: { stores: StoreType[] }) {
-  if (stores.length === 0) return null;
-
-  return (
-    <section className="bg-slate-50 px-4 pb-8 sm:px-6 lg:px-8" aria-labelledby="fallback-store-list">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 id="fallback-store-list" className="text-lg font-bold text-gray-900">
-              지도 없이 가게 목록 보기
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              지도는 열리지 않았지만 등록된 가게 정보는 계속 확인할 수 있습니다.
-            </p>
-          </div>
-          <p className="text-sm font-medium text-gray-500">{stores.length}개 가게</p>
-        </div>
-
-        <div className="max-h-[65dvh] overflow-y-auto pr-1">
-          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {stores.slice(0, 10).map((store) => (
-              <li key={store.id} className="rounded-md border border-gray-200 bg-white p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-gray-900">{store.name || "이름 없는 가게"}</p>
-                    <p className="mt-1 text-sm text-gray-600">{store.address || "주소 정보가 없습니다."}</p>
-                  </div>
-                  {store.category && (
-                    <span className="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-gray-600">
-                      {store.category}
-                    </span>
-                  )}
-                </div>
-                <Link
-                  href={`/stores/${store.id}`}
-                  className="mt-3 inline-flex text-sm font-semibold text-[--color-signature-dark] hover:underline"
-                >
-                  상세 보기
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {stores.length > 10 && (
-            <p className="mt-4 text-sm text-gray-500">
-              처음 10개만 표시 중입니다. 전체 목록은{" "}
-              <Link
-                href="/stores"
-                className="font-semibold text-[--color-signature-dark] underline underline-offset-2 hover:text-[--color-signature]"
-              >
-                맛집 목록
-              </Link>
-              에서 확인할 수 있습니다.
-            </p>
-          )}
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -386,6 +346,47 @@ function HomeRuntimeStatePreview({
         )}
       </div>
     </section>
+  );
+}
+
+function MapFailureServiceGuide() {
+  const toneClassNames = fallbackToneClasses.warning;
+
+  return (
+    <div className={`mt-4 border-t pt-4 ${toneClassNames.divider}`}>
+      <p className="text-sm text-gray-600">
+        지도는 열리지 않았지만 맛집 목록과 주요 서비스는 계속 이용할 수 있습니다.
+      </p>
+      <p className="mt-2 text-sm text-gray-600">
+        검색과 지역별 필터는 맛집 목록 페이지에서 이용해 주세요.
+      </p>
+    </div>
+  );
+}
+
+function StoreListActionLink() {
+  return (
+    <Link
+      href="/stores"
+      className="rounded-md bg-[--color-signature] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2"
+    >
+      맛집 목록으로 이동
+    </Link>
+  );
+}
+
+function MapFailureDataUnavailableGuide() {
+  const toneClassNames = fallbackToneClasses.critical;
+
+  return (
+    <div className={`mt-4 border-t pt-4 ${toneClassNames.divider}`}>
+      <p className="text-sm text-gray-600">
+        지도와 맛집 데이터를 모두 불러오지 못해 현재 탐색 기능이 제한됩니다.
+      </p>
+      <p className="mt-2 text-sm text-gray-600">
+        일시적인 문제일 수 있습니다. 잠시 후 지도와 가게 정보를 다시 시도해 주세요.
+      </p>
+    </div>
   );
 }
 
@@ -450,8 +451,11 @@ export default function Home() {
     mapStatus.map === "map-error";
   const mapAvailable = mapStatus.sdk === "ready" && mapStatus.map === "ready";
   const canRenderMarkers = mapAvailable && storeStatus === "success";
-  const showListFallback = mapFailed && storeStatus === "success" && stores.length > 0;
+  const showMapFailureServiceGuide = mapFailed && storeStatus === "success";
+  const showMapFailureDataUnavailableGuide = mapFailed && storeStatus === "error";
   const useFloatingStoreStatus = !mapFailed;
+  const mapFailureTone: FallbackTone = showMapFailureDataUnavailableGuide ? "critical" : "warning";
+  const storeErrorTone: FallbackTone = mapAvailable ? "warning" : "critical";
 
   return (
     <>
@@ -469,8 +473,18 @@ export default function Home() {
           <>
             <Map
               onStatusChange={handleMapStatusChange}
-              presentation={showListFallback ? "compact" : "fullscreen"}
               debugState={mapDebugState}
+              failureFallbackContent={
+                showMapFailureServiceGuide ? (
+                  <MapFailureServiceGuide />
+                ) : showMapFailureDataUnavailableGuide ? (
+                  <MapFailureDataUnavailableGuide />
+                ) : null
+              }
+              failureActionContent={
+                showMapFailureServiceGuide ? <StoreListActionLink /> : null
+              }
+              failureTone={mapFailureTone}
             />
             {canRenderMarkers && (
               <Markers stores={stores} onStatusChange={handleMarkerStatusChange} />
@@ -480,6 +494,7 @@ export default function Home() {
               error={error ?? null}
               isFetching={isFetching}
               onRetry={retryStoreFetch}
+              tone={storeErrorTone}
             />
             <StoreStatusPanel
               status={storeStatus}
@@ -490,7 +505,6 @@ export default function Home() {
               floating={useFloatingStoreStatus}
               debugState={storeDebugState}
             />
-            {showListFallback && <StoreListFallback stores={stores} />}
             {mapAvailable && <StoreBox />}
             {mapAvailable && <CurrentPosition />}
           </>

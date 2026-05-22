@@ -121,12 +121,12 @@ export const getMapStatusCopy = (debugState: MapDebugState): RuntimeCopy => {
       };
     case "KAKAO_MAP_SDK_TIMEOUT":
       return {
-        title: "지도 응답이 지연되고 있습니다.",
+        title: "지도를 불러오지 못했습니다.",
         message: "네트워크 상태나 지도 서비스 응답이 느립니다. 잠시 후 다시 시도해 주세요.",
       };
     case "KAKAO_MAP_SDK_SCRIPT_ERROR":
       return {
-        title: "지도 서비스를 불러오지 못했습니다.",
+        title: "지도를 불러오지 못했습니다.",
         message: "일시적인 네트워크 문제일 수 있습니다. 다시 시도해 주세요.",
       };
     case "KAKAO_MAP_SDK_INIT_ERROR":
@@ -160,7 +160,8 @@ export const getStoreStatusCopy = (debugState: StoreDebugState): RuntimeCopy => 
   switch (debugState) {
     case "store-loading":
       return {
-        title: "가게 정보를 불러오는 중입니다.",
+        title: "가게 목록을 준비하고 있습니다.",
+        message: "지도를 사용할 수 없어도 목록을 불러오면 가게 정보를 계속 확인할 수 있습니다.",
       };
     case "store-empty":
       return {
@@ -170,7 +171,8 @@ export const getStoreStatusCopy = (debugState: StoreDebugState): RuntimeCopy => 
     case "store-database-delay":
       return {
         title: "가게 데이터 응답이 지연되고 있습니다.",
-        message: "잠시 후 다시 시도해 주세요.",
+        message:
+          "서버 데이터 저장소가 응답하는 데 시간이 걸리고 있습니다. 잠시 후 다시 시도해 주세요.",
       };
     case "store-network-error":
       return {
