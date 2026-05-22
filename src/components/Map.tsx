@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useKakaoMapSdk, type KakaoMapSdkStatus } from "@/hooks/useKakaoMapSdk";
 import {
@@ -6,6 +6,7 @@ import {
   showRuntimeDebugState,
   type MapDebugState,
 } from "@/lib/debugState";
+import { fallbackToneClasses, type FallbackTone } from "@/lib/fallbackTone";
 import { useMapStore } from "@/zustand/index";
 import Loader from "./Loader";
 
@@ -23,8 +24,10 @@ interface MapProps {
   lng?: number | null;
   zoom?: number;
   onStatusChange?: (status: MapRuntimeStatus) => void;
-  presentation?: "fullscreen" | "compact";
   debugState?: MapDebugState | null;
+  failureFallbackContent?: ReactNode;
+  failureActionContent?: ReactNode;
+  failureTone?: FallbackTone;
 }
 
 const MAP_TILES_TIMEOUT_MS = 8000;
@@ -37,8 +40,10 @@ export default function Map({
   lng,
   zoom,
   onStatusChange,
-  presentation = "fullscreen",
   debugState,
+  failureFallbackContent,
+  failureActionContent,
+  failureTone = "critical",
 }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const initialLocationRef = useRef(useMapStore.getState().location);
@@ -200,19 +205,11 @@ export default function Map({
     ? getMapStatusCopy(mapFailureDebugState)
     : null;
   const tileTimeoutCopy = getMapStatusCopy("KAKAO_MAP_TILE_TIMEOUT");
-  const isCompact = presentation === "compact";
-  const sectionClassName = isCompact
-    ? "relative bg-slate-50"
-    : "relative min-h-[calc(100dvh-var(--navbar-height))]";
-  const mapClassName = isCompact
-    ? "h-0 w-full overflow-hidden bg-slate-100"
-    : "h-[calc(100dvh-var(--navbar-height))] w-full bg-slate-100";
-  const statePanelClassName = isCompact
-    ? "relative flex items-center justify-center bg-slate-50 px-4 py-6"
-    : "absolute inset-0 flex items-center justify-center bg-white/80 px-4";
-  const errorPanelClassName = isCompact
-    ? "relative flex items-center justify-center bg-slate-50 px-4 py-6"
-    : "absolute inset-0 flex items-center justify-center bg-white/90 px-4";
+  const sectionClassName = "relative min-h-[calc(100dvh-var(--navbar-height))]";
+  const mapClassName = "h-[calc(100dvh-var(--navbar-height))] w-full bg-slate-100";
+  const statePanelClassName = "absolute inset-0 flex items-center justify-center bg-white/80 px-4";
+  const errorPanelClassName = "absolute inset-0 flex items-center justify-center bg-white/90 px-4";
+  const failureToneClassNames = fallbackToneClasses[failureTone];
 
   return (
     <section className={sectionClassName} aria-label="맛집 지도">
@@ -237,7 +234,7 @@ export default function Map({
       {(showSdkFailure || showMapFailure || showMissingEnv || showForcedFailure) && (
         <div className={errorPanelClassName}>
           <div
-            className="w-full max-w-sm rounded-md border border-red-200 bg-white p-5 text-center text-gray-700 shadow-sm"
+            className={`w-full max-w-sm rounded-md border bg-white p-5 text-center text-gray-700 shadow-sm ${failureToneClassNames.panelBorder}`}
             role="alert"
             aria-live="assertive"
           >
@@ -245,20 +242,24 @@ export default function Map({
             {mapFailureCopy?.message && (
               <p className="mt-2 text-sm text-gray-600">{mapFailureCopy.message}</p>
             )}
+            {failureFallbackContent}
             {showRuntimeDebugState && mapFailureDebugState && (
-              <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+              <p className={`mt-4 rounded px-2 py-1 text-xs ${failureToneClassNames.debug}`}>
                 debug: {mapFailureDebugState}
                 {errorMessage || mapErrorMessage ? ` / ${errorMessage || mapErrorMessage}` : ""}
               </p>
             )}
             {!showMissingEnv && !showForcedFailure && (
-              <button
-                type="button"
-                onClick={showMapFailure ? resetMap : handleSdkRetry}
-                className="mt-4 rounded-md bg-[--color-signature] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-signature] focus-visible:ring-offset-2"
-              >
-                다시 시도
-              </button>
+              <div className="mt-4 flex flex-row flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={showMapFailure ? resetMap : handleSdkRetry}
+                  className={`rounded-md px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${failureToneClassNames.retryButton}`}
+                >
+                  다시 시도
+                </button>
+                {failureActionContent}
+              </div>
             )}
           </div>
         </div>

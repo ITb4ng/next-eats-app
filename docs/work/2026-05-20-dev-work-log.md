@@ -47,9 +47,9 @@
 
 - `debugState=loading|empty|failure`는 실제 지도/API/마커 렌더링의 관련된 사용자 측 통합 preview UI를 보여준다.
 - 실제 Kakao SDK 실패나 `/api/stores` 네트워크 실패는 DevTools request blocking으로 확인
-- `[ops:...]` 운영 로그는 사용자 측이 아닌 개발환경에서 장애대응 메뉴얼에 관해 디버깅이 용이하도록 운영 측면에서 콘솔/서버 로그에서 장애 원인을 검색하기 위한 진단 코드다.
+- `[ops:...]` 진단 로그는 사용자 측이 아닌 개발환경에서 장애대응 매뉴얼에 관해 디버깅이 용이하도록 콘솔/서버 로그에서 장애 원인을 검색하기 위한 코드다.
 - 지도 실패 + store success + 데이터 있음 상태는 전체 success가 아니라 `map failure + store success`의 degraded fallback 상태로 보는 것이 맞다.
-- 지도 실패 후 store 데이터가 늦게 도착하면서 목록 fallback이 갑자기 나타나는 현상은 기능 버그라기보다 B/C fallback UX 개선 대상이다.
+- 지도 실패 후 store 데이터가 늦게 도착하면서 목록 fallback이 갑자기 나타나는 현상은 B/C fallback UX 개선 대상이며, 1차 개선에서는 10개 미리보기 목록을 제거한다.
 
 ## 후속 연결
 
@@ -63,3 +63,47 @@
 - 지도 실패 + 데이터 로드 실패 + Supabase paused/DB 실패는 `?debugStatate=Failure`와 `[ops]..` 운영코드까지 같이 로그 표시
 
 이 후속 작업은 재배포 후 검증이 완료되면 목적에 맞게 브랜치 명을 생성 후 B/C 작업을 이어 진행한다.
+
+## 후속 B/C/D 진행 연결
+
+진행 브랜치: `fix/map-store-fallback-debug-guards`
+
+2026-05-20 문서의 B/C 후속 작업은 위 기준과 목적이 맞다고 판단했다. A 작업에서 debug state와 fallback 상태 기준을 분리했고, 이후 `fix/map-store-fallback-debug-guards` 브랜치에서 실제 화면 흐름을 B/C로 반영하면서 production 노출 로그 분리를 D 작업으로 추가했다.
+
+실제 구현 상세 기록은 `docs/work/2026-05-21-dev-work-log.md`에 분리했다.
+
+### B. 지도를 못 불러왔을 경우
+
+기존 기준:
+
+- 지도 실패 + store success 상태에서 최신 맛집 목록 fallback을 표시하는 방향이 후보였다.
+- 실제 화면에서는 지도 아래에 실제 Store API 데이터 10개 미리보기 섹션이 표시되었다.
+
+변경 방향:
+
+- 10개 미리보기 fallback은 제거한다.
+- 지도 실패 시 메인 지도 영역의 전체 높이를 유지하고 중앙 fallback 카드로 안내한다.
+- 맵만 실패하고 DB/API가 성공한 경우는 서비스 이용 가능 안내와 `/stores` CTA를 제공한다.
+- 맵과 DB/API가 모두 실패한 경우는 탐색 기능 제한 상태로 안내한다.
+
+### C. 지도는 열렸지만 Store/Marker 상태가 비정상인 경우
+
+기존 기준:
+
+- 맵은 열렸지만 Store 데이터가 없거나 실패한 경우를 지도 SDK 실패와 분리해야 했다.
+- Store API 실패 toast가 빨강 alert 중심으로 보여, 지도는 정상인데도 전체 장애처럼 강하게 보일 수 있었다.
+
+변경 방향:
+
+- 맵 성공 + DB/API 실패는 지도는 유지하고 store 실패 toast만 표시한다.
+- 이 케이스는 빨강 critical이 아니라 주황 warning tone으로 낮춰 표시한다.
+- `store-empty`와 marker 문제는 장애 성격이 다르므로 기존처럼 별도 상태로 유지한다.
+
+### D. production ops/debug 노출 분리
+
+D는 B/C fallback UI 개선과 별개의 추가 작업이다.
+
+- `[ops:*]` 진단 로그는 `NODE_ENV=development`에서만 콘솔에 출력되도록 제한한다.
+- production 브라우저에서 `/api/stores` 요청을 차단해도 `[ops:*]` 로그가 콘솔에 남지 않아야 한다.
+- `debugState`, `debugReason`, `debug:` 보조 문구는 기존 기준대로 개발 환경에서만 동작해야 한다.
+- production 사용자는 내부 debug code가 아니라 복구 가능한 사용자 안내와 다음 행동만 확인해야 한다.

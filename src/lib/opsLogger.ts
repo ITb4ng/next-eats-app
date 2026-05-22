@@ -8,6 +8,8 @@ export type OperationalErrorCode =
 
 type OperationalContext = Record<string, string | number | boolean | null | undefined>;
 
+export const showOperationalDiagnostics = process.env.NODE_ENV === "development";
+
 const normalizeError = (error: unknown) => {
   if (error instanceof Error) {
     return {
@@ -40,6 +42,10 @@ export const logOperationalError = (
   error?: unknown,
   context: OperationalContext = {}
 ) => {
+  if (!showOperationalDiagnostics) {
+    return;
+  }
+
   console.error(`[ops:${code}] ${message}`, {
     code,
     message,
