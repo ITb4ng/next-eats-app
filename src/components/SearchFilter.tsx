@@ -12,6 +12,7 @@ export function RegionSelector() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
   const setDistrict = useSearchStore((state) => state.setDistrict);
+  const setAcceptsPaySupport = useSearchStore((state) => state.setAcceptsPaySupport);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,7 +52,8 @@ export function RegionSelector() {
 
   const handleReset = () => {
     router.push({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
-    useSearchStore.setState({ q: null, district: null });
+    useSearchStore.setState({ q: null, district: null, acceptsPaySupport: false });
+    setAcceptsPaySupport(false);
     setSelectedDo("");
     setSelectedCity("");
     setSelectedDong("");
@@ -143,7 +145,9 @@ export function RegionSelector() {
 
 export default function SearchFilter() {
   const setQ = useSearchStore((state) => state.setQ);
+  const setAcceptsPaySupport = useSearchStore((state) => state.setAcceptsPaySupport);
   const q = useSearchStore((state) => state.q);
+  const acceptsPaySupport = useSearchStore((state) => state.acceptsPaySupport);
   const router = useRouter();
 
   useEffect(() => {
@@ -152,10 +156,28 @@ export default function SearchFilter() {
     }
   }, [router.query.q, setQ]);
 
+  useEffect(() => {
+    setAcceptsPaySupport(router.query.acceptsPaySupport === "true");
+  }, [router.query.acceptsPaySupport, setAcceptsPaySupport]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQ = e.target.value || null;
     setQ(newQ);
     router.push({ query: { ...router.query, q: newQ || undefined } }, undefined, { shallow: true });
+  };
+
+  const handlePaySupportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    const nextQuery = { ...router.query };
+
+    if (checked) {
+      nextQuery.acceptsPaySupport = "true";
+    } else {
+      delete nextQuery.acceptsPaySupport;
+    }
+
+    setAcceptsPaySupport(checked);
+    router.push({ query: nextQuery }, undefined, { shallow: true });
   };
 
   return (
@@ -177,6 +199,15 @@ export default function SearchFilter() {
         </div>
       </div>
       <RegionSelector />
+      <label className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100">
+        <input
+          type="checkbox"
+          checked={acceptsPaySupport}
+          onChange={handlePaySupportChange}
+          className="h-4 w-4 rounded border-gray-300 text-[--color-signature] focus:ring-[--color-signature]"
+        />
+        <span>지원금 사용 가능 매장만 보기</span>
+      </label>
     </section>
   );
 }

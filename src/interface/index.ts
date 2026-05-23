@@ -44,6 +44,7 @@ export interface LocationType {
 export interface SearchType {
     q?          : string;
     district?   : string;
+    acceptsPaySupport?: boolean;
 }
 
 interface UserType {

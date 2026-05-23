@@ -12,6 +12,9 @@ import Like from "@/components/Like";
 import Comments from "@/components/comments";
 import Image from "next/image";
 import { formatStorePhoneNumber } from "@/lib/phone";
+import PaySupportBadge from "@/components/PaySupportBadge";
+
+const PAY_SUPPORT_NOTICE = "사용 가능 여부는 카드사, 지역, 결제수단, 가맹점 상태에 따라 달라질 수 있습니다.";
 
 export default function StorePage() {
   const router = useRouter();
@@ -139,13 +142,20 @@ export default function StorePage() {
         </div>
 
         <dl className="mt-6 divide-y divide-gray-100 rounded-md border border-gray-200 bg-white">
+          {store?.acceptsPaySupport && (
+            <div className="grid grid-cols-1 gap-2 px-4 py-4 sm:grid-cols-3 sm:gap-4">
+              <dt className="text-sm font-semibold text-gray-900">지원금</dt>
+              <dd className="break-words text-sm text-gray-700 sm:col-span-2">
+                <PaySupportBadge label="고유가 피해지원금 사용 가능" className="text-sm" />
+                <p className="mt-2 text-xs leading-5 text-gray-500">{PAY_SUPPORT_NOTICE}</p>
+              </dd>
+            </div>
+          )}
           {[
             ["카테고리", store?.category],
             ["연락처", displayPhone],
             ["업종명", store?.storeType],
             ["인증 구분", store?.foodCertifyName],
-            ["위도", store?.lat],
-            ["경도", store?.lng],
           ].map(([dt, dd]) => (
             <div key={String(dt)} className="grid grid-cols-1 gap-1 px-4 py-4 sm:grid-cols-3 sm:gap-4">
               <dt className="text-sm font-semibold text-gray-900">{dt}</dt>
@@ -158,7 +168,7 @@ export default function StorePage() {
       {isSuccess && store && (
         <>
           <div className="mx-auto mb-5 max-w-5xl px-4">
-            <Map lat={store.lat} lng={store.lng} zoom={2} />
+            <Map lat={store.lat} lng={store.lng} zoom={2} variant="detail" />
             <Marker store={store} />
           </div>
           <Comments storeId={store.id} />

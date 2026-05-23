@@ -2,6 +2,7 @@ import { StoreType } from "@/interface";
 import { formatStorePhoneNumber } from "@/lib/phone";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import PaySupportBadge from "./PaySupportBadge";
 
 interface StoreLikeListProps {
   store: StoreType;
@@ -11,7 +12,7 @@ interface StoreLikeListProps {
 export default function StoreLikelist({ store }: StoreLikeListProps) {
   const router = useRouter();
 
-  const { id, name, storeType, address, phone, foodCertifyName, category } = store;
+  const { id, name, storeType, address, phone, foodCertifyName, category, acceptsPaySupport } = store;
   const categoryIcon = category ? `/images/markers/${category}.png` : "/images/markers/default.png";
   const displayPhone = phone ? formatStorePhoneNumber(phone) : null;
 
@@ -33,9 +34,10 @@ export default function StoreLikelist({ store }: StoreLikeListProps) {
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+          <span className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
             <span className="truncate text-base font-semibold text-gray-900">{name || "이름 없는 맛집"}</span>
             <span className="text-sm font-medium text-gray-500">{category || "카테고리 미정"}</span>
+            {acceptsPaySupport && <PaySupportBadge />}
           </span>
           <span className="mt-1 block text-sm text-gray-600">{storeType || "업종 정보 없음"}</span>
           <span className="mt-2 block break-words text-sm leading-5 text-gray-700">

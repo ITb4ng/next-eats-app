@@ -15,6 +15,7 @@ interface ResponseType {
   limit?: string;
   q?: string;
   district?: string;
+  acceptsPaySupport?: string;
   id?: string;
 }
 
@@ -126,10 +127,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<StoreApiResponse | StoreType[] | StoreType | null | { message: string } | ApiErrorResponse>
 ) {
-  const { page = "1", limit, q, district, id }: ResponseType = req.query;
+  const { page = "1", limit, q, district, acceptsPaySupport, id }: ResponseType = req.query;
   const session = await getServerSession(req, res, authOption);
   const pageNumber = parseInt(page, 10);
   const limitNumber = limit ? parseInt(limit, 10) : undefined;
+  const shouldFilterByPaySupport = acceptsPaySupport === "true";
 
   try {
     if (req.method === "POST" || req.method === "PUT") {
@@ -230,6 +232,7 @@ export default async function handler(
       const districtSearchCandidates = getDistrictSearchCandidates(district);
       const whereCondition: Prisma.StoreWhereInput = {
         ...(q && { name: { contains: q } }),
+        ...(shouldFilterByPaySupport && { acceptsPaySupport: true }),
         ...(districtSearchCandidates.length > 0 && {
           OR: districtSearchCandidates.map((candidate) => ({
             address: { contains: candidate },

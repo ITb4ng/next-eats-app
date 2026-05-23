@@ -20,6 +20,7 @@ export default function StoreListPage() {
   const router = useRouter();
   const q = useSearchStore((state) => state.q);
   const district = useSearchStore((state) => state.district);
+  const acceptsPaySupport = useSearchStore((state) => state.acceptsPaySupport);
 
   useEffect(() => {
     const savedScroll = sessionStorage.getItem("scrollPosition");
@@ -40,13 +41,14 @@ export default function StoreListPage() {
   }, [router]);
 
   useEffect(() => {
-    const { q, district } = router.query;
+    const { q, district, acceptsPaySupport } = router.query;
     if (typeof q === "string") {
       useSearchStore.setState({ q });
     }
     if (typeof district === "string") {
       useSearchStore.setState({ district });
     }
+    useSearchStore.setState({ acceptsPaySupport: acceptsPaySupport === "true" });
   }, [router.query]);
 
   const fetchStores = async ({ pageParam = 1 }): Promise<StoreApiResponse> => {
@@ -56,6 +58,7 @@ export default function StoreListPage() {
         page: pageParam,
         q: q || undefined,
         district: district || undefined,
+        acceptsPaySupport: acceptsPaySupport ? "true" : undefined,
       },
     });
     return data;
@@ -69,7 +72,7 @@ export default function StoreListPage() {
     hasNextPage,
     isError,
     isLoading,
-  } = useInfiniteQuery(["stores", q, district], fetchStores, {
+  } = useInfiniteQuery(["stores", q, district, acceptsPaySupport], fetchStores, {
     getNextPageParam: (lastPage) => {
       const nextPage = (lastPage.page ?? 1) + 1;
       return nextPage <= (lastPage.totalPage ?? 1) ? nextPage : undefined;
@@ -94,7 +97,7 @@ export default function StoreListPage() {
 
   const storeItems = stores?.pages.flatMap((page) => page.data) ?? [];
   const totalCount = stores?.pages[0]?.totalCount ?? storeItems.length;
-  const hasActiveFilter = Boolean(q || district);
+  const hasActiveFilter = Boolean(q || district || acceptsPaySupport);
 
   if (isError) {
     return (
@@ -124,11 +127,14 @@ export default function StoreListPage() {
               {hasActiveFilter ? "검색 조건에 맞는 맛집" : "전체 맛집"}{" "}
               <span className="font-semibold text-gray-900">{totalCount}</span>곳
             </p>
-            {district && (
-              <p className="text-gray-500">
-                선택 지역: <span className="font-medium text-gray-700">{district}</span>
-              </p>
-            )}
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-gray-500 sm:justify-end">
+              {district && (
+                <p>
+                  선택 지역: <span className="font-medium text-gray-700">{district}</span>
+                </p>
+              )}
+              {acceptsPaySupport && <p className="font-medium text-emerald-700">지원금 사용 가능</p>}
+            </div>
           </div>
 
           {storeItems.length > 0 ? (
@@ -143,9 +149,15 @@ export default function StoreListPage() {
             </ul>
           ) : (
             <div className="rounded-md border border-gray-200 bg-gray-50 px-5 py-12 text-center">
-              <p className="text-base font-semibold text-gray-900">조건에 맞는 맛집이 없습니다.</p>
+              <p className="text-base font-semibold text-gray-900">
+                {acceptsPaySupport
+                  ? "지원금 사용 가능 조건에 맞는 맛집이 없습니다."
+                  : "조건에 맞는 맛집이 없습니다."}
+              </p>
               <p className="mt-2 text-sm text-gray-500">
-                검색어 또는 지역 필터를 변경해 다시 확인해 주세요.
+                {acceptsPaySupport
+                  ? "지역 또는 검색어를 변경해 다시 확인해 주세요."
+                  : "검색어, 지역 또는 지원금 필터를 변경해 다시 확인해 주세요."}
               </p>
             </div>
           )}
