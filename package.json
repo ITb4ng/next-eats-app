@@ -13,6 +13,7 @@
     "test:perf:v1.1.0": "node scripts/performance-v1.1.0-runtime-checks.mjs",
     "studio": "npx prisma studio",
     "dev:all": "concurrently \"yarn dev\" \"yarn studio\"",
+    "seed:v1.1.0:region-fixtures": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\",\\\"moduleResolution\\\":\\\"node\\\"}\" scripts/seed-v1.1.0-region-fixtures.ts",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },

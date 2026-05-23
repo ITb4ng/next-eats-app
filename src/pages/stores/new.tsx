@@ -24,6 +24,7 @@ export default function StoreNewPage() {
     shouldFocusError: false,
     defaultValues: {
       phone: "",
+      acceptsPaySupport: false,
     },
   });
 
@@ -224,6 +225,25 @@ export default function StoreNewPage() {
                   <div className="pt-2 text-xs text-red-600">필수 입력 항목입니다.</div>
                 )}
               </div>
+            </div>
+
+            <div className="sm:col-span-6">
+              <label className="flex items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
+                <input
+                  type="checkbox"
+                  disabled={isDemoUser}
+                  {...register("acceptsPaySupport")}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 disabled:cursor-not-allowed"
+                />
+                <span>
+                  <span className="block text-sm font-medium text-gray-900">
+                    고유가 피해지원금 사용 가능
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-gray-500">
+                    사용 가능 여부는 카드사, 지역, 결제수단, 가맹점 상태에 따라 달라질 수 있습니다.
+                  </span>
+                </span>
+              </label>
             </div>
           </div>
         </div>
