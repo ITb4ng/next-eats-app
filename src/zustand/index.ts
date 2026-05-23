@@ -28,11 +28,13 @@ interface StoreState {
 interface SearchStore {
   q: string | null;
   district: string | null;
+  acceptsPaySupport: boolean;
   selectedDo: string | null;
   selectedCity: string | null;
   selectedDong: string | null;
   setQ: (q: string | null) => void;
   setDistrict: (district: string | null) => void;
+  setAcceptsPaySupport: (acceptsPaySupport: boolean) => void;
   setSelectedDo: (selectedDo: string | null) => void;
   setSelectedCity: (selectedCity: string | null) => void;
   setSelectedDong: (selectedDong: string | null) => void;
@@ -73,11 +75,13 @@ export const useMapStore = create<MapStore>((set) => ({
 export const useSearchStore = create<SearchStore>((set) => ({
   q: null,
   district: null,
+  acceptsPaySupport: false,
   selectedDo: null,
   selectedCity: null,
   selectedDong: null,
   setQ: (q) => set({ q }),
   setDistrict: (district) => set({ district }),
+  setAcceptsPaySupport: (acceptsPaySupport) => set({ acceptsPaySupport }),
   setSelectedDo: (selectedDo) => set({ selectedDo }),
   setSelectedCity: (selectedCity) => set({ selectedCity }),
   setSelectedDong: (selectedDong) => set({ selectedDong }),

@@ -23,6 +23,7 @@ interface MapProps {
   lat?: number | null;
   lng?: number | null;
   zoom?: number;
+  variant?: "full" | "detail";
   onStatusChange?: (status: MapRuntimeStatus) => void;
   debugState?: MapDebugState | null;
   failureFallbackContent?: ReactNode;
@@ -39,6 +40,7 @@ export default function Map({
   lat,
   lng,
   zoom,
+  variant = "full",
   onStatusChange,
   debugState,
   failureFallbackContent,
@@ -205,8 +207,14 @@ export default function Map({
     ? getMapStatusCopy(mapFailureDebugState)
     : null;
   const tileTimeoutCopy = getMapStatusCopy("KAKAO_MAP_TILE_TIMEOUT");
-  const sectionClassName = "relative min-h-[calc(100dvh-var(--navbar-height))]";
-  const mapClassName = "h-[calc(100dvh-var(--navbar-height))] w-full bg-slate-100";
+  const sectionClassName =
+    variant === "detail"
+      ? "relative h-72 overflow-hidden rounded-md border border-gray-200 bg-slate-100 sm:h-80 lg:h-96"
+      : "relative min-h-[calc(100dvh-var(--navbar-height))]";
+  const mapClassName =
+    variant === "detail"
+      ? "h-full w-full bg-slate-100"
+      : "h-[calc(100dvh-var(--navbar-height))] w-full bg-slate-100";
   const statePanelClassName = "absolute inset-0 flex items-center justify-center bg-white/80 px-4";
   const errorPanelClassName = "absolute inset-0 flex items-center justify-center bg-white/90 px-4";
   const failureToneClassNames = fallbackToneClasses[failureTone];

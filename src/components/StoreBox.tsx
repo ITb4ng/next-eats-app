@@ -10,6 +10,7 @@ import { useQuery } from "react-query";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { formatStorePhoneNumber } from "@/lib/phone";
+import PaySupportBadge from "./PaySupportBadge";
 
 export default function StoreBox() {
   const iconClass = "mt-0.5 h-4 w-4 shrink-0 text-gray-500";
@@ -39,7 +40,7 @@ export default function StoreBox() {
     <div className="absolute inset-x-3 bottom-20 z-20 mx-auto w-auto max-w-[420px] rounded-md bg-white text-sm shadow-xl ring-1 ring-black/5 sm:inset-x-0">
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-gray-50 ring-1 ring-gray-100">
               <Image
                 src={categoryIcon}
@@ -54,6 +55,7 @@ export default function StoreBox() {
               <p className="mt-1 truncate text-sm text-gray-500">
                 {store.category || "카테고리 미정"} · {store.storeType || "업종 정보 없음"}
               </p>
+              {store.acceptsPaySupport && <PaySupportBadge className="mt-2" />}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
