@@ -4,6 +4,9 @@ import { getCanonicalRegionName, REGION_DATA } from "@/data/region";
 import { useSearchStore } from "@/zustand";
 import { useRouter } from "next/router";
 
+const selectClass =
+  "min-h-11 flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition focus:border-[--color-signature] focus:outline-none focus:ring-2 focus:ring-[rgba(42,193,188,0.18)]";
+
 export function RegionSelector() {
   const [selectedDo, setSelectedDo] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -11,7 +14,6 @@ export function RegionSelector() {
   const setDistrict = useSearchStore((state) => state.setDistrict);
   const router = useRouter();
 
-  // 지역 선택 변경 시 query, Zustand 상태 반영 (300ms debounce)
   useEffect(() => {
     const handler = setTimeout(() => {
       if (selectedDo && selectedCity && selectedDong) {
@@ -35,9 +37,8 @@ export function RegionSelector() {
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [selectedDo, selectedCity, selectedDong]);
+  }, [router, selectedCity, selectedDo, selectedDong, setDistrict]);
 
-  // query에 따른 초기값 세팅 (페이지 방문 시 등)
   useEffect(() => {
     const { district } = router.query;
     if (typeof district === "string") {
@@ -48,25 +49,21 @@ export function RegionSelector() {
     }
   }, [router.query]);
 
-  // 초기화 버튼 클릭
   const handleReset = () => {
-    router.push({ pathname: router.pathname, query: {} });
+    router.push({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
     useSearchStore.setState({ q: null, district: null });
     setSelectedDo("");
     setSelectedCity("");
     setSelectedDong("");
   };
 
-  // 시/도 선택에 따른 시/군/구 옵션 반환
   const getSecondLevelOptions = () => {
     const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
     if (Array.isArray(selected)) return selected;
-    if (typeof selected === "object" && selected !== null)
-      return Object.keys(selected);
+    if (typeof selected === "object" && selected !== null) return Object.keys(selected);
     return [];
   };
 
-  // 시/군/구 선택에 따른 읍/면/동 옵션 반환 (강원도만)
   const getThirdLevelOptions = () => {
     const selected = REGION_DATA[selectedDo as keyof typeof REGION_DATA];
     if (typeof selected === "object" && selected !== null && !Array.isArray(selected)) {
@@ -79,18 +76,18 @@ export function RegionSelector() {
   const thirdLevelOptions = getThirdLevelOptions();
 
   return (
-    <div className="flex flex-wrap gap-4 w-full">
-      {/* 시/도 선택 */}
+    <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
       <select
+        aria-label="시도 선택"
         onChange={(e) => {
           setSelectedDo(e.target.value);
           setSelectedCity("");
           setSelectedDong("");
         }}
         value={selectedDo}
-        className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        className={selectClass}
       >
-        <option value="">시/도 선택</option>
+        <option value="">시/도 전체</option>
         {Object.keys(REGION_DATA).map((sido) => (
           <option key={sido} value={sido}>
             {sido}
@@ -98,17 +95,17 @@ export function RegionSelector() {
         ))}
       </select>
 
-      {/* 시/군/구 선택 */}
       {selectedDo && secondLevelOptions.length > 0 && (
         <select
+          aria-label="시군구 선택"
           onChange={(e) => {
             setSelectedCity(e.target.value);
             setSelectedDong("");
           }}
           value={selectedCity}
-          className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className={selectClass}
         >
-          <option value="">시/군/구 선택</option>
+          <option value="">시/군/구 전체</option>
           {secondLevelOptions.map((city) => (
             <option key={city} value={city}>
               {city}
@@ -117,14 +114,14 @@ export function RegionSelector() {
         </select>
       )}
 
-      {/* 읍/면/동 선택 */}
       {selectedCity && thirdLevelOptions.length > 0 && (
         <select
+          aria-label="읍면동 선택"
           onChange={(e) => setSelectedDong(e.target.value)}
           value={selectedDong}
-          className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className={selectClass}
         >
-          <option value="">읍/면/동 선택</option>
+          <option value="">읍/면/동 전체</option>
           {thirdLevelOptions.map((dong) => (
             <option key={dong} value={dong}>
               {dong}
@@ -133,12 +130,12 @@ export function RegionSelector() {
         </select>
       )}
 
-      {/* 초기화 버튼 */}
       <button
+        type="button"
         onClick={handleReset}
-        className="flex-1 min-w-[150px] px-4 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition"
+        className="min-h-11 rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
       >
-        초기화
+        필터 초기화
       </button>
     </div>
   );
@@ -153,27 +150,33 @@ export default function SearchFilter() {
     if (router.query.q && typeof router.query.q === "string") {
       setQ(router.query.q);
     }
-  }, [router.query.q]);
+  }, [router.query.q, setQ]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQ = e.target.value || null;
     setQ(newQ);
-    router.push({ query: { ...router.query, q: newQ || undefined } });
+    router.push({ query: { ...router.query, q: newQ || undefined } }, undefined, { shallow: true });
   };
 
   return (
-    <div className="relative flex flex-col gap-3 my-4 w-full">
-      <div className="flex items-center w-full">
-        <CiSearch className="w-6 h-6 text-gray-500 mr-2" />
-        <input
-          type="search"
-          onChange={handleSearchChange}
-          value={q ?? ""}
-          placeholder="맛집 검색"
-          className="block w-full p-2.5 text-base text-gray-800 border border-gray-300 rounded-xl bg-gray-100 focus:border-indigo-500 focus:outline-none transition"
-        />
+    <section className="mb-5 w-full rounded-md border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-3">
+        <label htmlFor="store-search" className="block text-sm font-semibold text-gray-900">
+          맛집 검색
+        </label>
+        <div className="mt-2 flex min-h-11 items-center rounded-md border border-gray-300 bg-gray-50 px-3 transition focus-within:border-[--color-signature] focus-within:ring-2 focus-within:ring-[rgba(42,193,188,0.18)]">
+          <CiSearch className="mr-2 h-5 w-5 shrink-0 text-gray-500" />
+          <input
+            id="store-search"
+            type="search"
+            onChange={handleSearchChange}
+            value={q ?? ""}
+            placeholder="가게명으로 검색"
+            className="block w-full bg-transparent py-2 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none"
+          />
+        </div>
       </div>
       <RegionSelector />
-    </div>
+    </section>
   );
 }

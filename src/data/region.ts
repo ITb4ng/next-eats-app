@@ -35,11 +35,14 @@ const REGION_NAME_ALIASES: Record<string, string[]> = {
   강원도: ["강원특별자치도"],
   전북특별자치도: ["전라북도"],
   전라북도: ["전북특별자치도"],
+  제주특별자치도: ["제주도"],
+  제주도: ["제주특별자치도"],
 };
 
 const REGION_CANONICAL_NAMES: Record<string, string> = {
   강원도: "강원특별자치도",
   전라북도: "전북특별자치도",
+  제주도: "제주특별자치도",
 };
 
 export const getCanonicalRegionName = (regionName: string) =>

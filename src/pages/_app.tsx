@@ -6,7 +6,13 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { SessionProvider } from "next-auth/react"
 import Head from "next/head";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 const showReactQueryDevtools = process.env.NODE_ENV !== "production";
 const ReactQueryDevtools = showReactQueryDevtools
   ? dynamic(

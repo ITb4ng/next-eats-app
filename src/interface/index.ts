@@ -14,7 +14,7 @@ export interface StoreType {
 }
 
 export interface LikeInterface {
-    user?       : UserType;  // 'any' -> 'UserType'로 변경
+    user?       : UserType;
     id          : number;
     storeId     : number;
     userId      : number;

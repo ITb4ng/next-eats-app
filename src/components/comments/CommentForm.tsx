@@ -9,25 +9,34 @@ interface CommentFormProps {
   onCommentAdded?: () => void;
 }
 
+interface CommentFormValues {
+  body: string;
+}
+
 export default function CommentForm({ storeId, onCommentAdded }: CommentFormProps) {
   const { data: session } = useSession();
-  const { register, handleSubmit, resetField, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    formState: { errors, isSubmitting },
+  } = useForm<CommentFormValues>();
 
   const isDemoUser = session?.user.role === "DEMO";
 
   return (
     <form
-      className="flex flex-col space-y-2 mt-2"
+      className="rounded-md border border-gray-200 bg-white p-4 shadow-sm"
       onSubmit={handleSubmit(async (data) => {
         if (isDemoUser) {
-          toast.info("데모 계정은 댓글 작성이 제한됩니다. 실제 계정으로 로그인해보세요.");
+          toast.info("데모 계정은 댓글 작성이 제한됩니다. 실제 계정으로 로그인해 보세요.");
           return;
         }
 
         try {
           const res = await axios.post("/api/comments", { ...data, storeId });
           if (res.status === 200) {
-            toast.success("댓글이 등록되었습니다.");
+            toast.success("댓글을 등록했습니다.");
             resetField("body");
             onCommentAdded?.();
           } else {
@@ -35,12 +44,12 @@ export default function CommentForm({ storeId, onCommentAdded }: CommentFormProp
           }
         } catch (error) {
           console.error(error);
-          toast.error("댓글 등록 중 오류가 발생했습니다.");
+          toast.error("댓글 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
         }
       })}
     >
       {isDemoUser && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           데모 계정은 댓글 작성이 제한됩니다.{" "}
           <Link href="/users/login" className="font-semibold underline">
             실제 계정으로 로그인
@@ -49,25 +58,36 @@ export default function CommentForm({ storeId, onCommentAdded }: CommentFormProp
         </div>
       )}
 
-      {errors?.body?.type === "required" && (
-        <div className="text-lg text-red-500 mb-2">필수 입력 항목입니다.</div>
-      )}
-
+      <label htmlFor="comment-body" className="block text-sm font-semibold text-gray-900">
+        댓글 작성
+      </label>
       <textarea
+        id="comment-body"
         {...register("body", { required: true, maxLength: 200 })}
-        placeholder="댓글이나 리뷰를 입력해주세요."
+        placeholder="댓글을 입력해 주세요."
         rows={3}
-        disabled={isDemoUser}
-        className="block w-full min-h-[120px] resize-none border bg-transparent py-2.5 px-4 focus:outline-none placeholder:text-gray-400 text-lg leading-6 rounded-md disabled:bg-gray-100 disabled:text-gray-400"
+        disabled={isDemoUser || isSubmitting}
+        className={`mt-2 block min-h-[112px] w-full resize-none rounded-md border px-4 py-3 text-base leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(42,193,188,0.18)] disabled:bg-gray-100 disabled:text-gray-400 ${
+          errors?.body ? "border-red-300 focus:border-red-400" : "border-gray-300 focus:border-[--color-signature]"
+        }`}
       />
 
-      <button
-        type="submit"
-        disabled={isDemoUser}
-        className="bg-[#2ac1bc] hover:opacity-70 text-white px-4 py-2 font-bold shadow-sm mt-2 rounded-md disabled:cursor-not-allowed disabled:bg-gray-300"
-      >
-        리뷰 작성
-      </button>
+      {errors?.body?.type === "required" && (
+        <p className="mt-2 text-sm text-red-600">댓글을 입력해 주세요.</p>
+      )}
+      {errors?.body?.type === "maxLength" && (
+        <p className="mt-2 text-sm text-red-600">댓글은 200자 이내로 입력해 주세요.</p>
+      )}
+
+      <div className="mt-3 flex justify-end">
+        <button
+          type="submit"
+          disabled={isDemoUser || isSubmitting}
+          className="min-h-11 w-full rounded-md bg-[--color-signature] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[--color-signature-dark] disabled:cursor-not-allowed disabled:bg-gray-300 sm:w-auto"
+        >
+          {isSubmitting ? "등록 중" : "댓글 작성"}
+        </button>
+      </div>
     </form>
   );
 }

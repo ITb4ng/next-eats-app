@@ -8,87 +8,111 @@ import Image from "next/image";
 interface CommentListProps {
   comments?: CommentApiResponse;
   onDeleteSuccess?: () => void;
-  commentStore? : boolean;
+  commentStore?: boolean;
+  isLoading?: boolean;
 }
 
-export default function CommentList({ comments, onDeleteSuccess, commentStore }: CommentListProps) {
+export default function CommentList({
+  comments,
+  onDeleteSuccess,
+  commentStore,
+  isLoading,
+}: CommentListProps) {
   const { data: session } = useSession();
 
   const handleDeleteComment = async (id: number) => {
-    const confirmDelete = window.confirm("리뷰를 삭제하시겠습니까?");
+    const confirmDelete = window.confirm("댓글을 삭제하시겠습니까?");
     if (!confirmDelete) return;
 
     try {
       const res = await axios.delete(`/api/comments?id=${id}`);
       if (res.status === 200) {
-        toast.success("리뷰 삭제 완료");
-        onDeleteSuccess?.(); // 댓글 목록 갱신
+        toast.success("댓글을 삭제했습니다.");
+        onDeleteSuccess?.();
       } else {
-        toast.error("삭제에 실패했습니다.");
+        toast.error("댓글 삭제에 실패했습니다.");
       }
     } catch (e) {
       console.error(e);
-      toast.error("오류가 발생했습니다.");
+      toast.error("댓글 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="mt-5 rounded-md border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+        댓글을 불러오는 중입니다.
+      </div>
+    );
+  }
+
   return (
-    <div className="my-10">
+    <div className="mt-5">
       {comments?.data && comments.data.length > 0 ? (
-        comments.data.map((comment) => (
-          <div
-            key={comment.id}
-            className="flex space-x-4 items-center text-lg text-gray-500 mb-8 border-b border-gray-200 pb-8"
-          >
-            <Image
-              src={comment?.user?.image || '/images/markers/user.png'}
-              alt="사용자 이미지"
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full"
-              unoptimized // 외부 URL 또는 최적화 비원할 시 사용
-            />
-            <div className="flex flex-col space-y-1 flex-1">
-              <div>
-                {comment.user?.name || "Naver 사용자"} | 
-                &nbsp;
-                {comment.user?.email || "카카오 계정"}
-              </div>
-              <div className="text-base">
-                {new Date(comment.createdAt).toLocaleDateString()}
-              </div>
-              <div className="text-black mt-1 text-lg">
-                댓글 : &nbsp; {comment.body}
-              </div>
-              {commentStore && comment.store && (
-                <div className="mt-2">
-                  맛집 - &nbsp;
-                  <Link href={`/stores/${comment.store.id}`}
-                    className="text-gray-400 underline font-normal hover:font-bold hover:text-gray-600 underline-offset-2"
-                  >
-                    {comment.store.name}
-                  </Link>
+        <ul className="space-y-3">
+          {comments.data.map((comment) => (
+            <li
+              key={comment.id}
+              className="flex gap-3 rounded-md border border-gray-200 bg-white p-4 shadow-sm sm:gap-4"
+            >
+              <Image
+                src={comment?.user?.image || "/images/markers/user.png"}
+                alt="사용자 이미지"
+                width={40}
+                height={40}
+                className="h-10 w-10 shrink-0 rounded-full object-cover"
+                unoptimized
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900">
+                      {comment.user?.name || "사용자"}
+                    </p>
+                    <p className="truncate text-xs text-gray-500">
+                      {comment.user?.email || "소셜 계정"}
+                    </p>
+                  </div>
+                  <time className="text-xs text-gray-400">
+                    {new Date(comment.createdAt).toLocaleDateString()}
+                  </time>
                 </div>
+
+                <p className="mt-3 whitespace-pre-wrap break-words text-base leading-6 text-gray-900">
+                  {comment.body}
+                </p>
+
+                {commentStore && comment.store && (
+                  <div className="mt-3 text-sm text-gray-500">
+                    맛집:{" "}
+                    <Link
+                      href={`/stores/${comment.store.id}`}
+                      className="font-medium text-[--color-signature-dark] underline underline-offset-2"
+                    >
+                      {comment.store.name}
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {comment.userId === session?.user.id && (
+                <button
+                  type="button"
+                  className="h-9 shrink-0 rounded-md border border-gray-200 px-3 text-sm font-medium text-red-500 transition hover:border-red-200 hover:bg-red-50"
+                  onClick={() => handleDeleteComment(comment.id)}
+                >
+                  삭제
+                </button>
               )}
-            </div>
-            {comment.userId === session?.user.id && (
-              <button
-                className="underline text-red-400 hover:text-gray-300 text-base"
-                onClick={() => handleDeleteComment(comment.id)}
-              >
-                삭제
-              </button>
-            )}
-          </div>
-        ))
+            </li>
+          ))}
+        </ul>
       ) : (
-        <div className="p-4 border border-gray-200 rounded-md text-sm text-gray-400">
-          댓글이 없습니다.
+        <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-8 text-center">
+          <p className="text-sm font-medium text-gray-700">아직 등록된 댓글이 없습니다.</p>
+          <p className="mt-1 text-sm text-gray-500">첫 댓글을 남겨 맛집 정보를 공유해 주세요.</p>
         </div>
       )}
     </div>
   );
 }
-
-
-// Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
