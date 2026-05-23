@@ -10,6 +10,7 @@ export interface StoreType {
     category?           : string | null;
     storeType?          : string | null;
     foodCertifyName?    : string | null;
+    acceptsPaySupport?  : boolean | null;
 }
 
 export interface LikeInterface {

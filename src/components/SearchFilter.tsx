@@ -1,6 +1,6 @@
 import { CiSearch } from "react-icons/ci";
 import React, { useEffect, useState } from "react";
-import { REGION_DATA } from "@/data/region";
+import { getCanonicalRegionName, REGION_DATA } from "@/data/region";
 import { useSearchStore } from "@/zustand";
 import { useRouter } from "next/router";
 
@@ -14,7 +14,7 @@ export function RegionSelector() {
   // 지역 선택 변경 시 query, Zustand 상태 반영 (300ms debounce)
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (selectedDo && selectedCity && selectedDo === "강원도" && selectedDong) {
+      if (selectedDo && selectedCity && selectedDong) {
         const district = `${selectedDo} ${selectedCity} ${selectedDong}`;
         setDistrict(district);
         router.replace({ query: { ...router.query, district } }, undefined, { shallow: true });
@@ -22,6 +22,11 @@ export function RegionSelector() {
         const district = `${selectedDo} ${selectedCity}`;
         setDistrict(district);
         router.replace({ query: { ...router.query, district } }, undefined, { shallow: true });
+      } else if (selectedDo) {
+        setDistrict(selectedDo);
+        router.replace({ query: { ...router.query, district: selectedDo } }, undefined, {
+          shallow: true,
+        });
       } else {
         setDistrict(null);
         const { district, ...rest } = router.query;
@@ -37,7 +42,7 @@ export function RegionSelector() {
     const { district } = router.query;
     if (typeof district === "string") {
       const parts = district.split(" ");
-      setSelectedDo(parts[0] || "");
+      setSelectedDo(parts[0] ? getCanonicalRegionName(parts[0]) : "");
       setSelectedCity(parts[1] || "");
       setSelectedDong(parts[2] || "");
     }
@@ -70,6 +75,9 @@ export function RegionSelector() {
     return [];
   };
 
+  const secondLevelOptions = getSecondLevelOptions();
+  const thirdLevelOptions = getThirdLevelOptions();
+
   return (
     <div className="flex flex-wrap gap-4 w-full">
       {/* 시/도 선택 */}
@@ -91,7 +99,7 @@ export function RegionSelector() {
       </select>
 
       {/* 시/군/구 선택 */}
-      {selectedDo && (
+      {selectedDo && secondLevelOptions.length > 0 && (
         <select
           onChange={(e) => {
             setSelectedCity(e.target.value);
@@ -101,7 +109,7 @@ export function RegionSelector() {
           className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         >
           <option value="">시/군/구 선택</option>
-          {getSecondLevelOptions().map((city) => (
+          {secondLevelOptions.map((city) => (
             <option key={city} value={city}>
               {city}
             </option>
@@ -109,15 +117,15 @@ export function RegionSelector() {
         </select>
       )}
 
-      {/* 읍/면/동 선택 (강원도만) */}
-      {selectedDo === "강원도" && selectedCity && (
+      {/* 읍/면/동 선택 */}
+      {selectedCity && thirdLevelOptions.length > 0 && (
         <select
           onChange={(e) => setSelectedDong(e.target.value)}
           value={selectedDong}
           className="flex-1 min-w-[150px] px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         >
           <option value="">읍/면/동 선택</option>
-          {getThirdLevelOptions().map((dong) => (
+          {thirdLevelOptions.map((dong) => (
             <option key={dong} value={dong}>
               {dong}
             </option>

@@ -1,0 +1,189 @@
+[
+  {
+    "name": "서울 중구 안심한식",
+    "category": "한식",
+    "address": "서울특별시 중구 세종대로 110",
+    "lat": 37.5665,
+    "lng": 126.978,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "02-120"
+  },
+  {
+    "name": "부산 연제 안심식당",
+    "category": "한식",
+    "address": "부산광역시 연제구 중앙대로 1001",
+    "lat": 35.1798,
+    "lng": 129.075,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "051-120"
+  },
+  {
+    "name": "대구 중구 일반음식점",
+    "category": "한식",
+    "address": "대구광역시 중구 공평로 88",
+    "lat": 35.8714,
+    "lng": 128.6014,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "053-120"
+  },
+  {
+    "name": "인천 남동 안심한식",
+    "category": "한식",
+    "address": "인천광역시 남동구 정각로 29",
+    "lat": 37.4563,
+    "lng": 126.7052,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "032-120"
+  },
+  {
+    "name": "광주 서구 안심식당",
+    "category": "한식",
+    "address": "광주광역시 서구 내방로 111",
+    "lat": 35.1595,
+    "lng": 126.8526,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "062-120"
+  },
+  {
+    "name": "대전 서구 일반음식점",
+    "category": "한식",
+    "address": "대전광역시 서구 둔산로 100",
+    "lat": 36.3504,
+    "lng": 127.3845,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "042-120"
+  },
+  {
+    "name": "울산 남구 안심한식",
+    "category": "한식",
+    "address": "울산광역시 남구 중앙로 201",
+    "lat": 35.5384,
+    "lng": 129.3114,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "052-120"
+  },
+  {
+    "name": "세종 안심식당",
+    "category": "한식",
+    "address": "세종특별자치시 한누리대로 2130",
+    "lat": 36.4801,
+    "lng": 127.289,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "044-120"
+  },
+  {
+    "name": "경기 수원 안심한식",
+    "category": "한식",
+    "address": "경기도 수원시 팔달구 효원로 241",
+    "lat": 37.2636,
+    "lng": 127.0286,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "031-120"
+  },
+  {
+    "name": "강원 춘천 일반음식점",
+    "category": "한식",
+    "address": "강원특별자치도 춘천시 중앙로 1",
+    "lat": 37.8813,
+    "lng": 127.7298,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "033-120"
+  },
+  {
+    "name": "충북 청주 안심식당",
+    "category": "한식",
+    "address": "충청북도 청주시 상당구 상당로 82",
+    "lat": 36.6424,
+    "lng": 127.489,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "043-120"
+  },
+  {
+    "name": "충남 홍성 안심한식",
+    "category": "한식",
+    "address": "충청남도 홍성군 홍북읍 충남대로 21",
+    "lat": 36.6588,
+    "lng": 126.6728,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "041-120"
+  },
+  {
+    "name": "전북 전주 일반음식점",
+    "category": "한식",
+    "address": "전북특별자치도 전주시 완산구 효자로 225",
+    "lat": 35.8204,
+    "lng": 127.1088,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "063-120"
+  },
+  {
+    "name": "전남 무안 안심식당",
+    "category": "한식",
+    "address": "전라남도 무안군 삼향읍 오룡길 1",
+    "lat": 34.8161,
+    "lng": 126.463,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "061-120"
+  },
+  {
+    "name": "경북 안동 안심한식",
+    "category": "한식",
+    "address": "경상북도 안동시 풍천면 도청대로 455",
+    "lat": 36.576,
+    "lng": 128.5056,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "054-120"
+  },
+  {
+    "name": "경남 창원 일반음식점",
+    "category": "한식",
+    "address": "경상남도 창원시 의창구 중앙대로 300",
+    "lat": 35.2383,
+    "lng": 128.6924,
+    "acceptsPaySupport": false,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "055-120"
+  },
+  {
+    "name": "제주 제주시 안심식당",
+    "category": "한식",
+    "address": "제주특별자치도 제주시 문연로 6",
+    "lat": 33.4996,
+    "lng": 126.5312,
+    "acceptsPaySupport": true,
+    "foodCertifyName": "안심식당",
+    "storeType": "일반음식점",
+    "phone": "064-120"
+  }
+]
