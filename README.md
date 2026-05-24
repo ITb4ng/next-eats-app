@@ -4,8 +4,25 @@
 
 - Production: https://next-eats-app.vercel.app
 - Repository: https://github.com/ITb4ng/next-eats-app
-- Latest release: `v1.1.0`
-- Stack: Next.js Pages Router, React, TypeScript, Prisma, PostgreSQL, NextAuth, Kakao Map SDK, Tailwind CSS
+## Release
+
+| Version | Date | Summary |
+|---|---|---|
+| [`v1.1.0`](https://github.com/ITb4ng/next-eats-app/releases/tag/v1.1.0) | 2026-05-25 | Store 탐색 안정화, 지원금 필터, 성능/운영 품질 개선 |
+| [`v1.0.0`](https://github.com/ITb4ng/next-eats-app/releases/tag/v1.0.0) | 2026-04-04 | 지도 기반 맛집 탐색 핵심 기능 첫 배포 |
+
+## Tech Stack
+<p>
+  <img src="https://img.shields.io/badge/Next.js-15.5.18-000000?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19.2.6-61DAFB?style=flat-square&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prisma-7.8-2D3748?style=flat-square&logo=prisma&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/NextAuth-v4-000000?style=flat-square&logo=auth0&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Kakao_Map-SDK-FFCD00?style=flat-square&logo=kakao&logoColor=black" />
+  <img src="https://img.shields.io/badge/Vercel-Deploy-000000?style=flat-square&logo=vercel&logoColor=white" />
+</p>
 
 ## 프로젝트 요약
 
