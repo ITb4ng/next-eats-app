@@ -3,7 +3,10 @@ import axios from "axios";
 import { getServerSession } from "next-auth";
 
 import prisma from "@/db";
+import { getDistrictSearchCandidates } from "@/data/region";
 import { StoreApiResponse, StoreType } from "@/interface";
+import { logOperationalError } from "@/lib/opsLogger";
+import type { Prisma } from "@/generated/prisma/client";
 
 import { authOption } from "./auth/[...nextauth]";
 
@@ -12,8 +15,93 @@ interface ResponseType {
   limit?: string;
   q?: string;
   district?: string;
+  acceptsPaySupport?: string;
   id?: string;
 }
+
+interface StoreMutationBody {
+  id?: number | string;
+  phone?: string | null;
+  address?: string | null;
+  name?: string | null;
+  category?: string | null;
+  storeType?: string | null;
+  foodCertifyName?: string | null;
+  acceptsPaySupport?: boolean | string | null;
+}
+
+interface ApiErrorResponse {
+  code: "DB_STORES_UNAVAILABLE" | "STORE_API_ERROR";
+  message: string;
+  debug?: {
+    name?: string;
+    code?: string;
+  };
+}
+
+const getErrorText = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message.toLowerCase();
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    return typeof message === "string" ? message.toLowerCase() : "";
+  }
+
+  return "";
+};
+
+const getErrorDebugInfo = (error: unknown): ApiErrorResponse["debug"] | undefined => {
+  if (process.env.NODE_ENV === "production") {
+    return undefined;
+  }
+
+  if (typeof error !== "object" || error === null) {
+    return undefined;
+  }
+
+  return {
+    name: "name" in error ? String((error as { name?: unknown }).name ?? "") : undefined,
+    code: "code" in error ? String((error as { code?: unknown }).code ?? "") : undefined,
+  };
+};
+
+const isDatabaseDelayLikeError = (error: unknown) => {
+  const message = getErrorText(error);
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? String((error as { code?: unknown }).code).toLowerCase()
+      : "";
+
+  return (
+    code === "p1001" ||
+    code === "p1002" ||
+    code === "p1017" ||
+    code.startsWith("54") ||
+    message.includes("can't reach database") ||
+    message.includes("database server") ||
+    message.includes("connect") ||
+    message.includes("timeout") ||
+    message.includes("gateway") ||
+    message.includes("connection") ||
+    message.includes("terminated") ||
+    message.includes("supabase") ||
+    message.includes("pause")
+  );
+};
+
+const parseBooleanField = (value: boolean | string | null | undefined) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value === "true";
+  }
+
+  return false;
+};
 
 async function getCoordinates(address: string) {
   const headers = {
@@ -37,12 +125,13 @@ async function getCoordinates(address: string) {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<StoreApiResponse | StoreType[] | StoreType | null | { message: string }>
+  res: NextApiResponse<StoreApiResponse | StoreType[] | StoreType | null | { message: string } | ApiErrorResponse>
 ) {
-  const { page = "1", limit, q, district, id }: ResponseType = req.query;
+  const { page = "1", limit, q, district, acceptsPaySupport, id }: ResponseType = req.query;
   const session = await getServerSession(req, res, authOption);
   const pageNumber = parseInt(page, 10);
   const limitNumber = limit ? parseInt(limit, 10) : undefined;
+  const shouldFilterByPaySupport = acceptsPaySupport === "true";
 
   try {
     if (req.method === "POST" || req.method === "PUT") {
@@ -51,27 +140,41 @@ export default async function handler(
       }
 
       if (session.user.role === "DEMO") {
-        return res.status(403).json({ message: "데모 계정은 맛집 등록과 수정이 제한됩니다." });
+        return res.status(403).json({
+          message: "데모 계정은 맛집 등록과 수정을 할 수 없습니다.",
+        });
       }
 
-      const formData = req.body;
-      const { lat, lng } = await getCoordinates(formData.address);
+      const formData = req.body as StoreMutationBody;
+      const address = typeof formData.address === "string" ? formData.address : "";
+      const { lat, lng } = await getCoordinates(address);
 
       const storeData = {
-        ...formData,
+        phone: formData.phone,
+        address: formData.address,
+        name: formData.name,
+        category: formData.category,
+        storeType: formData.storeType,
+        foodCertifyName: formData.foodCertifyName,
+        acceptsPaySupport: parseBooleanField(formData.acceptsPaySupport),
         lat: lat !== null ? parseFloat(lat) : null,
         lng: lng !== null ? parseFloat(lng) : null,
       };
 
+      if (req.method === "PUT" && !formData.id) {
+        return res.status(400).json({ message: "수정할 맛집 ID가 필요합니다." });
+      }
+
       const result =
         req.method === "POST"
           ? await prisma.store.create({ data: storeData })
-          : await prisma.store.update({ where: { id: formData.id }, data: storeData });
+          : await prisma.store.update({ where: { id: Number(formData.id) }, data: storeData });
 
       return res.status(200).json({
         ...result,
         lat: result.lat ?? undefined,
         lng: result.lng ?? undefined,
+        acceptsPaySupport: result.acceptsPaySupport ?? false,
       });
     }
 
@@ -81,7 +184,9 @@ export default async function handler(
       }
 
       if (session.user.role === "DEMO") {
-        return res.status(403).json({ message: "데모 계정은 맛집 삭제가 제한됩니다." });
+        return res.status(403).json({
+          message: "데모 계정은 맛집 삭제를 할 수 없습니다.",
+        });
       }
 
       if (!id) {
@@ -118,14 +223,21 @@ export default async function handler(
                 ...store,
                 lat: store.lat ?? undefined,
                 lng: store.lng ?? undefined,
+                acceptsPaySupport: store.acceptsPaySupport ?? false,
               }
             : null
         );
       }
 
-      const whereCondition = {
+      const districtSearchCandidates = getDistrictSearchCandidates(district);
+      const whereCondition: Prisma.StoreWhereInput = {
         ...(q && { name: { contains: q } }),
-        ...(district && { address: { contains: district } }),
+        ...(shouldFilterByPaySupport && { acceptsPaySupport: true }),
+        ...(districtSearchCandidates.length > 0 && {
+          OR: districtSearchCandidates.map((candidate) => ({
+            address: { contains: candidate },
+          })),
+        }),
       };
 
       const [stores, count] = await Promise.all([
@@ -144,6 +256,7 @@ export default async function handler(
           ...store,
           lat: store.lat ?? undefined,
           lng: store.lng ?? undefined,
+          acceptsPaySupport: store.acceptsPaySupport ?? false,
         })),
         totalCount: count,
         totalPage: limitNumber ? Math.ceil(count / limitNumber) : 1,
@@ -153,7 +266,30 @@ export default async function handler(
     res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (error) {
-    console.error("Store API error:", error);
-    return res.status(500).json({ message: "맛집 데이터를 처리하는 중 오류가 발생했습니다." });
+    if (isDatabaseDelayLikeError(error)) {
+      logOperationalError(
+        "DB_STORES_UNAVAILABLE",
+        "Store API database dependency is unavailable.",
+        error,
+        { method: req.method ?? null, route: "/api/stores" }
+      );
+
+      return res.status(503).json({
+        code: "DB_STORES_UNAVAILABLE",
+        message: "데이터베이스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",
+        debug: getErrorDebugInfo(error),
+      });
+    }
+
+    logOperationalError("STORE_API_ERROR", "Store API request failed.", error, {
+      method: req.method ?? null,
+      route: "/api/stores",
+    });
+
+    return res.status(500).json({
+      code: "STORE_API_ERROR",
+      message: "Store API request failed.",
+      debug: getErrorDebugInfo(error),
+    });
   }
 }

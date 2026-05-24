@@ -16,6 +16,7 @@ enum UserRole {
   DEMO
   ADMIN
 }
+
 model User {
   id            Int       @id @default(autoincrement())
   email         String?   @unique
@@ -30,17 +31,18 @@ model User {
 }
 
 model Store {
-  id              Int       @id @default(autoincrement())
-  phone           String?
-  address         String?
-  lat             Float?
-  lng             Float?
-  name            String?
-  category        String?
-  storeType       String?
-  foodCertifyName String?
-  comments        Comment[]
-  likes           Like[]
+  id                Int       @id @default(autoincrement())
+  phone             String?
+  address           String?
+  lat               Float?
+  lng               Float?
+  name              String?
+  category          String?
+  storeType         String?
+  foodCertifyName   String?
+  acceptsPaySupport Boolean   @default(false)
+  comments          Comment[]
+  likes             Like[]
 }
 
 model Account {

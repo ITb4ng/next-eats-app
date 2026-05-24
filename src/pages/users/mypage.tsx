@@ -125,8 +125,8 @@ export default function MyPage() {
             <CommentList comments={comments} commentStore={true} />
 
             {/* 페이지네이션 */}
-            {comments?.totalPage && (
-              <Pagination total={comments?.totalPage} page={page} pathname="/users/mypage" />
+            {Number(comments?.totalPage ?? 0) > 1 && (
+              <Pagination total={comments?.totalPage ?? 0} page={page} pathname="/users/mypage" />
             )}
           </div>
         )}

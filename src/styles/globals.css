@@ -13,15 +13,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap");
-
 :root{
   --color-signature: #2ac1bc;
   --color-signature-dark: #0f8f8a;
   --color-signature-soft: rgba(42, 193, 188, 0.14);
   --navbar-height: 68px;
-  --font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif; 
+  --font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", "Segoe UI", Arial, sans-serif; 
 }
 html {
   -webkit-text-size-adjust: 100%;
@@ -35,21 +32,15 @@ body {
 }
 
 @font-face {
-  font-family: "BMEULJIROTTF";
-  src: url("/fonts/BMEULJIROTTF.ttf") format("truetype");
-  font-style: normal;
-  font-weight: normal;
-}
-
-@font-face {
   font-family: "BMHANNAAir.ttf";
   src: url("/fonts/BMHANNAAir.ttf") format("truetype");
   font-style: normal;
   font-weight: normal;
+  font-display: swap;
 }
 
 .font-bm {
-  font-family: "BMHANNAAir.ttf", "Noto Sans KR", "Apple SD Gothic Neo", "Nanum Barun Gothic", "Nanum Gothic", Verdana, Arial, "Malgun Gothic", Dotum, sans-serif;
+  font-family: "BMHANNAAir.ttf", "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", "Segoe UI", Arial, sans-serif;
 }
 
 
@@ -75,7 +66,7 @@ body {
   font-size: 22px;
   font-weight: 400;
   cursor: pointer;
-  font-family: "BMEULJIROTTF";
+  font-family: "BMHANNAAir.ttf", "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", "Segoe UI", Arial, sans-serif;
   color: #000;
   padding: 8px 10px;
   transition: color .2s ease, opacity .2s ease, transform .2s ease;

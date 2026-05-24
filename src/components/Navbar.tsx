@@ -51,16 +51,6 @@ export default function Navbar() {
     setIsOpen(false);
   }, [currentPath]);
 
-  if (status === "loading") {
-    return (
-      <div className="navbar-wrapper shadow-md">
-        <div className="navbar-container">
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
   const getNavClassName = (isActive: boolean) =>
     [
       "navbar__list--item",

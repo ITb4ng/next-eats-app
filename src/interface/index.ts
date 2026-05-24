@@ -10,10 +10,11 @@ export interface StoreType {
     category?           : string | null;
     storeType?          : string | null;
     foodCertifyName?    : string | null;
+    acceptsPaySupport?  : boolean | null;
 }
 
 export interface LikeInterface {
-    user?       : UserType;  // 'any' -> 'UserType'로 변경
+    user?       : UserType;
     id          : number;
     storeId     : number;
     userId      : number;
@@ -43,6 +44,7 @@ export interface LocationType {
 export interface SearchType {
     q?          : string;
     district?   : string;
+    acceptsPaySupport?: boolean;
 }
 
 interface UserType {
