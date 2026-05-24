@@ -3,7 +3,7 @@
 위치 기반으로 맛집을 탐색하고, 사용자가 직접 맛집을 등록하고, 좋아요와 댓글로 기록을 남길 수 있는 풀스택 웹 서비스입니다.
 
 - 배포 주소: `https://next-eats-app.vercel.app`
-- 정식 릴리즈: [`v1.0.0`](https://github.com/ITb4ng/next-eats-app/releases/tag/v1.0.0)
+- 정식 릴리즈: [`v1.1.0`](https://github.com/ITb4ng/next-eats-app/releases/tag/v1.1.0)
 - 저장소: `https://github.com/ITb4ng/next-eats-app`
 
 ## 프로젝트 소개
@@ -43,6 +43,73 @@
 - 사용자별 좋아요 토글과 좋아요 목록 조회를 지원합니다.
 - 맛집 상세 페이지에서 댓글 작성과 삭제가 가능합니다.
 - 마이페이지에서 작성한 댓글을 관리할 수 있습니다.
+
+## v1.1.0 업데이트 요약
+
+`v1.1.0`은 Pages Router 기반을 유지하면서 지도 장애 대응 이후의 Store 탐색 경험과 운영 안정성을 보강한 릴리즈입니다.
+
+- Next.js를 15 계열 안정 패치 버전으로 업데이트했습니다.
+- React 19 RC 의존성을 React 19 안정 버전으로 교체했습니다.
+- Dependabot 보안 알림 대상이던 주요 런타임 의존성과 하위 패키지를 정리했습니다.
+- 지도 실패 시 `/stores` 목록 탐색으로 이어지는 fallback 흐름을 유지합니다.
+- Store 데이터에 `acceptsPaySupport`를 추가해 지원금 사용 가능 여부를 등록/수정/조회할 수 있습니다.
+- `/stores` 목록에서 전국 시/도 지역 필터, 검색어, 지원금 사용 가능 필터를 함께 사용할 수 있습니다.
+- Store 목록, StoreBox, 상세, 등록/수정, 찜, 댓글 UI 상태를 v1.1.0 기준으로 정리했습니다.
+
+## 기술 스택
+
+- Framework: `Next.js 15.5.x` Pages Router
+- Runtime UI: `React 19`
+- Auth: `NextAuth v4`
+- Database: `Prisma 7`, `PostgreSQL`, `@prisma/adapter-pg`
+- Data fetching: `react-query v3`
+- Form: `react-hook-form`
+- Styling: `Tailwind CSS 3`
+- Map and address: Kakao Map SDK, Daum Postcode
+
+## 라우팅 전략
+
+현재 프로젝트는 `src/pages` 중심의 Pages Router 구조가 적합합니다.
+
+- 화면 라우트와 API routes가 모두 `src/pages`에 모여 있어 현재 코드 구조와 잘 맞습니다.
+- `NextAuth v4`, `react-query v3`, 클라이언트 중심 지도 SDK 연동이 Pages Router에서 단순하게 유지됩니다.
+- v1.1.0의 목표는 구조 전환보다 릴리즈 안정화이므로 App Router 마이그레이션은 포함하지 않습니다.
+- App Router 전환은 서버 컴포넌트, 중첩 레이아웃, 데이터 캐싱 전략까지 함께 재설계할 때 별도 major 작업으로 검토합니다.
+
+## 프로젝트 구조
+
+```txt
+.
+├─ docs/                  # 릴리즈, 성능, 보안, 작업 로그 문서
+├─ prisma/                # Prisma schema, migrations, seed, fixture
+├─ public/                # favicon, marker image, font 등 정적 리소스
+├─ scripts/               # 성능 점검, fixture seed, 로컬 점검 스크립트
+├─ src/
+│  ├─ components/         # 공통 UI와 Store 관련 컴포넌트
+│  ├─ data/               # 지역/Store 정적 데이터
+│  ├─ db/                 # Prisma client 연결
+│  ├─ hooks/              # 지도 SDK, intersection observer 등 hooks
+│  ├─ lib/                # debug, fallback, formatting helper
+│  ├─ pages/              # Pages Router 화면과 API routes
+│  ├─ styles/             # 전역 스타일
+│  ├─ types/              # 외부 SDK 타입 선언
+│  └─ zustand/            # 전역 UI/query 상태
+├─ next.config.ts
+├─ package.json
+└─ yarn.lock
+```
+
+루트에는 실행과 배포에 필요한 설정만 남기고, 릴리즈 상세 문서와 작업 로그는 `docs/` 아래에서 관리합니다.
+
+## 실행 및 검증
+
+```bash
+yarn install
+npm run lint
+npm run build
+```
+
+PowerShell 실행 정책으로 `yarn.ps1` 실행이 막히는 환경에서는 동일한 package script를 `npm run ...`으로 실행합니다.
 
 ## 데모 계정
 
